@@ -154,5 +154,5 @@ export default async function (markdownInput, currentDir, api) {
         .use(plugin)
         .process(markdownInput);
 
-    return String(output);
+    return `<div class="ghq-card-content__markdown" data-ghq-card-content-type="MARKDOWN" data-ghq-card-content-markdown-content="${encodeURIComponent(String(output))}"></div>`;
 }
