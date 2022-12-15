@@ -1,4 +1,7 @@
-import { remark } from 'remark';
+import { unified } from 'unified';
+import remarkParse from 'remark-parse'
+import remarkRehype from 'remark-rehype';
+import rehypeStringify from 'rehype-stringify';
 import { visit, CONTINUE as UNIST_CONTINUE } from 'unist-util-visit';
 import { toString } from 'mdast-util-to-string';
 import { is } from 'unist-util-is';
@@ -60,14 +63,7 @@ function buildLinks(linkNodes, linkReferenceNodes, referenceNodes) {
         links.push({
             get url() { return node.url; },
 
-            get text() { return toString(node); },
-
-            replaceWithHtml(html) {
-                node.parent.children[node.parent.children.indexOf(node)] = {
-                    type: 'html',
-                    value: html
-                };
-            }
+            get text() { return toString(node); }
         });
     }
 
@@ -78,14 +74,6 @@ function buildLinks(linkNodes, linkReferenceNodes, referenceNodes) {
             get url() { return reference.url; },
 
             get text() { return toString(node); },
-
-            replaceWithHtml(html) {
-                node.parent.children[node.parent.children.indexOf(node)] = {
-                    type: 'html',
-                    value: html
-                };
-                reference.parent.children.splice(reference.parent.children.indexOf(reference), 1);
-            }
         });
     }
 
@@ -129,8 +117,6 @@ export default async function (markdownInput, currentDir, api) {
             type: 'html',
             value: `<a name="${linkedHeading}"></a>`
         });
-
-        link.replaceWithHtml(`<a href="${link.url}">${link.text}</a>`);
     }
 
     function plugin() {
@@ -150,8 +136,11 @@ export default async function (markdownInput, currentDir, api) {
         };
     }
 
-    const output = await remark()
+    const output = await unified()
+        .use(remarkParse)
         .use(plugin)
+        .use(remarkRehype, { allowDangerousHtml: true })
+        .use(rehypeStringify, { allowDangerousHtml: true })
         .process(markdownInput);
 
     return String(output);
