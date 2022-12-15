@@ -1,3 +1,4 @@
+import core from '@actions/core';
 import action from './action.js';
 import inputs from './inputs.js';
 
