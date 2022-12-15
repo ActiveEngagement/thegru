@@ -118,7 +118,7 @@ export default async function (markdownInput, currentDir, api) {
         const linkedHeading = url.substring(1);
 
         const headingNode = headingNodes.find(node => {
-            return toString(node).toLowerCase().replaceAll(' ', '-') === linkedHeading
+            return toString(node).toLowerCase().replaceAll(/[^a-zA-Z0-9]+/g, '-') === linkedHeading
         });
 
         if (!headingNode) {
