@@ -1,0 +1,23 @@
+name: 'The Guru'
+description: 'Push markdown files from your repository to Guru cards.'
+inputs:
+  user_email:
+    required: true
+  user_token:
+    required: true
+  file_path:
+    required: true
+  card_title:
+    required: true
+  collection_id:
+    required: true
+  board_id:
+    required: false
+  board_section_id:
+    required: false
+  card_footer:
+    required: false
+# TODO
+runs:
+  using: 'node16'
+  main: 'src/index.js'
