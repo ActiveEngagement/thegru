@@ -127,7 +127,7 @@ export default async function (markdownInput, currentDir, api) {
 
         headingNode.parent.children.splice(headingNode.parent.children.indexOf(headingNode), 0, {
             type: 'html',
-            value: `<a name=${linkedHeading}></a>`
+            value: `<a name="${linkedHeading}"></a>`
         });
 
         link.replaceWithHtml(`<a href="${link.url}">${link.text}</a>`);
