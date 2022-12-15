@@ -1,51 +1,95 @@
-import fs from 'fs';
 import { remark } from 'remark';
-import { visit, EXIT as UNIST_EXIT, CONTINUE as UNIST_CONTINUE } from 'unist-util-visit';
+import { visit, CONTINUE as UNIST_CONTINUE } from 'unist-util-visit';
+import { toString } from 'mdast-util-to-string';
 import { is } from 'unist-util-is';
 import { blobFromSync } from 'node-fetch';
 import path from 'path';
+import TheGuruError from './error.js';
 
-function findReference(tree, reference) {
-    let result = null;
+function analyze(tree, ...types) {
+    const analysis = {};
 
-    visit(tree, (node) => {
-        if (is(node, { type: 'definition', identifier: reference })) {
-            result = node;
-            return UNIST_EXIT;
+    for (const type of types) {
+        analysis[type] = [];
+    }
+
+    visit(tree, (node, _index, parent) => {
+        for (const type of types) {
+            if (is(node, { type })) {
+                node.parent = parent;
+                analysis[type].push(node);
+            }
         }
+
         return UNIST_CONTINUE;
     });
 
-    return result;
+    return analysis;
 }
 
-function getImages(tree) {
+function findReference(referenceNodes, identifier) {
+    return referenceNodes.find(node => node.identifier === identifier);
+}
+
+function buildImages(imageNodes, imageReferenceNodes, referenceNodes) {
     const images = [];
 
-    visit(tree, (node) => {
-        if (is(node, { type: 'image' })) {
-            images.push({
-                url: node.url,
-                setUrl(url) {
-                    node.url = url;
-                }
-            });
-        }
+    for (const node of imageNodes) {
+        images.push({
+            get url() { return node.url; },
+            set url(value) { node.url = value; }
+        });
+    }
 
-        if (is(node, { type: 'imageReference' })) {
-            const reference = findReference(tree, node.identifier);
-            images.push({
-                url: reference.url,
-                setUrl(url) {
-                    reference.url = url;
-                }
-            });
-        }
+    for (const node of imageReferenceNodes) {
+        const reference = findReference(referenceNodes, node.identifier);
 
-        return UNIST_CONTINUE;
-    });
+        images.push({
+            get url() { return reference.url; },
+            set url(value) { reference.url = value; }
+        });
+    }
 
     return images;
+}
+
+function buildLinks(linkNodes, linkReferenceNodes, referenceNodes) {
+    const links = [];
+
+    for (const node of linkNodes) {
+        links.push({
+            get url() { return node.url; },
+
+            get text() { return toString(node); },
+
+            replaceWithHtml(html) {
+                node.parent.children[node.parent.children.indexOf(node)] = {
+                    type: 'html',
+                    value: html
+                };
+            }
+        });
+    }
+
+    for (const node of linkReferenceNodes) {
+        const reference = findReference(referenceNodes, node.identifier);
+
+        links.push({
+            get url() { return reference.url; },
+
+            get text() { return toString(node); },
+
+            replaceWithHtml(html) {
+                node.parent.children[node.parent.children.indexOf(node)] = {
+                    type: 'html',
+                    value: html
+                };
+                reference.parent.children.splice(reference.parent.children.indexOf(reference), 1);
+            }
+        });
+    }
+
+    return links;
 }
 
 export default async function (markdownInput, currentDir, api) {
@@ -64,14 +108,45 @@ export default async function (markdownInput, currentDir, api) {
         return link;
     }
 
+    async function replaceLink(link, headingNodes) {
+        const url = link.url;
+
+        if (!url.startsWith('#')) {
+            return url;
+        }
+
+        const linkedHeading = url.substring(1);
+
+        const headingNode = headingNodes.find(node => {
+            return toString(node).toLowerCase().replace(' ', '-') === linkedHeading
+        });
+
+        if (!headingNode) {
+            throw new TheGuruError('Link to nonexistent heading!');
+        }
+
+        headingNode.parent.children.splice(headingNode.parent.children.indexOf(headingNode), 0, {
+            type: 'html',
+            value: `<a name=${linkedHeading}></a>`
+        });
+
+        link.replaceWithHtml(`<a href="${link.url}">${link.text}</a>`);
+    }
+
     function plugin() {
         return async (tree) => {
-            const images = getImages(tree);
-            
+            const analysis = analyze(tree, 'definition', 'heading', 'image', 'imageReference', 'link', 'linkReference');
+            const images = buildImages(analysis.image, analysis.imageReference, analysis.definition);
+            const links = buildLinks(analysis.link, analysis.linkReference, analysis.definition);
+
             for (const image of images) {
-                const newUrl = await replaceImg(image.url);
-                image.setUrl(newUrl);
+                image.url = await replaceImg(image.url);
             }
+
+            for (const link of links) {
+                replaceLink(link, analysis.heading);
+            }
+
         };
     }
 
