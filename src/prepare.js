@@ -122,7 +122,7 @@ export default async function (markdownInput, currentDir, api) {
         });
 
         if (!headingNode) {
-            throw new TheGuruError('Link to nonexistent heading!');
+            throw new TheGuruError(`Link to nonexistent heading ${url}!`);
         }
 
         headingNode.parent.children.splice(headingNode.parent.children.indexOf(headingNode), 0, {
