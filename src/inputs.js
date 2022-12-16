@@ -1,30 +1,63 @@
-export default function(getCoreInput) {
-    function getInput(name, fallback = null) {
-        const input = getCoreInput(name);
-        return input === '' && fallback !== null ? fallback : input;
+function createInput(name, value) {
+    function get() {
+        return value;
     }
 
     function isInputMissing(input) {
         return input === '' || input === null || input === undefined;
     }
 
-    function getRequiredInput(name) {
-        const input = getInput(name);
+    function required() {
+        if(isInputMissing(value)) {
+            throw `"${name}" is a required input!`;
+        }
 
-        if(isInputMissing(input)) throw `"${name}" is a required input!`;
+        return this;
+    }
 
-        return input;
+    function fallback(fallbackValue) {
+        if(isInputMissing(value)) {
+            value = fallbackValue;
+        }
+
+        return this;
+    }
+
+    function boolean() {
+        switch (value) {
+            case 'true':
+                value = true;
+                break;
+            case 'false':
+                value = false;
+                break;
+            default:
+                throw `"${name}" must be "true" or "false"!`;
+        }
+
+        return this;
+    }
+
+    return { get, required, fallback, boolean };
+};
+
+export default function(getCoreInput) {
+    function input(name, fallback = null) {
+        let value = getCoreInput(name);
+        value = value === '' && fallback !== null ? fallback : value;
+
+        return createInput(name, value);
     }
 
     return {
-        userEmail: getRequiredInput('user_email'),
-        userToken: getRequiredInput('user_token'),
-        filePath: getRequiredInput('file_path'),
-        cardTitle: getRequiredInput('card_title'),
-        collectionId: getRequiredInput('collection_id'),
-        boardId: getInput('board_id'),
-        boardSectionId: getInput('board_section_id'),
-        cardFooter: getInput('card_footer'),
-        wrapMarkdown: getInput('wrap_markdown', true)
+        userEmail: input('user_email').required().get(),
+        userToken: input('user_token').required().get(),
+        filePath: input('file_path').required().get(),
+        cardTitle: input('card_title').required().get(),
+        collectionId: input('collection_id').required().get,
+        boardId: input('board_id').get(),
+        boardSectionId: input('board_section_id').get(),
+        cardFooter: input('card_footer').get(),
+        wrapMarkdown: input('wrap_markdown').fallback('true').boolean().get()
     };
 }
