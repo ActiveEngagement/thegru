@@ -1,7 +1,8 @@
 import core from '@actions/core';
 
-function getInput(name) {
-    return core.getInput(name);
+function getInput(name, fallback = null) {
+    const input = core.getInput(name);
+    return input === '' && fallback !== null ? fallback : input;
 }
 
 function isInputMissing(input) {
@@ -25,6 +26,7 @@ export default function() {
         collectionId: getRequiredInput('collection_id'),
         boardId: getInput('board_id'),
         boardSectionId: getInput('board_section_id'),
-        cardFooter: getInput('card_footer')
+        cardFooter: getInput('card_footer'),
+        wrapMarkdown: getInput('wrapMarkdown', true)
     };
 }

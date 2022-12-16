@@ -92,7 +92,14 @@ function buildLinks(linkNodes, linkReferenceNodes, referenceNodes) {
     return links;
 }
 
-export default async function (markdownInput, currentDir, api) {
+function wrapMarkdown(markdownInput) {
+    return `<div class="ghq-card-content__markdown" data-ghq-card-content-type="MARKDOWN" data-ghq-card-content-markdown-content="${escape(markdownInput)}"></div>`;
+}
+
+export default async function (markdownInput, options = {}) {
+    const currentDir = options.currentDir;
+    const api = options.api;
+
     async function replaceImg(url) {
         if (url.startsWith('http')) {
             return url;
@@ -153,6 +160,6 @@ export default async function (markdownInput, currentDir, api) {
     const output = await remark()
         .use(plugin)
         .process(markdownInput);
-
-    return `<div class="ghq-card-content__markdown" data-ghq-card-content-type="MARKDOWN" data-ghq-card-content-markdown-content="${escape(String(output))}"></div>`;
+    
+    return options.wrapMarkdown ? wrapMarkdown(String(output)) : String(output);
 }

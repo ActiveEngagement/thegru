@@ -17,7 +17,11 @@ export default async function(options) {
         content += "\n\n" + options.cardFooter;
     }
 
-    content = await prepare(content, path.dirname(options.filePath), api);
+    content = await prepare(content, {
+        currentDir: path.dirname(options.filePath),
+        api,
+        wrapMarkdown: options.wrapMarkdown
+    });
 
     const existingCard = await api.getCardWith(
         options.cardTitle,
