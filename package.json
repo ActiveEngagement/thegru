@@ -20,6 +20,7 @@
     "remark-rehype": "^10.1.0"
   },
   "devDependencies": {
+    "@babel/eslint-parser": "^7.19.1",
     "eslint": "^8.28.0"
   },
   "type": "module"

@@ -1,7 +1,7 @@
 module.exports = {
     parser: '@babel/eslint-parser',
     parserOptions: {
-        "requireConfigFile": false
+        "requireConfigFile": false,
     },
     rules: {
         // Ensure no space after keywords like if.
