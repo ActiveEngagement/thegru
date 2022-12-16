@@ -1,6 +1,6 @@
 import core from '@actions/core';
 import action from './action.js';
-import inputs from './inputs.js';
+import getInputs from './inputs.js';
 
 async function main() {
     try {
@@ -16,7 +16,7 @@ async function main() {
             }
         };
 
-        const inputs = inputs(core.getInput);
+        const inputs = getInputs(core.getInput);
 
         logger.debug(`Inputs: ${JSON.stringify(inputs)}`);
 
