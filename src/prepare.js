@@ -25,25 +25,28 @@ export default async function(markdownInput, options = {}) {
         node.properties.style = "width: auto;";
     }
 
-    function plugin() {
-        return async(tree) => {
-            // This is necessary because the unist-util-visit visit method is not asynchronous.
-            const analysis = analyzeTree(tree, { image: /img/ });
+    async function transform(tree) {
+        // This is necessary because the unist-util-visit visit method does not support asynchronous visitors.
+        const analysis = analyzeTree(tree, { image: /img/ });
 
-            for(const node of analysis.image) {
-                if(isLocalImage(node)) {
-                    await rewriteLocalImage(node);
-                }
-                fixImageWidth(node);
+        for(const node of analysis.image) {
+            if(isLocalImage(node)) {
+                await rewriteLocalImage(node);
             }
-        };
+            fixImageWidth(node);
+        }
     }
 
     const output = await remark()
+        // Parse the Markdown.
         .use(remarkParse)
+        // Convert it to an HTML syntax tree.
         .use(remarkRehype)
-        .use(plugin)
+        // Transform the syntax tree.
+        .use(() => transform)
+        // Make headings "navigable".
         .use(rehypeSlug)
+        // Convert the syntax tree to an HTML string.
         .use(rehypeStringify)
         .process(markdownInput);
 
