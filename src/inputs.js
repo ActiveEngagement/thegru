@@ -1,23 +1,21 @@
-import core from '@actions/core';
+export default function(getCoreInput) {
+    function getInput(name, fallback = null) {
+        const input = getCoreInput(name);
+        return input === '' && fallback !== null ? fallback : input;
+    }
 
-function getInput(name, fallback = null) {
-    const input = core.getInput(name);
-    return input === '' && fallback !== null ? fallback : input;
-}
+    function isInputMissing(input) {
+        return input === '' || input === null || input === undefined;
+    }
 
-function isInputMissing(input) {
-    return input === '' || input === null || input === undefined;
-}
+    function getRequiredInput(name) {
+        const input = getInput(name);
 
-function getRequiredInput(name) {
-    const input = getInput(name);
+        if(isInputMissing(input)) throw `"${name}" is a required input!`;
 
-    if(isInputMissing(input)) throw `"${name}" is a required input!`;
+        return input;
+    }
 
-    return input;
-}
-
-export default function() {
     return {
         userEmail: getRequiredInput('user_email'),
         userToken: getRequiredInput('user_token'),

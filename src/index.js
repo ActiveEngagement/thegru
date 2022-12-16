@@ -17,7 +17,7 @@ async function main() {
         };
 
         await action({
-            ...inputs(),
+            ...inputs(core.getInput),
             logger
         });
     } catch (error) {
