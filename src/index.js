@@ -16,10 +16,11 @@ async function main() {
             }
         };
 
-        await action({
-            ...inputs(core.getInput),
-            logger
-        });
+        const inputs = inputs(core.getInput);
+
+        logger.debug(`Inputs: ${JSON.stringify(inputs)}`);
+
+        await action({ ...inputs, logger });
     } catch (error) {
         core.setFailed(error);
         logger.debug(error.stack);
