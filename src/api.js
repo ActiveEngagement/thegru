@@ -1,8 +1,7 @@
 import nodeFetch from 'node-fetch';
 import { FormData } from 'formdata-polyfill/esm.min.js'
-import validate from './response.js';
-import TheGuruError from './error.js';
-import flattenBoardCards from './flatten_board_cards.js';
+import { TheGuruError, FetchError } from './error.js';
+import { flattenBoardCards } from './api_util.js';
 
 export default function(options) {
     const baseEndpoint = options.endpoint || 'https://api.getguru.com/api/v1/';
@@ -50,9 +49,32 @@ export default function(options) {
         return result;
     }
 
+    function jsonOrText(input) {
+        try {
+            return JSON.parse(input);
+        } catch {
+            return input;
+        }
+    }
+
+    async function validate(response) {
+        const text = await response.text();
+
+        if (!response.ok) {
+            throw new FetchError(response, jsonOrText(text));
+        }
+        else if (!text || text === '') {
+            return null;
+        } else {
+            return jsonOrText(text);
+        }
+    }
+
     async function fetch(url, options) {
         logger.debug(`Sending HTTP request to ${url} with options: ${JSON.stringify(options)}`);
+
         const response = await nodeFetch(url, options);
+
         if (logger.isDebug()) {
             logger.debug(`Received response from ${url}: ${await response.clone().text()}`);
         }

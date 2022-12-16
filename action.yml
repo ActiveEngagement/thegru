@@ -17,8 +17,6 @@ inputs:
     required: false
   card_footer:
     required: false
-  wrap_markdown:
-    required: false
 # TODO
 runs:
   using: 'node16'

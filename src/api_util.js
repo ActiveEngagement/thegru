@@ -1,4 +1,4 @@
-export default function flattenBoardCards(cards, sectionId = null) {
+export function flattenBoardCards(cards, sectionId = null) {
     return cards.flatMap(card => {
         if (card.type === 'section') {
             return flattenBoardCards(card.items, card.id);

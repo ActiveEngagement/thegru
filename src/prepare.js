@@ -3,66 +3,38 @@ import remarkParse from 'remark-parse';
 import remarkRehype from 'remark-rehype';
 import rehypeStringify from 'rehype-stringify';
 import rehypeSlug from 'rehype-slug';
-import { visit, CONTINUE as UNIST_CONTINUE } from 'unist-util-visit';
-import { blobFromSync } from 'node-fetch';
-import path from 'path';
-
-function analyze(tree, types) {
-    const analysis = {};
-
-    for (const name of Object.keys(types)) {
-        analysis[name] = [];
-    }
-
-    visit(tree, (node, _index, parent) => {
-        for (const [name, test] of Object.entries(types)) {
-            if (test.test(node.tagName)) {
-                node.parent = parent;
-                analysis[name].push(node);
-            }
-        }
-
-        return UNIST_CONTINUE;
-    });
-
-    return analysis;
-}
-
-function wrapMarkdown(markdownInput) {
-    return `<div class="ghq-card-content__markdown" data-ghq-card-content-type="MARKDOWN" data-ghq-card-content-markdown-content="${escape(markdownInput)}"></div>`;
-}
+import { analyzeTree } from './has_util.js';
 
 export default async function (markdownInput, options = {}) {
-    const currentDir = options.currentDir;
-    const api = options.api;
+    const getImageUrl = options.getImageUrl;
 
-    async function transformImg(node) {
-        const url = node.properties.src;
+    function wrapMarkdown(markdownInput) {
+        // The deprecated escape function is REQUIRED here, since Guru seems to use unescape on their end.
+        return `<div class="ghq-card-content__markdown" data-ghq-card-content-type="MARKDOWN" data-ghq-card-content-markdown-content="${escape(markdownInput)}"></div>`;
+    }
 
-        if (!url.startsWith('http')) {
-            const previousDir = process.cwd();
-            process.chdir(currentDir);
+    function isLocalImage(node) {
+        return !node.properties.src.startsWith('http');
+    }
 
-            const { link } = await api.uploadAttachment(path.basename(url), blobFromSync(url));
+    async function rewriteLocalImage(node) {
+        node.properties.src = await getImageUrl(node.properties.src);
+    }
 
-            process.chdir(previousDir);
-
-            node.properties.src = link;
-        }
-
+    function fixImageWidth(node) {
         node.properties.style = "width: auto;";
     }
 
     function plugin() {
         return async (tree) => {
-            const analysis = analyze(tree, {
-                heading: /h[1-6]/,
-                image: /img/,
-                link: /a/
-            });
+            // This is necessary because the unist-util-visit visit method is not asynchronous.
+            const analysis = analyzeTree(tree, { image: /img/ });
 
             for (const node of analysis.image) {
-                await transformImg(node);
+                if (isLocalImage(node)) {
+                    await rewriteLocalImage(node);
+                }
+                fixImageWidth(node);
             }
         };
     }
@@ -74,6 +46,9 @@ export default async function (markdownInput, options = {}) {
         .use(rehypeSlug)
         .use(rehypeStringify)
         .process(markdownInput);
+
+    // If it seems peculiar that we're building the HTML, then wrapping it in a Guru Markdown block, that's because it
+    // is. It's the only way I could find that caused Guru to permit HTML, however. Guru is crazy.
     
-    return options.wrapMarkdown ? wrapMarkdown(String(output)) : String(output);
+    return wrapMarkdown(String(output));
 }

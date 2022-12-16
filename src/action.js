@@ -1,5 +1,7 @@
 import fs from 'fs';
 import path from 'path';
+import process from 'process';
+import path from 'path';
 import createApi from './api.js';
 import prepare from './prepare.js';
 
@@ -11,17 +13,25 @@ export default async function(options) {
         logger: options.logger
     });
 
+    async function getNewLocalImageUrl(url) {
+        const parentDir = path.dirname(options.filePath);
+        const previousDir = process.cwd();
+        process.chdir(parentDir);
+
+        const { link } = await api.uploadAttachment(path.basename(url), blobFromSync(url));
+
+        process.chdir(previousDir);
+
+        return link;
+    }
+
     let content = await fs.promises.readFile(options.filePath);
 
     if (options.cardFooter) {
         content += "\n\n" + options.cardFooter;
     }
 
-    content = await prepare(content, {
-        currentDir: path.dirname(options.filePath),
-        api,
-        wrapMarkdown: options.wrapMarkdown
-    });
+    content = await prepare(content, { getImageUrl: getNewLocalImageUrl });
 
     const existingCard = await api.getCardWith(
         options.cardTitle,
