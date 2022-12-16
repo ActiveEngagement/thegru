@@ -1,4 +1,7 @@
 import { remark } from 'remark';
+import { unified } from 'unified';
+import remarkRehype from 'remark-rehype';
+import rehypeStringify from 'rehype-stringify';
 import { visit, CONTINUE as UNIST_CONTINUE } from 'unist-util-visit';
 import { toString } from 'mdast-util-to-string';
 import { is } from 'unist-util-is';
@@ -36,8 +39,15 @@ function buildImages(imageNodes, imageReferenceNodes, referenceNodes) {
 
     for (const node of imageNodes) {
         images.push({
+            node,
             get url() { return node.url; },
-            set url(value) { node.url = value; }
+            set url(value) { node.url = value; },
+            replaceWithHtml(html) {
+                node.parent.children[node.parent.children.indexOf(node)] = {
+                    type: 'html',
+                    value: html
+                };
+            }
         });
     }
 
@@ -45,8 +55,16 @@ function buildImages(imageNodes, imageReferenceNodes, referenceNodes) {
         const reference = findReference(referenceNodes, node.identifier);
 
         images.push({
+            node,
             get url() { return reference.url; },
-            set url(value) { reference.url = value; }
+            set url(value) { reference.url = value; },
+            replaceWithHtml(html) {
+                node.parent.children[node.parent.children.indexOf(node)] = {
+                    type: 'html',
+                    value: html
+                };
+                reference.parent.children.splice(reference.parent.children.indexOf(reference), 1);
+            }
         });
     }
 
@@ -100,7 +118,9 @@ export default async function (markdownInput, options = {}) {
     const currentDir = options.currentDir;
     const api = options.api;
 
-    async function replaceImg(url) {
+    async function replaceImg(image) {
+        const url = image.url;
+
         if (url.startsWith('http')) {
             return url;
         }
@@ -112,7 +132,21 @@ export default async function (markdownInput, options = {}) {
 
         process.chdir(previousDir);
 
-        return link;
+        image.url = link;
+
+        const hastTree = await unified()
+            .use(remarkRehype)
+            .run(image.node);
+
+        visit(hastTree, { tagName: 'img' }, node => {
+            node.properties.style = 'width: auto;';
+        });
+
+        const output = unified()
+            .use(rehypeStringify)
+            .stringify(hastTree);
+        
+        image.replaceWithHtml(String(output));
     }
 
     async function replaceLink(link, headingNodes) {
@@ -147,7 +181,7 @@ export default async function (markdownInput, options = {}) {
             const links = buildLinks(analysis.link, analysis.linkReference, analysis.definition);
 
             for (const image of images) {
-                image.url = await replaceImg(image.url);
+                await replaceImg(image);
             }
 
             for (const link of links) {
