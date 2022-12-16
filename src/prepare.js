@@ -1,26 +1,24 @@
 import { remark } from 'remark';
-import { unified } from 'unified';
+import remarkParse from 'remark-parse';
 import remarkRehype from 'remark-rehype';
 import rehypeStringify from 'rehype-stringify';
+import rehypeSlug from 'rehype-slug';
 import { visit, CONTINUE as UNIST_CONTINUE } from 'unist-util-visit';
-import { toString } from 'mdast-util-to-string';
-import { is } from 'unist-util-is';
 import { blobFromSync } from 'node-fetch';
 import path from 'path';
-import TheGuruError from './error.js';
 
-function analyze(tree, ...types) {
+function analyze(tree, types) {
     const analysis = {};
 
-    for (const type of types) {
-        analysis[type] = [];
+    for (const name of Object.keys(types)) {
+        analysis[name] = [];
     }
 
     visit(tree, (node, _index, parent) => {
-        for (const type of types) {
-            if (is(node, { type })) {
+        for (const [name, test] of Object.entries(types)) {
+            if (test.test(node.tagName)) {
                 node.parent = parent;
-                analysis[type].push(node);
+                analysis[name].push(node);
             }
         }
 
@@ -28,90 +26,6 @@ function analyze(tree, ...types) {
     });
 
     return analysis;
-}
-
-function findReference(referenceNodes, identifier) {
-    return referenceNodes.find(node => node.identifier === identifier);
-}
-
-function buildImages(imageNodes, imageReferenceNodes, referenceNodes) {
-    const images = [];
-
-    for (const node of imageNodes) {
-        images.push({
-            node,
-            get url() { return node.url; },
-            set url(value) { node.url = value; },
-            replaceWithHtml(html) {
-                node.parent.children[node.parent.children.indexOf(node)] = {
-                    type: 'html',
-                    value: html
-                };
-            }
-        });
-    }
-
-    for (const node of imageReferenceNodes) {
-        const reference = findReference(referenceNodes, node.identifier);
-
-        images.push({
-            node,
-            get url() { return reference.url; },
-            set url(value) { reference.url = value; },
-            replaceWithHtml(html) {
-                node.parent.children[node.parent.children.indexOf(node)] = {
-                    type: 'html',
-                    value: html
-                };
-                reference.parent.children.splice(reference.parent.children.indexOf(reference), 1);
-            }
-        });
-    }
-
-    return images;
-}
-
-function buildLinks(linkNodes, linkReferenceNodes, referenceNodes) {
-    const links = [];
-
-    for (const node of linkNodes) {
-        links.push({
-            node,
-
-            get url() { return node.url; },
-
-            get text() { return toString(node); },
-
-            replaceWithHtml(html) {
-                node.parent.children[node.parent.children.indexOf(node)] = {
-                    type: 'html',
-                    value: html
-                };
-            }
-        });
-    }
-
-    for (const node of linkReferenceNodes) {
-        const reference = findReference(referenceNodes, node.identifier);
-
-        links.push({
-            node,
-
-            get url() { return reference.url; },
-
-            get text() { return toString(node); },
-
-            replaceWithHtml(html) {
-                node.parent.children[node.parent.children.indexOf(node)] = {
-                    type: 'html',
-                    value: html
-                };
-                reference.parent.children.splice(reference.parent.children.indexOf(reference), 1);
-            }
-        });
-    }
-
-    return links;
 }
 
 function wrapMarkdown(markdownInput) {
@@ -122,8 +36,8 @@ export default async function (markdownInput, options = {}) {
     const currentDir = options.currentDir;
     const api = options.api;
 
-    async function replaceImg(image) {
-        const url = image.url;
+    async function transformImg(node) {
+        const url = node.properties.src;
 
         if (!url.startsWith('http')) {
             const previousDir = process.cwd();
@@ -133,90 +47,32 @@ export default async function (markdownInput, options = {}) {
 
             process.chdir(previousDir);
 
-            image.url = link;
+            node.properties.src = link;
         }
 
-        const hastTree = await unified()
-            .use(remarkRehype)
-            .run(image.node);
-
-        visit(hastTree, { tagName: 'img' }, node => {
-            node.properties.style = 'width: auto;';
-        });
-
-        const output = unified()
-            .use(rehypeStringify)
-            .stringify(hastTree);
-        
-        image.replaceWithHtml(String(output));
-    }
-
-    async function replaceLink(link, headingNodes) {
-        const url = link.url;
-
-        if (!url.startsWith('#')) {
-            return url;
-        }
-
-        const linkedHeading = url.substring(1);
-
-        const headingNode = headingNodes.find(node => {
-            return toString(node).toLowerCase().replaceAll(/[^a-zA-Z0-9]+/g, '-') === linkedHeading
-        });
-
-        if (!headingNode) {
-            throw new TheGuruError(`Link to nonexistent heading ${url}!`);
-        }
-
-        const headingHastTree = await unified()
-            .use(remarkRehype)
-            .run(headingNode);
-
-        visit(headingHastTree, node => {
-            if (/h[1-6]/.test(node.tagName)) {
-                node.properties.id = toString(headingNode).toLowerCase().replaceAll(/[^a-zA-Z0-9]+/g, '-');
-            }
-        });
-
-        const headingOutput = unified()
-            .use(rehypeStringify)
-            .stringify(headingHastTree);
-        
-        headingNode.parent.children[headingNode.parent.children.indexOf(headingNode)] = {
-            type: 'html',
-            value: String(headingOutput)
-        };
-
-        const linkHastTree = await unified()
-            .use(remarkRehype)
-            .run(link.node);
-
-        const linkOutput = unified()
-            .use(rehypeStringify)
-            .stringify(linkHastTree);
-
-        link.replaceWithHtml(String(linkOutput));
+        node.properties.style = "width: auto;";
     }
 
     function plugin() {
         return async (tree) => {
-            const analysis = analyze(tree, 'definition', 'heading', 'image', 'imageReference', 'link', 'linkReference');
-            const images = buildImages(analysis.image, analysis.imageReference, analysis.definition);
-            const links = buildLinks(analysis.link, analysis.linkReference, analysis.definition);
+            const analysis = analyze(tree, {
+                heading: /h[1-6]/,
+                image: /img/,
+                link: /a/
+            });
 
-            for (const image of images) {
-                await replaceImg(image);
+            for (const node of analysis.image) {
+                await transformImg(node);
             }
-
-            for (const link of links) {
-                await replaceLink(link, analysis.heading);
-            }
-
         };
     }
 
     const output = await remark()
+        .use(remarkParse)
+        .use(remarkRehype)
         .use(plugin)
+        .use(rehypeSlug)
+        .use(rehypeStringify)
         .process(markdownInput);
     
     return options.wrapMarkdown ? wrapMarkdown(String(output)) : String(output);
