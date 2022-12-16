@@ -121,18 +121,16 @@ export default async function (markdownInput, options = {}) {
     async function replaceImg(image) {
         const url = image.url;
 
-        if (url.startsWith('http')) {
-            return url;
+        if (!url.startsWith('http')) {
+            const previousDir = process.cwd();
+            process.chdir(currentDir);
+
+            const { link } = await api.uploadAttachment(path.basename(url), blobFromSync(url));
+
+            process.chdir(previousDir);
+
+            image.url = link;
         }
-
-        const previousDir = process.cwd();
-        process.chdir(currentDir);
-
-        const { link } = await api.uploadAttachment(path.basename(url), blobFromSync(url));
-
-        process.chdir(previousDir);
-
-        image.url = link;
 
         const hastTree = await unified()
             .use(remarkRehype)
