@@ -6,7 +6,7 @@ async function main() {
     try {
         const logger = {
             debug(message) {
-                if (this.isDebug()) {
+                if(this.isDebug()) {
                     core.debug(message);
                 }
             },
@@ -21,7 +21,8 @@ async function main() {
         logger.debug(`Inputs: ${JSON.stringify(inputs)}`);
 
         await action({ ...inputs, logger });
-    } catch (error) {
+    }
+    catch (error) {
         core.setFailed(error);
         logger.debug(error.stack);
     }

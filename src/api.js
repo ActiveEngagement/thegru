@@ -1,5 +1,5 @@
 import nodeFetch from 'node-fetch';
-import { FormData } from 'formdata-polyfill/esm.min.js'
+import { FormData } from 'formdata-polyfill/esm.min.js';
 import { TheGuruError, FetchError } from './error.js';
 import { flattenBoardCards } from './api_util.js';
 
@@ -26,7 +26,7 @@ export default function(options) {
     }
 
     function endpoint(path = null) {
-        if (!path) return baseEndpoint;
+        if(!path) return baseEndpoint;
 
         return new URL(path, baseEndpoint).href;
     }
@@ -38,10 +38,11 @@ export default function(options) {
     function headers(headers = {}) {
         const result = baseHeaders();
 
-        for (const [key, value] of Object.entries(headers)) {
-            if (value === false) {
+        for(const [key, value] of Object.entries(headers)) {
+            if(value === false) {
                 delete result[key];
-            } else {
+            }
+            else {
                 result[key] = value;
             }
         }
@@ -52,7 +53,8 @@ export default function(options) {
     function jsonOrText(input) {
         try {
             return JSON.parse(input);
-        } catch {
+        }
+        catch {
             return input;
         }
     }
@@ -60,12 +62,13 @@ export default function(options) {
     async function validate(response) {
         const text = await response.text();
 
-        if (!response.ok) {
+        if(!response.ok) {
             throw new FetchError(response, jsonOrText(text));
         }
-        else if (!text || text === '') {
+        else if(!text || text === '') {
             return null;
-        } else {
+        }
+        else {
             return jsonOrText(text);
         }
     }
@@ -75,7 +78,7 @@ export default function(options) {
 
         const response = await nodeFetch(url, options);
 
-        if (logger.isDebug()) {
+        if(logger.isDebug()) {
             logger.debug(`Received response from ${url}: ${await response.clone().text()}`);
         }
 
@@ -104,9 +107,9 @@ export default function(options) {
 
         const boards = [];
 
-        if (boardId) {
+        if(boardId) {
             const board = { id: boardId };
-            if (sectionId) {
+            if(sectionId) {
                 board.action = {
                     actionType: 'add',
                     prevSiblingItem: sectionId,
@@ -155,7 +158,7 @@ export default function(options) {
     };
 
     async function createSections(boardId, titles) {
-        logger.debug(`Creating ${titles.length} board sections for board ${boardId}`)
+        logger.debug(`Creating ${titles.length} board sections for board ${boardId}`);
         const response = await fetch(endpoint(`boards/${boardId}/entries`), {
             method: 'PUT',
             headers: headers(),
@@ -176,7 +179,7 @@ export default function(options) {
     };
 
     async function deleteSections(boardId, ids) {
-        logger.debug(`Deleting ${ids.length} board sections for board ${boardId}`)
+        logger.debug(`Deleting ${ids.length} board sections for board ${boardId}`);
         const response = await fetch(endpoint(`boards/${boardId}/entries`), {
             method: 'PUT',
             headers: headers(),
@@ -227,25 +230,26 @@ export default function(options) {
 
 
     async function getCardWith(title, collectionId, boardId = null, boardSectionId = null) {
-        if (boardSectionId && !boardId) {
+        if(boardSectionId && !boardId) {
             throw new TheGuruError('Cannot search for a card by board section and not by board!');
         }
 
         let cards = [];
 
-        if (boardId) {
-            cards = flattenBoardCards(await cardsForBoard(boardId))
+        if(boardId) {
+            cards = flattenBoardCards(await cardsForBoard(boardId));
 
-            if (boardSectionId) {
+            if(boardSectionId) {
                 cards = cards.filter(card => card.sectionId === boardSectionId);
             }
-        } else {
+        }
+        else {
             cards = await searchCards({
                 collectionIds: [collectionId],
                 queryType: 'search_cards',
                 searchTerms: title
-            })
-            cards = cards.filter(card => !card.boards || card.boards.length === 0)
+            });
+            cards = cards.filter(card => !card.boards || card.boards.length === 0);
         }
 
         return cards.find(card => card.preferredPhrase == title);

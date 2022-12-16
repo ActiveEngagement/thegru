@@ -5,7 +5,7 @@ import rehypeStringify from 'rehype-stringify';
 import rehypeSlug from 'rehype-slug';
 import { analyzeTree } from './has_util.js';
 
-export default async function (markdownInput, options = {}) {
+export default async function(markdownInput, options = {}) {
     const getImageUrl = options.getImageUrl;
 
     function wrapMarkdown(markdownInput) {
@@ -26,12 +26,12 @@ export default async function (markdownInput, options = {}) {
     }
 
     function plugin() {
-        return async (tree) => {
+        return async(tree) => {
             // This is necessary because the unist-util-visit visit method is not asynchronous.
             const analysis = analyzeTree(tree, { image: /img/ });
 
-            for (const node of analysis.image) {
-                if (isLocalImage(node)) {
+            for(const node of analysis.image) {
+                if(isLocalImage(node)) {
                     await rewriteLocalImage(node);
                 }
                 fixImageWidth(node);

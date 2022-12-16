@@ -25,14 +25,14 @@ function createInput(name, value) {
 
     function boolean() {
         switch (value) {
-            case 'true':
-                value = true;
-                break;
-            case 'false':
-                value = false;
-                break;
-            default:
-                throw `"${name}" must be "true" or "false"!`;
+        case 'true':
+            value = true;
+            break;
+        case 'false':
+            value = false;
+            break;
+        default:
+            throw `"${name}" must be "true" or "false"!`;
         }
 
         return this;

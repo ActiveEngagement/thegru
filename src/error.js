@@ -1,5 +1,4 @@
-export class TheGuruError extends Error
-{
+export class TheGuruError extends Error {
     constructor(message) {
         super(message);
         this.name = this.constructor.name;
@@ -7,8 +6,7 @@ export class TheGuruError extends Error
 }
 
 
-export class FetchError extends TheGuruError
-{
+export class FetchError extends TheGuruError {
     constructor(response, json) {
         super(this.#createMessage(response, json));
         this.name = this.constructor.name;

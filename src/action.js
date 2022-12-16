@@ -1,7 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
-import path from 'path';
 import createApi from './api.js';
 import prepare from './prepare.js';
 
@@ -27,7 +26,7 @@ export default async function(options) {
 
     let content = await fs.promises.readFile(options.filePath);
 
-    if (options.cardFooter) {
+    if(options.cardFooter) {
         content += "\n\n" + options.cardFooter;
     }
 
@@ -40,12 +39,13 @@ export default async function(options) {
         options.boardSectionId
     );
 
-    if (existingCard) {
+    if(existingCard) {
         await api.updateCard(existingCard.id, {
             ...existingCard,
             content
         });
-    } else {
+    }
+    else {
         await api.createCard({
             title: options.cardTitle,
             collectionId: options.collectionId,
