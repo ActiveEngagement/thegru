@@ -27,6 +27,6 @@ export default function() {
         boardId: getInput('board_id'),
         boardSectionId: getInput('board_section_id'),
         cardFooter: getInput('card_footer'),
-        wrapMarkdown: getInput('wrapMarkdown', true)
+        wrapMarkdown: getInput('wrap_markdown', true)
     };
 }
