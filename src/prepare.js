@@ -76,6 +76,8 @@ function buildLinks(linkNodes, linkReferenceNodes, referenceNodes) {
 
     for (const node of linkNodes) {
         links.push({
+            node,
+
             get url() { return node.url; },
 
             get text() { return toString(node); },
@@ -93,6 +95,8 @@ function buildLinks(linkNodes, linkReferenceNodes, referenceNodes) {
         const reference = findReference(referenceNodes, node.identifier);
 
         links.push({
+            node,
+
             get url() { return reference.url; },
 
             get text() { return toString(node); },
@@ -164,12 +168,34 @@ export default async function (markdownInput, options = {}) {
             throw new TheGuruError(`Link to nonexistent heading ${url}!`);
         }
 
-        headingNode.parent.children.splice(headingNode.parent.children.indexOf(headingNode), 0, {
-            type: 'html',
-            value: `<a name="${linkedHeading}"></a>`
+        const headingHastTree = await unified()
+            .use(remarkRehype)
+            .run(headingNode);
+
+        visit(headingHastTree, node => {
+            if (/h[1-6]/.test(node.tagName)) {
+                node.properties.id = toString(headingNode).toLowerCase().replaceAll(/[^a-zA-Z0-9]+/g, '-');
+            }
         });
 
-        link.replaceWithHtml(`<a href="${link.url}">${link.text}</a>`);
+        const headingOutput = unified()
+            .use(rehypeStringify)
+            .stringify(headingHastTree);
+        
+        headingNode.parent.children[headingNode.parent.children.indexOf(headingNode)] = {
+            type: 'html',
+            value: String(headingOutput)
+        };
+
+        const linkHastTree = await unified()
+            .use(remarkRehype)
+            .run(link.node);
+
+        const linkOutput = unified()
+            .use(rehypeStringify)
+            .stringify(linkHastTree);
+
+        link.replaceWithHtml(String(linkOutput));
     }
 
     function plugin() {
@@ -183,7 +209,7 @@ export default async function (markdownInput, options = {}) {
             }
 
             for (const link of links) {
-                replaceLink(link, analysis.heading);
+                await replaceLink(link, analysis.heading);
             }
 
         };
