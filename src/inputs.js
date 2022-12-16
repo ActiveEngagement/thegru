@@ -1,3 +1,6 @@
+import { InvalidInputsError } from "./error";
+import { readFile } from "./fs_util";
+
 function createInput(name, value) {
     function get() {
         return value;
@@ -8,8 +11,8 @@ function createInput(name, value) {
     }
 
     function required() {
-        if(isInputMissing(value)) {
-            throw `"${name}" is a required input!`;
+        if(value === null) {
+            throw new InvalidInputsError(`"${name}" is a required input!`);
         }
 
         return this;
@@ -32,16 +35,20 @@ function createInput(name, value) {
             value = false;
             break;
         default:
-            throw `"${name}" must be "true" or "false"!`;
+            throw new InvalidInputsError(`"${name}" must be "true" or "false"!`);
         }
 
         return this;
     }
 
+    if(isInputMissing(value)) {
+        value = null;
+    }
+
     return { get, required, fallback, boolean };
 };
 
-export default function(getCoreInput) {
+export default function(getCoreInput, defaultCardFooter) {
     function input(name, fallback = null) {
         let value = getCoreInput(name);
         value = value === '' && fallback !== null ? fallback : value;
@@ -57,6 +64,6 @@ export default function(getCoreInput) {
         collectionId: input('collection_id').required().get(),
         boardId: input('board_id').get(),
         boardSectionId: input('board_section_id').get(),
-        cardFooter: input('card_footer').get()
+        cardFooter: input('card_footer').fallback(defaultCardFooter).get()
     };
 }

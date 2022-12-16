@@ -1,17 +1,8 @@
-import nodeFetch from 'node-fetch';
-import { FormData } from 'formdata-polyfill/esm.min.js';
 import { TheGuruError, FetchError } from './error.js';
 import { flattenBoardCards } from './api_util.js';
 
-export default function(options) {
-    const baseEndpoint = options.endpoint || 'https://api.getguru.com/api/v1/';
-    const logger = options.logger || {
-        debug() {},
-
-        isDebug() {
-            return false;
-        }
-    };
+export default function(client, options) {
+    const logger = options.logger;
 
     function baseHeaders() {
         return {
@@ -23,12 +14,6 @@ export default function(options) {
 
     function base64(input) {
         return Buffer.from(input, 'utf8').toString('base64');
-    }
-
-    function endpoint(path = null) {
-        if(!path) return baseEndpoint;
-
-        return new URL(path, baseEndpoint).href;
     }
 
     function auth() {
@@ -73,27 +58,10 @@ export default function(options) {
         }
     }
 
-    async function fetch(url, options) {
-        logger.debug(`Sending HTTP request to ${url} with options: ${JSON.stringify(options)}`);
-
-        const response = await nodeFetch(url, options);
-
-        if(logger.isDebug()) {
-            logger.debug(`Received response from ${url}: ${await response.clone().text()}`);
-        }
-
-        return response;
-    }
-
     async function cardsForBoard(boardId) {
         logger.debug(`Getting all cards for board ${boardId}`);
 
-        const query = new URLSearchParams({
-            lite: true
-        });
-
-        const response = await fetch(endpoint(`boards/${boardId}?${query}`), {
-            method: 'GET',
+        const response = await client.cardsForBoard(boardId, {
             headers: headers()
         });
 
@@ -119,8 +87,7 @@ export default function(options) {
             boards.push(board);
         }
 
-        const response = await fetch(endpoint('cards/extended'), {
-            method: 'POST',
+        const response = await client.createCard({
             headers: headers(),
             body: JSON.stringify({
                 preferredPhrase: title,
@@ -128,7 +95,7 @@ export default function(options) {
                 collection: { id: collectionId },
                 boards,
                 ...params
-            }),
+            })
         });
 
         return await validate(response);
@@ -137,80 +104,9 @@ export default function(options) {
     async function updateCard(id, options = {}) {
         logger.debug(`Updating card with options ${JSON.stringify(options)}`);
 
-        const response = await fetch(endpoint(`cards/${id}/extended`), {
-            method: 'PUT',
+        const response = await client.updateCard(id, {
             headers: headers(),
             body: JSON.stringify(options),
-        });
-
-        return await validate(response);
-    }
-
-    async function deleteCard(id) {
-        logger.debug(`Deleting card ${id}`);
-
-        const response = await fetch(endpoint(`cards/${id}`), {
-            method: 'DELETE',
-            headers: headers()
-        });
-
-        return await validate(response);
-    };
-
-    async function createSections(boardId, titles) {
-        logger.debug(`Creating ${titles.length} board sections for board ${boardId}`);
-        const response = await fetch(endpoint(`boards/${boardId}/entries`), {
-            method: 'PUT',
-            headers: headers(),
-            body: JSON.stringify({
-                actionType: 'add',
-                boardEntries: titles.map(title => ({
-                    entryType: 'section',
-                    title
-                }))
-            })
-        });
-
-        return await validate(response);
-    };
-
-    async function createSection(boardId, title) {
-        return (await createSections(boardId, [title]))[0];
-    };
-
-    async function deleteSections(boardId, ids) {
-        logger.debug(`Deleting ${ids.length} board sections for board ${boardId}`);
-        const response = await fetch(endpoint(`boards/${boardId}/entries`), {
-            method: 'PUT',
-            headers: headers(),
-            body: JSON.stringify({
-                actionType: 'remove',
-                boardEntries: ids.map(id => ({
-                    entryType: 'section',
-                    id
-                }))
-            })
-        });
-
-        return await validate(response);
-    };
-
-    async function deleteSection(boardId, id) {
-        return (await deleteSections(boardId, [id]))[0];
-    };
-
-    async function uploadAttachment(fileName, blob) {
-        logger.debug(`Uploading attachment with name ${fileName}`);
-
-        const formData = new FormData();
-        formData.append('file', blob, fileName);
-
-        const response = await fetch(endpoint(`attachments/upload`), {
-            method: 'POST',
-            headers: headers({
-                'content-type': false
-            }),
-            body: formData
         });
 
         return await validate(response);
@@ -219,8 +115,7 @@ export default function(options) {
     async function searchCards(options = {}) {
         logger.debug(`Searching cards with options ${JSON.stringify(options)}`);
 
-        const response = await fetch(endpoint(`search/cards`), {
-            method: 'POST',
+        const response = await client.searchCards({
             headers: headers(),
             body: JSON.stringify(options)
         });
@@ -237,11 +132,8 @@ export default function(options) {
         let cards = [];
 
         if(boardId) {
-            cards = flattenBoardCards(await cardsForBoard(boardId));
-
-            if(boardSectionId) {
-                cards = cards.filter(card => card.sectionId === boardSectionId);
-            }
+            cards = flattenBoardCards(await cardsForBoard(boardId))
+                .filter(card => boardSectionId ? card.sectionId === boardSectionId : !card.sectionId);
         }
         else {
             cards = await searchCards({
@@ -256,19 +148,9 @@ export default function(options) {
     }
 
     return {
-        endpoint,
-        auth,
-        headers,
-        fetch,
         cardsForBoard,
         createCard,
         updateCard,
-        deleteCard,
-        createSections,
-        createSection,
-        deleteSections,
-        deleteSection,
-        uploadAttachment,
         searchCards,
         getCardWith
     };
