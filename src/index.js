@@ -4,6 +4,7 @@ import nodeFetch from 'node-fetch';
 import action from './action.js';
 import { readFile } from './fs_util.js';
 import getInputs from './inputs.js';
+import createApi from './api.js';
 
 async function main() {
     try {
