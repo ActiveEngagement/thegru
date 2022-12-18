@@ -1,83 +1,49 @@
-import fs from 'fs';
 import { remark } from 'remark';
-import { visit, EXIT as UNIST_EXIT, CONTINUE as UNIST_CONTINUE } from 'unist-util-visit';
-import { is } from 'unist-util-is';
-import { blobFromSync } from 'node-fetch';
-import path from 'path';
+import remarkParse from 'remark-parse';
+import remarkRehype from 'remark-rehype';
+import rehypeStringify from 'rehype-stringify';
+import rehypeSlug from 'rehype-slug';
+import { analyzeTree } from './hast_util.js';
 
-function findReference(tree, reference) {
-    let result = null;
+export default async function(markdownInput, options = {}) {
+    const getImageUrl = options.getImageUrl;
 
-    visit(tree, (node) => {
-        if (is(node, { type: 'definition', identifier: reference })) {
-            result = node;
-            return UNIST_EXIT;
-        }
-        return UNIST_CONTINUE;
-    });
-
-    return result;
-}
-
-function getImages(tree) {
-    const images = [];
-
-    visit(tree, (node) => {
-        if (is(node, { type: 'image' })) {
-            images.push({
-                url: node.url,
-                setUrl(url) {
-                    node.url = url;
-                }
-            });
-        }
-
-        if (is(node, { type: 'imageReference' })) {
-            const reference = findReference(tree, node.identifier);
-            images.push({
-                url: reference.url,
-                setUrl(url) {
-                    reference.url = url;
-                }
-            });
-        }
-
-        return UNIST_CONTINUE;
-    });
-
-    return images;
-}
-
-export default async function (markdownInput, currentDir, api) {
-    async function replaceImg(url) {
-        if (url.startsWith('http')) {
-            return url;
-        }
-
-        const previousDir = process.cwd();
-        process.chdir(currentDir);
-
-        const { link } = await api.uploadAttachment(path.basename(url), blobFromSync(url));
-
-        process.chdir(previousDir);
-
-        return link;
+    function isLocalImage(node) {
+        return !node.properties.src.startsWith('http');
     }
 
-    function plugin() {
-        return async (tree) => {
-            const images = getImages(tree);
-            
-            for (const image of images) {
-                const newUrl = await replaceImg(image.url);
-                image.setUrl(newUrl);
+    async function rewriteLocalImage(node) {
+        node.properties.src = await getImageUrl(node.properties.src);
+    }
+
+    function fixImageWidth(node) {
+        node.properties.style = "width: auto;";
+    }
+
+    async function transform(tree) {
+        // This is necessary because the unist-util-visit visit method does not support asynchronous visitors.
+        const analysis = analyzeTree(tree, { image: /img/ });
+
+        for(const node of analysis.image) {
+            if(isLocalImage(node)) {
+                await rewriteLocalImage(node);
             }
-        };
+            fixImageWidth(node);
+        }
     }
 
     const output = await remark()
-        .use(plugin)
+        // Parse the Markdown.
+        .use(remarkParse)
+        // Convert it to an HTML syntax tree.
+        .use(remarkRehype)
+        // Transform the syntax tree.
+        .use(() => transform)
+        // Make headings "navigable".
+        .use(rehypeSlug)
+        // Convert the syntax tree to an HTML string.
+        .use(rehypeStringify)
         .process(markdownInput);
-
+    
     return String(output);
 }

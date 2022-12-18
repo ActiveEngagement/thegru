@@ -1,11 +1,29 @@
-export default class TheGuruError extends Error
-{
+export class TheGuruError extends Error {
     constructor(message) {
         super(message);
         this.name = this.constructor.name;
     }
+}
 
-    toString() {
-        return this.message;
+export class InvalidInputsError extends TheGuruError {
+    constructor(message) {
+        super(message);
+        this.name = this.constructor.name;
+    }
+}
+
+export function fetchErrorForResponse(response, json) {
+    const description = json?.description;
+    const message = description ? `Server responded with a ${response.status} status code: ${description}` : `Server responded with a ${response.status} status code`;
+    const error = new FetchError(message);
+    error.response = response;
+    error.json = json;
+
+    return error;
+}
+export class FetchError extends TheGuruError {
+    constructor(message) {
+        super(message);
+        this.name = this.constructor.name;
     }
 }

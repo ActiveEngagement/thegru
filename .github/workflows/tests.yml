@@ -1,0 +1,26 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - '*'
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set Up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm ci
+      - run: npm run lint
+      - uses: ArtiomTr/jest-coverage-report-action@v2
+        id: coverage
+        with:
+            output: report-markdown
+            test-script: npm run test
+      - uses: marocchino/sticky-pull-request-comment@v2
+        with:
+            message: ${{ steps.coverage.outputs.report }}

@@ -1,12 +1,15 @@
 import core from '@actions/core';
+import github from '@actions/github';
+import nodeFetch from 'node-fetch';
 import action from './action.js';
-import inputs from './inputs.js';
+import { readFile } from './fs_util.js';
+import getInputs from './inputs.js';
 
 async function main() {
     try {
         const logger = {
             debug(message) {
-                if (this.isDebug()) {
+                if(this.isDebug()) {
                     core.debug(message);
                 }
             },
@@ -16,11 +19,40 @@ async function main() {
             }
         };
 
-        await action({
-            ...inputs(),
+        async function fetch(method, url, options = {}) {
+            options.method = options.method || method;
+            logger.debug(`Sending HTTP request to ${url} with options: ${JSON.stringify(options)}`);
+
+            const response = await nodeFetch(url, options);
+
+            if(logger.isDebug()) {
+                logger.debug(`Received response from ${url}: ${await response.clone().text()}`);
+            }
+
+            return response;
+        }
+
+
+        const api = createApi(fetch, {
+            endpoint: options.guruEndpoint,
+            userEmail: options.userEmail,
+            userToken: options.userToken,
             logger
         });
-    } catch (error) {
+
+        const defaultCardFooter = await readFile('resources/default_card_footer.md');
+        const inputs = getInputs(core.getInput, defaultCardFooter);
+
+        logger.debug(`Inputs: ${JSON.stringify(inputs)}`);
+
+        await action({
+            ...inputs,
+            api,
+            logger,
+            repositoryUrl: `${github.context.server_url}/${github.context.repository}`
+        });
+    }
+    catch (error) {
         core.setFailed(error);
         logger.debug(error.stack);
     }

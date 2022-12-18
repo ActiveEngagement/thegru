@@ -1,30 +1,18 @@
-import core from '@actions/core';
+import createInputBuilder from './input_builder.js';
 
-function getInput(name) {
-    return core.getInput(name);
-}
+export default function(getCoreInput, defaultCardFooter) {
+    function input(name) {
+        return createInputBuilder(name, getCoreInput(name));
+    }
 
-function isInputMissing(input) {
-    return input === '' || input === null || input === undefined;
-}
-
-function getRequiredInput(name) {
-    const input = getInput(name);
-
-    if(isInputMissing(input)) throw `"${name}" is a required input!`;
-
-    return input;
-}
-
-export default function() {
     return {
-        userEmail: getRequiredInput('user_email'),
-        userToken: getRequiredInput('user_token'),
-        filePath: getRequiredInput('file_path'),
-        cardTitle: getRequiredInput('card_title'),
-        collectionId: getRequiredInput('collection_id'),
-        boardId: getInput('board_id'),
-        boardSectionId: getInput('board_section_id'),
-        cardFooter: getInput('card_footer')
+        userEmail: input('user_email').required().get(),
+        userToken: input('user_token').required().get(),
+        filePath: input('file_path').required().get(),
+        cardTitle: input('card_title').required().get(),
+        collectionId: input('collection_id').required().get(),
+        boardId: input('board_id').get(),
+        boardSectionId: input('board_section_id').get(),
+        cardFooter: input('card_footer').fallback(defaultCardFooter).get()
     };
 }

@@ -1,23 +1,33 @@
 import fs from 'fs';
+import { blobFromSync } from 'node-fetch';
 import path from 'path';
-import createApi from './api.js';
+import process from 'process';
+import { wrapGuruMarkdown } from './api_util.js';
 import prepare from './prepare.js';
 
 export default async function(options) {
-    const api = createApi({
-        endpoint: options.guruEndpoint,
-        userEmail: options.userEmail,
-        userToken: options.userToken,
-        logger: options.logger
-    });
+    const api = options.api;
+
+    async function getNewLocalImageUrl(url) {
+        const parentDir = path.dirname(options.filePath);
+        const previousDir = process.cwd();
+        process.chdir(parentDir);
+
+        const { link } = await api.uploadAttachment(path.basename(url), blobFromSync(url));
+
+        process.chdir(previousDir);
+
+        return link;
+    }
 
     let content = await fs.promises.readFile(options.filePath);
 
-    if (options.cardFooter) {
+    if(options.cardFooter) {
+        options.cardFooter = options.cardFooter.replaceAll('{{repository_url}}', options.repositoryUrl);
         content += "\n\n" + options.cardFooter;
     }
 
-    content = await prepare(content, path.dirname(options.filePath), api);
+    content = wrapGuruMarkdown(await prepare(content, { getImageUrl: getNewLocalImageUrl }));
 
     const existingCard = await api.getCardWith(
         options.cardTitle,
@@ -26,12 +36,14 @@ export default async function(options) {
         options.boardSectionId
     );
 
-    if (existingCard) {
+    if(existingCard) {
+        delete existingCard.sectionId;
         await api.updateCard(existingCard.id, {
             ...existingCard,
             content
         });
-    } else {
+    }
+    else {
         await api.createCard({
             title: options.cardTitle,
             collectionId: options.collectionId,
