@@ -33,16 +33,16 @@ async function main() {
             return response;
         }
 
+        const inputs = getInputs(core.getInput, defaultCardFooter);
 
         const api = createApi(fetch, {
-            endpoint: options.guruEndpoint,
-            userEmail: options.userEmail,
-            userToken: options.userToken,
+            endpoint: inputs.guruEndpoint,
+            userEmail: inputs.userEmail,
+            userToken: inputs.userToken,
             logger
         });
 
         const defaultCardFooter = await readFile('resources/default_card_footer.md');
-        const inputs = getInputs(core.getInput, defaultCardFooter);
 
         logger.debug(`Inputs: ${JSON.stringify(inputs)}`);
 
