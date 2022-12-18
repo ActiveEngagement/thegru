@@ -1,4 +1,4 @@
-export default function(clientOptions = {}) {
+export default function(clientOptions) {
     const calls = [];
 
     function getCalls() {
@@ -13,15 +13,11 @@ export default function(clientOptions = {}) {
 
             text() {
                 return JSON.stringify(json);
-            },
-
-            json() {
-                return json;
-            },
+            }
         };
     }
 
-    function cardsForBoard(boardId, options = {}) {
+    function cardsForBoard(boardId, options) {
         calls.push({
             type: 'cardsForBoard',
             boardId,
@@ -31,7 +27,7 @@ export default function(clientOptions = {}) {
         return response(clientOptions.cardsForBoardResult);
     }
 
-    function createCard(options = {}) {
+    function createCard(options) {
         options.body = JSON.parse(options.body);
         calls.push({
             type: 'createCard',
@@ -43,7 +39,7 @@ export default function(clientOptions = {}) {
         });
     }
 
-    function updateCard(id, options = {}) {
+    function updateCard(id, options) {
         options.body = JSON.parse(options.body);
         calls.push({
             type: 'updateCard',
@@ -54,7 +50,7 @@ export default function(clientOptions = {}) {
         return response(options);
     }
 
-    function searchCards(options = {}) {
+    function searchCards(options) {
         options.body = JSON.parse(options.body);
         calls.push({
             type: 'searchCards',
@@ -64,11 +60,23 @@ export default function(clientOptions = {}) {
         return response(clientOptions.searchResult);
     }
 
+    function uploadAttachment(fileName, blob, options) {
+        calls.push({
+            type: 'uploadAttachment',
+            fileName,
+            blob,
+            options
+        });
+
+        return response(clientOptions.attachmentResult);
+    }
+
     return {
         getCalls,
         cardsForBoard,
         createCard,
         updateCard,
-        searchCards
+        searchCards,
+        uploadAttachment
     };
 }

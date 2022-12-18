@@ -1,7 +1,7 @@
 import fs from 'fs';
+import { blobFromSync } from 'node-fetch';
 import path from 'path';
 import process from 'process';
-import createApi from './api.js';
 import { wrapGuruMarkdown } from './api_util.js';
 import prepare from './prepare.js';
 

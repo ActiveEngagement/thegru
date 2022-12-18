@@ -12,16 +12,18 @@ export class InvalidInputsError extends TheGuruError {
     }
 }
 
-function createMessage(response, json) {
+export function fetchErrorForResponse(response, json) {
     const description = json?.description;
+    const message = description ? `Server responded with a ${response.status} status code: ${description}` : `Server responded with a ${response.status} status code`;
+    const error = new FetchError(message);
+    error.response = response;
+    error.json = json;
 
-    return `Server responded with a ${response.status} code: ${description}` || `Server responded with a ${response.status} status code`;
+    return error;
 }
 export class FetchError extends TheGuruError {
-    constructor(response, json) {
-        super(createMessage(response, json));
+    constructor(message) {
+        super(message);
         this.name = this.constructor.name;
-        this.response = response;
-        this.json = json;
     }
 }

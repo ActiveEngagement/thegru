@@ -1,4 +1,4 @@
-import { TheGuruError, FetchError } from './error.js';
+import { TheGuruError, FetchError, fetchErrorForResponse } from './error.js';
 import { flattenBoardCards } from './api_util.js';
 
 export default function(client, options) {
@@ -48,13 +48,18 @@ export default function(client, options) {
         const text = await response.text();
 
         if(!response.ok) {
-            throw new FetchError(response, jsonOrText(text));
+            throw fetchErrorForResponse(response, jsonOrText(text));
         }
-        else if(!text || text === '') {
-            return null;
+        else if(text === null) {
+            throw new FetchError("Server responded with an invalid response");
         }
         else {
-            return jsonOrText(text);
+            try {
+                return JSON.parse(text);
+            }
+            catch {
+                throw new FetchError("Server responded with an invalid response");
+            }
         }
     }
 
@@ -68,7 +73,7 @@ export default function(client, options) {
         return (await validate(response)).items;
     };
 
-    async function createCard(options = {}) {
+    async function createCard(options) {
         logger.debug(`Creating card with options ${JSON.stringify(options)}`);
 
         const { title, collectionId, boardId, sectionId, ...params } = options;
@@ -101,7 +106,7 @@ export default function(client, options) {
         return await validate(response);
     };
 
-    async function updateCard(id, options = {}) {
+    async function updateCard(id, options) {
         logger.debug(`Updating card with options ${JSON.stringify(options)}`);
 
         const response = await client.updateCard(id, {
@@ -112,7 +117,7 @@ export default function(client, options) {
         return await validate(response);
     }
 
-    async function searchCards(options = {}) {
+    async function searchCards(options) {
         logger.debug(`Searching cards with options ${JSON.stringify(options)}`);
 
         const response = await client.searchCards({
@@ -123,12 +128,7 @@ export default function(client, options) {
         return (await validate(response)).cards;
     }
 
-
     async function getCardWith(title, collectionId, boardId = null, boardSectionId = null) {
-        if(boardSectionId && !boardId) {
-            throw new TheGuruError('Cannot search for a card by board section and not by board!');
-        }
-
         let cards = [];
 
         if(boardId) {
@@ -147,11 +147,22 @@ export default function(client, options) {
         return cards.find(card => card.preferredPhrase == title);
     }
 
+    async function uploadAttachment(fileName, blob) {
+        logger.debug(`Uploading attachment with name ${fileName}`);
+
+        const response = await client.uploadAttachment(fileName, blob, {
+            headers: headers({ 'content-type': false })
+        });
+
+        return await validate(response);
+    }
+
     return {
         cardsForBoard,
         createCard,
         updateCard,
         searchCards,
-        getCardWith
+        getCardWith,
+        uploadAttachment
     };
 }

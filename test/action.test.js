@@ -1,5 +1,6 @@
 import action from '../src/action.js';
 import baseCreateApi from '../src/api.js';
+import { FetchError } from '../src/error.js';
 import createClient from './support/api_client.js';
 import { resource } from './support/util.js';
 
@@ -339,4 +340,222 @@ test('updates existing card in board section', async() => {
             }
         }
     });
+});
+
+test('uploads local images', async() => {
+    const client = createClient({
+        searchResult: { cards: [] },
+        attachmentResult: { link: 'https://example.com/attachment.png' }
+    });
+
+    await action({
+        api: createApi(client),
+        filePath: 'test/resources/test_card_with_local_image.md',
+        cardTitle: 'Local Image',
+        collectionId: 'c123',
+    });
+
+    expect(client.getCalls()[client.getCalls().length - 3]).toMatchObject({
+        type: 'uploadAttachment',
+        fileName: 'empty.png',
+        options: {
+            headers: {
+                accept: 'application/json',
+                authorization: 'Basic dW5kZWZpbmVkOnVuZGVmaW5lZA=='
+            }
+        }
+    });
+
+    expect(client.getCalls()[client.getCalls().length - 1].options.body.content).toEqual(
+        await resource('test_card_with_local_image_expected_output.html')
+    );
+});
+
+test('appends cards footer', async() => {
+    const client = createClient({ searchResult: { cards: [] } });
+
+    await action({
+        api: createApi(client),
+        filePath: 'test/resources/test_card.md',
+        cardTitle: 'Test Card',
+        collectionId: 'c123',
+        cardFooter: '<{{repository_url}}>',
+        repositoryUrl: 'https://example.com'
+    });
+
+    expect(client.getCalls()[client.getCalls().length - 1].options.body.content).toEqual(
+        await resource('test_card_with_footer_expected_output.html')
+    );
+});
+
+test('with failed server JSON response throws proper error', async() => {
+    const client = {
+        searchCards() {
+            return {
+                ok: false,
+
+                status: 400,
+
+                text() {
+                    return JSON.stringify(this.json());
+                },
+
+                json() {
+                    return { description: 'Custom error message!' };
+                }
+            };
+        }
+    };
+
+    let error = null;
+    let response = null;
+
+    try {
+        response = await action({
+            api: createApi(client),
+            filePath: 'test/resources/test_card.md',
+            cardTitle: 'Test Card',
+            collectionId: 'c123'
+        });
+    }
+    catch (e) {
+        if(e instanceof FetchError) {
+            error = e;
+        }
+        else {
+            throw e;
+        }
+    }
+
+    expect(response).toBe(null);
+    expect(error.toString()).toBe('FetchError: Server responded with a 400 status code: Custom error message!');
+});
+
+test('with failed server text response throws proper error', async() => {
+    const client = {
+        searchCards() {
+            return {
+                ok: false,
+
+                status: 403,
+
+                text() {
+                    return 'Some error response.';
+                },
+
+                json() {
+                    return null;
+                }
+            };
+        }
+    };
+
+    let error = null;
+    let response = null;
+
+    try {
+        response = await action({
+            api: createApi(client),
+            filePath: 'test/resources/test_card.md',
+            cardTitle: 'Test Card',
+            collectionId: 'c123'
+        });
+    }
+    catch (e) {
+        if(e instanceof FetchError) {
+            error = e;
+        }
+        else {
+            throw e;
+        }
+    }
+
+    expect(response).toBe(null);
+    expect(error.toString()).toBe('FetchError: Server responded with a 403 status code');
+});
+
+test('with null server response throws proper error', async() => {
+    const client = {
+        searchCards() {
+            return {
+                ok: true,
+
+                status: 200,
+
+                text() {
+                    return null;
+                },
+
+                json() {
+                    return null;
+                }
+            };
+        }
+    };
+
+    let error = null;
+    let response = null;
+
+    try {
+        response = await action({
+            api: createApi(client),
+            filePath: 'test/resources/test_card.md',
+            cardTitle: 'Test Card',
+            collectionId: 'c123'
+        });
+    }
+    catch (e) {
+        if(e instanceof FetchError) {
+            error = e;
+        }
+        else {
+            throw e;
+        }
+    }
+
+    expect(response).toBe(null);
+    expect(error.toString()).toBe('FetchError: Server responded with an invalid response');
+});
+
+test('with non-JSON server response throws proper error', async() => {
+    const client = {
+        searchCards() {
+            return {
+                ok: true,
+
+                status: 200,
+
+                text() {
+                    return 'Random response.';
+                },
+
+                json() {
+                    return null;
+                }
+            };
+        }
+    };
+
+    let error = null;
+    let response = null;
+
+    try {
+        response = await action({
+            api: createApi(client),
+            filePath: 'test/resources/test_card.md',
+            cardTitle: 'Test Card',
+            collectionId: 'c123'
+        });
+    }
+    catch (e) {
+        if(e instanceof FetchError) {
+            error = e;
+        }
+        else {
+            throw e;
+        }
+    }
+
+    expect(response).toBe(null);
+    expect(error.toString()).toBe('FetchError: Server responded with an invalid response');
 });
