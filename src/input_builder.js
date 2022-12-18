@@ -1,4 +1,4 @@
-import { InvalidInputsError } from "./error";
+import { InvalidInputsError } from './error.js';
 
 export default function(name, value) {
     function get() {
