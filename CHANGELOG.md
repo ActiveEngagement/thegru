@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 0.1.4 - 2023-01-03
+
+### Fixed
+- Fixed a bug where the default card footer was not getting appended.
+- Fixed a bug where the `card_footer: true` did not cause the default card footer to be appended.
+- Fixed an issue where new cards were being created instead of existing ones being overwritten.
+- Fixed an issue where the action might fail if debug logging was enabled.
+
+
 ## 0.1.3 - 2023-01-03
 
 ### Added
@@ -28,4 +37,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial documented version.
 
-[Unreleased]: https://github.com/ActiveEngagement/theguru/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/ActiveEngagement/theguru/compare/v0.1.4...HEAD
