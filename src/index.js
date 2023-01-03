@@ -45,7 +45,7 @@ async function main() {
             ...inputs,
             client,
             logger,
-            repositoryUrl: `${github.context.serverUrl}/${github.context.repository}`,
+            repositoryUrl: `${github.context.serverUrl}/${github.context.repo}`,
             defaultCardFooter
         });
     }
