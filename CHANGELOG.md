@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 0.1.5 - 2023-01-03
+
+### Fixed
+- Fixed a bug where the repository url in card footers was `undefined/undefined`.
+
 ## 0.1.4 - 2023-01-03
 
 ### Fixed
@@ -37,4 +42,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial documented version.
 
-[Unreleased]: https://github.com/ActiveEngagement/theguru/compare/v0.1.4...HEAD
+[Unreleased]: https://github.com/ActiveEngagement/theguru/compare/v0.1.5...HEAD
