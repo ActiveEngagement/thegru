@@ -34,7 +34,7 @@ export default function(name, value) {
             value = false;
             break;
         default:
-            if (!options.allowOthers) {
+            if(!options.allowOthers) {
                 throw new InvalidInputsError(`"${name}" must be "true" or "false"!`);
             }
         }
