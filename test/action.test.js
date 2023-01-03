@@ -371,7 +371,7 @@ test('uploads local images', async() => {
     );
 });
 
-test('appends cards footer', async() => {
+test('with string card footer appends it', async() => {
     const client = createClient({ searchResult: { cards: [] } });
 
     await action({
@@ -385,6 +385,64 @@ test('appends cards footer', async() => {
 
     expect(client.getCalls()[client.getCalls().length - 1].options.body.content).toEqual(
         await resource('test_card_with_footer_expected_output.html')
+    );
+});
+
+test.each([[true], [undefined]])('with true or undefined card footer appends default', async(cardFooter) => {
+    const client = createClient({ searchResult: { cards: [] } });
+
+    await action({
+        api: createApi(client),
+        filePath: 'test/resources/test_card.md',
+        cardTitle: 'Test Card',
+        collectionId: 'c123',
+        cardFooter,
+        repositoryUrl: 'https://example.com',
+        defaultCardFooter: '<{{repository_url}}>'
+    });
+
+    expect(client.getCalls()[client.getCalls().length - 1].options.body.content).toEqual(
+        await resource('test_card_with_footer_expected_output.html')
+    );
+});
+
+test('with no card footer given appends default', async() => {
+    const client = createClient({ searchResult: { cards: [] } });
+
+    await action({
+        api: createApi(client),
+        filePath: 'test/resources/test_card.md',
+        cardTitle: 'Test Card',
+        collectionId: 'c123',
+        repositoryUrl: 'https://example.com',
+        defaultCardFooter: '<{{repository_url}}>'
+    });
+
+    expect(client.getCalls()[client.getCalls().length - 1].options.body.content).toEqual(
+        await resource('test_card_with_footer_expected_output.html')
+    );
+});
+
+test.each([
+    [null],
+    [false],
+    [123],
+    [123.45]
+])('with any other non-string card footer does not append it', async(cardFooter) => {
+    const client = createClient({ searchResult: { cards: [] } });
+
+    await action({
+        api: createApi(client),
+        filePath: 'test/resources/test_card.md',
+        cardTitle: 'Test Card',
+        collectionId: 'c123',
+        cardFooter,
+        repositoryUrl: 'https://example.com',
+        defaultCardFooter: '<{{repository_url}}>'
+    });
+
+    expect(client.getCalls()[client.getCalls().length - 1].options.body.content).toEqual(
+        await resource('test_card_expected_output.html')
     );
 });
 
