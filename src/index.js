@@ -1,13 +1,16 @@
+import path from 'path';
 import core from '@actions/core';
 import github from '@actions/github';
 import nodeFetch from 'node-fetch';
 import action from './action.js';
 import { readFile } from './fs_util.js';
 import getInputs from './inputs.js';
-import createApi from './api.js';
+import createClient from './api_client.js';
 
 async function main() {
     try {
+        const inputs = getInputs(core.getInput);
+
         const logger = {
             debug(message) {
                 if(this.isDebug()) {
@@ -16,9 +19,11 @@ async function main() {
             },
 
             isDebug() {
-                return core.isDebug();
+                return core.isDebug() || inputs.debugLogging;
             }
         };
+
+        logger.debug(`Inputs: ${JSON.stringify(inputs)}`);
 
         async function fetch(method, url, options = {}) {
             options.method = options.method || method;
@@ -33,22 +38,14 @@ async function main() {
             return response;
         }
 
-        const inputs = getInputs(core.getInput);
 
-        const api = createApi(fetch, {
-            endpoint: inputs.guruEndpoint,
-            userEmail: inputs.userEmail,
-            userToken: inputs.userToken,
-            logger
-        });
+        const defaultCardFooter = await readFile(new URL('resources/default_card_footer.md', import.meta.url));
 
-        const defaultCardFooter = await readFile('resources/default_card_footer.md');
-
-        logger.debug(`Inputs: ${JSON.stringify(inputs)}`);
+        const client = createClient(fetch);
 
         await action({
             ...inputs,
-            api,
+            client,
             logger,
             repositoryUrl: `${github.context.server_url}/${github.context.repository}`,
             defaultCardFooter
@@ -56,7 +53,7 @@ async function main() {
     }
     catch (error) {
         core.setFailed(error);
-        logger.debug(error.stack);
+        core.debug(error);
     }
 }
 

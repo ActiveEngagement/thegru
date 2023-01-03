@@ -4,18 +4,6 @@ import { FetchError } from '../src/error.js';
 import createClient from './support/api_client.js';
 import { resource } from './support/util.js';
 
-function createApi(client) {
-    return baseCreateApi(client, {
-        logger: {
-            debug() {},
-
-            isDebug() {
-                return false;
-            }
-        }
-    });
-}
-
 test('creates new card in collection if none exists', async() => {
     const client = createClient({
         searchResult: {
@@ -34,7 +22,7 @@ test('creates new card in collection if none exists', async() => {
     });
 
     await action({
-        api: createApi(client),
+        client,
         filePath: 'test/resources/test_card.md',
         cardTitle: 'Test Card',
         collectionId: 'c123'
@@ -84,7 +72,7 @@ test('creates new card in board if none exists', async() => {
     });
 
     await action({
-        api: createApi(client),
+        client,
         filePath: 'test/resources/test_card.md',
         cardTitle: 'Test Card',
         collectionId: 'c123',
@@ -140,7 +128,7 @@ test('creates new card in board section if none exists', async() => {
     });
 
     await action({
-        api: createApi(client),
+        client,
         filePath: 'test/resources/test_card.md',
         cardTitle: 'Test Card',
         collectionId: 'c123',
@@ -199,7 +187,7 @@ test('updates existing card in collection', async() => {
     });
 
     await action({
-        api: createApi(client),
+        client,
         filePath: 'test/resources/test_card.md',
         cardTitle: 'Test Card',
         collectionId: 'c123'
@@ -254,7 +242,7 @@ test('updates existing card in board', async() => {
     });
 
     await action({
-        api: createApi(client),
+        client,
         filePath: 'test/resources/test_card.md',
         cardTitle: 'Test Card',
         collectionId: 'c123',
@@ -315,7 +303,7 @@ test('updates existing card in board section', async() => {
     });
 
     await action({
-        api: createApi(client),
+        client,
         filePath: 'test/resources/test_card.md',
         cardTitle: 'Test Card',
         collectionId: 'c123',
@@ -349,7 +337,7 @@ test('uploads local images', async() => {
     });
 
     await action({
-        api: createApi(client),
+        client,
         filePath: 'test/resources/test_card_with_local_image.md',
         cardTitle: 'Local Image',
         collectionId: 'c123',
@@ -375,7 +363,7 @@ test('with string card footer appends it', async() => {
     const client = createClient({ searchResult: { cards: [] } });
 
     await action({
-        api: createApi(client),
+        client,
         filePath: 'test/resources/test_card.md',
         cardTitle: 'Test Card',
         collectionId: 'c123',
@@ -392,7 +380,7 @@ test.each([[true], [undefined], ['']])('with true or undefined or blank card foo
     const client = createClient({ searchResult: { cards: [] } });
 
     await action({
-        api: createApi(client),
+        client,
         filePath: 'test/resources/test_card.md',
         cardTitle: 'Test Card',
         collectionId: 'c123',
@@ -410,7 +398,7 @@ test('with no card footer given appends default', async() => {
     const client = createClient({ searchResult: { cards: [] } });
 
     await action({
-        api: createApi(client),
+        client,
         filePath: 'test/resources/test_card.md',
         cardTitle: 'Test Card',
         collectionId: 'c123',
@@ -432,7 +420,7 @@ test.each([
     const client = createClient({ searchResult: { cards: [] } });
 
     await action({
-        api: createApi(client),
+        client,
         filePath: 'test/resources/test_card.md',
         cardTitle: 'Test Card',
         collectionId: 'c123',
@@ -470,7 +458,7 @@ test('with failed server JSON response throws proper error', async() => {
 
     try {
         response = await action({
-            api: createApi(client),
+            client,
             filePath: 'test/resources/test_card.md',
             cardTitle: 'Test Card',
             collectionId: 'c123'
@@ -513,7 +501,7 @@ test('with failed server text response throws proper error', async() => {
 
     try {
         response = await action({
-            api: createApi(client),
+            client,
             filePath: 'test/resources/test_card.md',
             cardTitle: 'Test Card',
             collectionId: 'c123'
@@ -556,7 +544,7 @@ test('with null server response throws proper error', async() => {
 
     try {
         response = await action({
-            api: createApi(client),
+            client,
             filePath: 'test/resources/test_card.md',
             cardTitle: 'Test Card',
             collectionId: 'c123'
@@ -599,7 +587,7 @@ test('with non-JSON server response throws proper error', async() => {
 
     try {
         response = await action({
-            api: createApi(client),
+            client,
             filePath: 'test/resources/test_card.md',
             cardTitle: 'Test Card',
             collectionId: 'c123'

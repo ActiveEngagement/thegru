@@ -13,6 +13,7 @@ export default function(getCoreInput) {
         collectionId: input('collection_id').required().get(),
         boardId: input('board_id').get(),
         boardSectionId: input('board_section_id').get(),
-        cardFooter: input('card_footer').get()
+        cardFooter: input('card_footer').get(),
+        debugLogging: input('debug_logging').fallback('false').boolean().get()
     };
 }
