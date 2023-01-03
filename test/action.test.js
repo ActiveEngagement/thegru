@@ -388,7 +388,7 @@ test('with string card footer appends it', async() => {
     );
 });
 
-test.each([[true], [undefined]])('with true or undefined card footer appends default', async(cardFooter) => {
+test.each([[true], [undefined], ['']])('with true or undefined or blank card footer appends default', async(cardFooter) => {
     const client = createClient({ searchResult: { cards: [] } });
 
     await action({

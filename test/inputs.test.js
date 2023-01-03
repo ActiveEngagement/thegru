@@ -79,8 +79,7 @@ test('board_section_id is not required', () => {
     expect(actual).toBe(null);
 });
 
-test('card_footer is not required and has default', () => {
-    const actual = getInputs(name => name === 'card_footer' ? '' : getInput(name), 'Footer!').cardFooter;
-    expect(typeof actual).toBe('string');
-    expect(actual).toBe('Footer!');
+test('card_footer is not required', () => {
+    const actual = getInputs(name => name === 'card_footer' ? '' : getInput(name)).cardFooter;
+    expect(actual).toBe(null);
 });
