@@ -125,7 +125,7 @@ export default function(client, options) {
             body: JSON.stringify(options)
         });
 
-        return (await validate(response)).cards;
+        return (await validate(response));
     }
 
     async function getCardWith(title, collectionId, boardId = null, boardSectionId = null) {
@@ -137,9 +137,7 @@ export default function(client, options) {
         }
         else {
             cards = await searchCards({
-                collectionIds: [collectionId],
-                queryType: 'search_cards',
-                searchTerms: title
+                collectionIds: [collectionId]
             });
             cards = cards.filter(card => !card.boards || card.boards.length === 0);
         }

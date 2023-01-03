@@ -26,7 +26,7 @@ export default function(fetch, options = {}) {
     }
 
     async function searchCards(options) {
-        return await fetch('POST', endpoint(`search/cards`), options);
+        return await fetch('POST', endpoint(`search/cardmgr`), options);
     }
 
     async function uploadAttachment(fileName, blob, options) {

@@ -1,24 +1,21 @@
 import action from '../src/action.js';
-import baseCreateApi from '../src/api.js';
 import { FetchError } from '../src/error.js';
 import createClient from './support/api_client.js';
 import { resource } from './support/util.js';
 
 test('creates new card in collection if none exists', async() => {
     const client = createClient({
-        searchResult: {
-            cards: [
-                {
-                    id: 'wrong-title',
-                    preferredPhrase: 'Wrong Title'
-                },
-                {
-                    id: 'in-board',
-                    preferredPhrase: 'Test Card',
-                    boards: [{ id: 'b123' }]
-                }
-            ]
-        }
+        searchResult: [
+            {
+                id: 'wrong-title',
+                preferredPhrase: 'Wrong Title'
+            },
+            {
+                id: 'in-board',
+                preferredPhrase: 'Test Card',
+                boards: [{ id: 'b123' }]
+            }
+        ]
     });
 
     await action({
@@ -166,24 +163,22 @@ test('creates new card in board section if none exists', async() => {
 
 test('updates existing card in collection', async() => {
     const client = createClient({
-        searchResult: {
-            cards: [
-                {
-                    id: 'wrong-title',
-                    preferredPhrase: 'Wrong Title'
-                },
-                {
-                    id: 'in-board',
-                    preferredPhrase: 'Test Card',
-                    boards: [{ id: 'b123' }]
-                },
-                {
-                    id: 'target',
-                    preferredPhrase: 'Test Card',
-                    boards: []
-                }
-            ]
-        }
+        searchResult: [
+            {
+                id: 'wrong-title',
+                preferredPhrase: 'Wrong Title'
+            },
+            {
+                id: 'in-board',
+                preferredPhrase: 'Test Card',
+                boards: [{ id: 'b123' }]
+            },
+            {
+                id: 'target',
+                preferredPhrase: 'Test Card',
+                boards: []
+            }
+        ]
     });
 
     await action({
@@ -332,7 +327,7 @@ test('updates existing card in board section', async() => {
 
 test('uploads local images', async() => {
     const client = createClient({
-        searchResult: { cards: [] },
+        searchResult: [],
         attachmentResult: { link: 'https://example.com/attachment.png' }
     });
 
@@ -360,7 +355,7 @@ test('uploads local images', async() => {
 });
 
 test('with string card footer appends it', async() => {
-    const client = createClient({ searchResult: { cards: [] } });
+    const client = createClient({ searchResult: [] });
 
     await action({
         client,
@@ -377,7 +372,7 @@ test('with string card footer appends it', async() => {
 });
 
 test.each([[true], [undefined], [null]])('with true or undefined or null card footer appends default', async(cardFooter) => {
-    const client = createClient({ searchResult: { cards: [] } });
+    const client = createClient({ searchResult: [] });
 
     await action({
         client,
@@ -395,7 +390,7 @@ test.each([[true], [undefined], [null]])('with true or undefined or null card fo
 });
 
 test('with no card footer given appends default', async() => {
-    const client = createClient({ searchResult: { cards: [] } });
+    const client = createClient({ searchResult: [] });
 
     await action({
         client,
@@ -417,7 +412,7 @@ test.each([
     [123],
     [123.45]
 ])('with any other non-string card footer does not append it', async(cardFooter) => {
-    const client = createClient({ searchResult: { cards: [] } });
+    const client = createClient({ searchResult: [] });
 
     await action({
         client,
