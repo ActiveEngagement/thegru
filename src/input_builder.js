@@ -25,7 +25,7 @@ export default function(name, value) {
         return this;
     }
 
-    function boolean() {
+    function boolean(options = {}) {
         switch (value) {
         case 'true':
             value = true;
@@ -34,7 +34,9 @@ export default function(name, value) {
             value = false;
             break;
         default:
-            throw new InvalidInputsError(`"${name}" must be "true" or "false"!`);
+            if(!options.allowOthers) {
+                throw new InvalidInputsError(`"${name}" must be "true" or "false"!`);
+            }
         }
 
         return this;

@@ -42,6 +42,11 @@ test('boolean builder with invalid value throws error', () => {
     expect(f).toThrow('"test_value" must be "true" or "false"!');
 });
 
+test('boolean builder with invalid value and allowOthers does nothing', () => {
+    const actual = input('test_value', 'bad').boolean({ allowOthers: true }).get();
+    expect(actual).toBe('bad');
+});
+
 test('boolean required builder with fallback', () => {
     expect(input('test_value', null).fallback('true').required().boolean().get());
 });
