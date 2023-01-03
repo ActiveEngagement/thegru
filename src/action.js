@@ -22,7 +22,11 @@ export default async function(options) {
 
     let content = await fs.promises.readFile(options.filePath);
 
-    if(options.cardFooter) {
+    if(options.cardFooter === undefined || options.cardFooter === true) {
+        options.cardFooter = options.defaultCardFooter;
+    }
+
+    if(options.cardFooter && typeof options.cardFooter === 'string') {
         options.cardFooter = options.cardFooter.replaceAll('{{repository_url}}', options.repositoryUrl);
         content += "\n\n" + options.cardFooter;
     }
