@@ -19,5 +19,5 @@ jobs:
       - run: npm run test -- --coverage
       - uses: codecov/codecov-action@v3
         with:
-          files: ./coverage/clover.xml
+          files: ./coverage/coverage-final.json
           fail_ci_if_error: true
