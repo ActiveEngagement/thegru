@@ -1,6 +1,6 @@
 {
   "name": "theguru",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "GitHub Action to push cards to Guru.",
   "main": "index.js",
   "scripts": {
