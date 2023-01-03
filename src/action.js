@@ -8,11 +8,7 @@ import createApi from './api.js';
 
 export default async function(options) {
     options.logger ||= {
-        debug() {},
-
-        isDebug() {
-            return false;
-        }
+        debug() {}
     };
 
     const api = createApi(options.client, {
