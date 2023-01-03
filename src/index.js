@@ -6,6 +6,7 @@ import action from './action.js';
 import { readFile } from './fs_util.js';
 import getInputs from './inputs.js';
 import createClient from './api_client.js';
+import wrapResponse from './wrap_response.js';
 
 async function main() {
     try {
@@ -29,11 +30,9 @@ async function main() {
             options.method = options.method || method;
             logger.debug(`Sending HTTP request to ${url} with options: ${JSON.stringify(options)}`);
 
-            const response = await nodeFetch(url, options);
+            const response = wrapResponse(await nodeFetch(url, options));
 
-            if(logger.isDebug()) {
-                logger.debug(`Received response from ${url}: ${await response.clone().text()}`);
-            }
+            logger.debug(`Received response from ${url}: ${await response.text()}`);
 
             return response;
         }
