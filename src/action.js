@@ -22,7 +22,7 @@ export default async function(options) {
 
     let content = await fs.promises.readFile(options.filePath);
 
-    if(options.cardFooter === undefined || options.cardFooter === true) {
+    if(options.cardFooter === undefined || options.cardFooter === '' || options.cardFooter === true) {
         options.cardFooter = options.defaultCardFooter;
     }
 

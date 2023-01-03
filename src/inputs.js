@@ -1,6 +1,6 @@
 import createInputBuilder from './input_builder.js';
 
-export default function(getCoreInput, defaultCardFooter) {
+export default function(getCoreInput) {
     function input(name) {
         return createInputBuilder(name, getCoreInput(name));
     }
@@ -13,6 +13,6 @@ export default function(getCoreInput, defaultCardFooter) {
         collectionId: input('collection_id').required().get(),
         boardId: input('board_id').get(),
         boardSectionId: input('board_section_id').get(),
-        cardFooter: input('card_footer').fallback(defaultCardFooter).get()
+        cardFooter: input('card_footer').get()
     };
 }

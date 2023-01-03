@@ -33,7 +33,7 @@ async function main() {
             return response;
         }
 
-        const inputs = getInputs(core.getInput, defaultCardFooter);
+        const inputs = getInputs(core.getInput);
 
         const api = createApi(fetch, {
             endpoint: inputs.guruEndpoint,
