@@ -38,6 +38,7 @@ async function main() {
 
 
         const defaultCardFooter = await readFile(new URL('resources/default_card_footer.md', import.meta.url));
+        const repo = github.context?.payload?.repository?.full_name;
 
         const client = createClient(fetch);
 
@@ -45,7 +46,7 @@ async function main() {
             ...inputs,
             client,
             logger,
-            repositoryUrl: `${github.context.serverUrl}/${github.context.repo}`,
+            repositoryUrl: `${github.context.serverUrl}/${repo}`,
             defaultCardFooter
         });
     }
