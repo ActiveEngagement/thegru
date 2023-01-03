@@ -4,9 +4,23 @@ import path from 'path';
 import process from 'process';
 import { wrapGuruMarkdown } from './api_util.js';
 import prepare from './prepare.js';
+import createApi from './api.js';
 
 export default async function(options) {
-    const api = options.api;
+    options.logger ||= {
+        debug() {},
+
+        isDebug() {
+            return false;
+        }
+    };
+
+    const api = createApi(options.client, {
+        endpoint: options.guruEndpoint,
+        userEmail: options.userEmail,
+        userToken: options.userToken,
+        logger: options.logger
+    });
 
     async function getNewLocalImageUrl(url) {
         const parentDir = path.dirname(options.filePath);

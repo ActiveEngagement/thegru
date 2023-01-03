@@ -1,4 +1,6 @@
-export default function(fetch, options) {
+import { FormData } from "node-fetch";
+
+export default function(fetch, options = {}) {
     const baseEndpoint = options.endpoint || 'https://api.getguru.com/api/v1/';
 
     function endpoint(path = null) {
@@ -31,7 +33,7 @@ export default function(fetch, options) {
         const formData = new FormData();
         formData.append('file', blob, fileName);
 
-        options.data = options.data || formData;
+        options.body = options.body || formData;
 
         return await fetch('POST', endpoint(`attachments/upload`), options);
     }

@@ -83,3 +83,25 @@ test('card_footer is not required', () => {
     const actual = getInputs(name => name === 'card_footer' ? '' : getInput(name)).cardFooter;
     expect(actual).toBe(null);
 });
+
+describe('debugLogging', () => {
+    test('is not required and has default', () => {
+        const actual = getInputs(name => name === 'debug_logging' ? '' : getInput(name)).debugLogging;
+        expect(actual).toBe(false);
+    });
+
+    test('with true', () => {
+        const actual = getInputs(name => name === 'debug_logging' ? 'true' : getInput(name)).debugLogging;
+        expect(actual).toBe(true);
+    });
+
+    test('with false', () => {
+        const actual = getInputs(name => name === 'debug_logging' ? 'false' : getInput(name)).debugLogging;
+        expect(actual).toBe(false);
+    });
+
+    test('with something else throws error', () => {
+        const f = () => getInputs(name => name === 'debug_logging' ? 'invalid' : getInput(name)).debugLogging;
+        expect(f).toThrow(InvalidInputsError);
+    });
+});
