@@ -1,4 +1,3 @@
-import path from 'path';
 import core from '@actions/core';
 import github from '@actions/github';
 import nodeFetch from 'node-fetch';
@@ -46,7 +45,7 @@ async function main() {
             ...inputs,
             client,
             logger,
-            repositoryUrl: `${github.context.server_url}/${github.context.repository}`,
+            repositoryUrl: `${github.context.serverUrl}/${github.context.repository}`,
             defaultCardFooter
         });
     }
