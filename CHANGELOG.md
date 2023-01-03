@@ -6,10 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 0.1.3 - 2023-01-03
+
+### Added
+- Added the `debug_logging` input to allow enabling debug logging independently of the GH setting.
+
+### Fixed
+- Fixed several fatal errors.
+
 ## 0.1.2 - 2023-01-03
 
 ### Fixed
-- Fixed a fatal error related to a broken resource path.
+- Fixed a fatal error related to a broken resource path. (**NOTE**: This did not actually solve the problem. Please use v0.1.3 or greater.)
 
 ## 0.1.1 - 2023-01-03
 
