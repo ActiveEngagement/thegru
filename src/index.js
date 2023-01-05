@@ -68,7 +68,7 @@ async function main() {
         });
 
         const elapsed = ((performance.now() - start) / 1000).toFixed(2);
-        logger.info(`All done in ${c.green(`${elapsed} seconds!`)}`;
+        logger.info(`All done in ${c.green(`${elapsed} seconds!`)}`);
     }
     catch (error) {
         core.info('A fatal exception ocurred!');
