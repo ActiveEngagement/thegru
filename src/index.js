@@ -6,7 +6,7 @@ import { readFile } from './fs_util.js';
 import getInputs from './inputs.js';
 import createClient from './api_client.js';
 import wrapResponse from './wrap_response.js';
-import commitWorkflow from './commit_workflow';
+import commitWorkflow from './commit_workflow.js';
 
 async function main() {
     try {
