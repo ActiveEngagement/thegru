@@ -1,12 +1,12 @@
 import core from '@actions/core';
 import github from '@actions/github';
 import nodeFetch from 'node-fetch';
-import action from './action.js';
 import { readFile } from './fs_util.js';
+import wrapResponse from './wrap_response.js';
 import getInputs from './inputs.js';
 import createClient from './api_client.js';
-import wrapResponse from './wrap_response.js';
 import commitCardsFile from './commit_cards_file.js';
+import action from './action.js';
 
 async function main() {
     try {
@@ -37,21 +37,17 @@ async function main() {
             return response;
         }
 
-
-        const defaultCardFooter = await readFile(new URL('resources/default_card_footer.md', import.meta.url));
         const repo = github.context?.payload?.repository?.full_name;
-
+        const defaultCardFooter = await readFile(new URL('resources/default_card_footer.md', import.meta.url));
         const client = createClient(fetch);
 
         await action({
             ...inputs,
-            client,
-            commitCardsFile,
-            logger,
             repositoryUrl: `${github.context.serverUrl}/${repo}`,
             defaultCardFooter,
-            workflowFile: `.github/workflows/${inputs.workflowFile}`,
-            jobName: github.context.job
+            client,
+            logger,
+            commitCardsFile,
         });
     }
     catch (error) {
