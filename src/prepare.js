@@ -6,7 +6,7 @@ import rehypeSlug from 'rehype-slug';
 import { analyzeTree } from './hast_util.js';
 
 export default async function(markdownInput, options = {}) {
-    const getImageUrl = options.getImageUrl;
+    const { getImageUrl } = options;
 
     function isLocalImage(node) {
         return !node.properties.src.startsWith('http');

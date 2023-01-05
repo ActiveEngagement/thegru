@@ -1,15 +1,19 @@
 import core from '@actions/core';
 import github from '@actions/github';
 import nodeFetch from 'node-fetch';
-import action from './action.js';
+import c from 'ansi-colors';
 import { readFile } from './fs_util.js';
+import { wrapResponse } from './api_util.js';
 import getInputs from './inputs.js';
 import createClient from './api_client.js';
-import wrapResponse from './wrap_response.js';
 import commitCardsFile from './commit_cards_file.js';
+import action from './action.js';
+import version from './version.cjs';
+import { performance } from 'perf_hooks';
 
 async function main() {
     try {
+        const start = performance.now();
         const inputs = getInputs(core.getInput);
 
         const logger = {
@@ -19,11 +23,24 @@ async function main() {
                 }
             },
 
+            info(message) {
+                core.info(message);
+            },
+
+            startGroup(name) {
+                core.startGroup(name);
+            },
+
+            endGroup() {
+                core.endGroup();
+            },
+
             isDebug() {
                 return core.isDebug() || inputs.debugLogging;
             }
         };
 
+        logger.info(`Here we go! ${c.yellow(`theguru v${version}`)} is ready for takeoff!`);
         logger.debug(`Inputs: ${JSON.stringify(inputs)}`);
 
         async function fetch(method, url, options = {}) {
@@ -37,26 +54,28 @@ async function main() {
             return response;
         }
 
-
-        const defaultCardFooter = await readFile(new URL('resources/default_card_footer.md', import.meta.url));
         const repo = github.context?.payload?.repository?.full_name;
-
+        const defaultCardFooter = await readFile(new URL('resources/default_card_footer.md', import.meta.url));
         const client = createClient(fetch);
 
         await action({
             ...inputs,
-            client,
-            commitCardsFile,
-            logger,
             repositoryUrl: `${github.context.serverUrl}/${repo}`,
             defaultCardFooter,
-            workflowFile: `.github/workflows/${inputs.workflowFile}`,
-            jobName: github.context.job
+            client,
+            logger,
+            commitCardsFile,
         });
+
+        const elapsed = ((performance.now() - start) / 1000).toFixed(2);
+        logger.info(`All done in ${c.green(`${elapsed} seconds`)}!`);
     }
     catch (error) {
-        core.setFailed(error);
+        core.info('A fatal exception ocurred!');
+        core.debug('Error:');
         core.debug(error);
+
+        core.setFailed(error);
     }
 }
 
