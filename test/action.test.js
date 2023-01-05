@@ -51,7 +51,7 @@ function updateCardApiCall(options) {
 }
 
 describe.each([
-    [false]
+    [false],
     [[]]
 ])('when no cards are present', (cardsFileIds) => {
     describe.each([
@@ -75,7 +75,7 @@ describe.each([
         let gitCall = null;
 
         beforeEach(async() => {
-            if (cardsFileIds) {
+            if(cardsFileIds) {
                 await initCardFile(cardsFileIds);
             }
 

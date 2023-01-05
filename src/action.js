@@ -47,7 +47,7 @@ export default async function(options) {
     let existingCard = null;
     let cardId = null;
 
-    if (fs.existsSync(options.cardsFile)) {
+    if(fs.existsSync(options.cardsFile)) {
         cardId = JSON.parse(await readFile(options.cardsFile))[0];
     }
 
