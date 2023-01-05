@@ -1,5 +1,5 @@
 import yaml from 'js-yaml';
-import { readFile, writeFile } from './fs_util';
+import { readFile, writeFile } from './fs_util.js';
 
 export default async function(id, options = {}) {
     const { workflowFile, jobName } = options;
