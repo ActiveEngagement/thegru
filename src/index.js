@@ -2,7 +2,7 @@ import core from '@actions/core';
 import github from '@actions/github';
 import nodeFetch from 'node-fetch';
 import { readFile } from './fs_util.js';
-import wrapResponse from './wrap_response.js';
+import { wrapResponse } from './api_util.js';
 import getInputs from './inputs.js';
 import createClient from './api_client.js';
 import commitCardsFile from './commit_cards_file.js';
