@@ -5,7 +5,12 @@ import { readFile, writeFile } from './fs_util.js';
 import { pick } from './util.js';
 
 export default async function(options) {
-    options.logger ||= { debug() {} };
+    const logger = options.logger ||= {
+        debug() {},
+        info() {},
+        startGroup() {},
+        endGroup() {}
+    };
 
     const api = createApi(options.client, pick(options,
         { guruEndpoint: 'endpoint' },
@@ -18,7 +23,8 @@ export default async function(options) {
         ...pick(options,
             { footer: 'cardFooter' },
             { defaultFooter: 'defaultCardFooter' },
-            'repositoryUrl'
+            'repositoryUrl',
+            'logger'
         ),
         api
     });
@@ -35,12 +41,20 @@ export default async function(options) {
     }
 
     if(existingCard && !existingCard.archived) {
+        logger.info(`Updating previously uploaded card ${cardId}`);
         await api.updateCard(existingCard.id, {
             ...existingCard,
             content
         });
     }
     else {
+        if(cardId) {
+            logger.info(`Previously uploaded card ${cardId} no longer exists. A new card will be created.`);
+        }
+        else {
+            logger.info('No previously uploaded card found. Creating a new one...');
+        }
+
         const { id } = await api.createCard({
             title: options.cardTitle,
             collectionId: options.collectionId,
@@ -49,7 +63,12 @@ export default async function(options) {
             content
         });
 
+        logger.info(`Card ${id} created.`);
+        logger.info(`Updating the cards file at ${options.cardsFile}`);
+
         await writeFile(options.cardsFile, JSON.stringify([id]));
+
+        logger.info('Committing the cards file');
 
         await options.commitCardsFile({
             path: options.cardsFile,

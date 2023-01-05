@@ -7,9 +7,12 @@ import getInputs from './inputs.js';
 import createClient from './api_client.js';
 import commitCardsFile from './commit_cards_file.js';
 import action from './action.js';
+import { version } from './package.json';
+import { performance } from 'perf_hooks';
 
 async function main() {
     try {
+        const start = performance.now();
         const inputs = getInputs(core.getInput);
 
         const logger = {
@@ -19,11 +22,24 @@ async function main() {
                 }
             },
 
+            info(message) {
+                core.info(message);
+            },
+
+            startGroup(name) {
+                core.startGroup(name);
+            },
+
+            endGroup() {
+                core.endGroup();
+            },
+
             isDebug() {
                 return core.isDebug() || inputs.debugLogging;
             }
         };
 
+        logger.info(`Here we go! theguru v${version} is ready for takeoff!`);
         logger.debug(`Inputs: ${JSON.stringify(inputs)}`);
 
         async function fetch(method, url, options = {}) {
@@ -49,10 +65,16 @@ async function main() {
             logger,
             commitCardsFile,
         });
+
+        const elapsed = ((performance.now() - start) / 1000).toFixed(2);
+        logger.info(`All done in ${elapsed} seconds!`);
     }
     catch (error) {
-        core.setFailed(error);
+        core.info('A fatal exception ocurred!');
+        core.debug('Error:');
         core.debug(error);
+
+        core.setFailed(error);
     }
 }
 
