@@ -1,335 +1,217 @@
-import action from '../src/action.js';
+import runAction from '../src/action.js';
 import { FetchError } from '../src/error.js';
 import createClient from './support/api_client.js';
 import { resource } from './support/util.js';
+import fs from 'fs';
+import { readFile } from '../src/fs_util.js';
 
-test('creates new card in collection if none exists', async() => {
-    const client = createClient({
-        searchResult: [
-            {
-                id: 'wrong-title',
-                preferredPhrase: 'Wrong Title'
-            },
-            {
-                id: 'in-board',
-                preferredPhrase: 'Test Card',
-                boards: [{ id: 'b123' }]
-            }
-        ]
-    });
+beforeEach(async() => {
+    if(fs.existsSync('test/env')) {
+        await fs.promises.rm('test/env', { recursive: true });
+    }
+    await fs.promises.mkdir('test/env');
+});
 
-    await action({
-        client,
-        filePath: 'test/resources/test_card.md',
-        cardTitle: 'Test Card',
-        collectionId: 'c123'
-    });
+async function initWorkflow(name) {
 
-    expect(client.getCalls()[client.getCalls().length - 1]).toEqual({
-        type: 'createCard',
+    await fs.promises.copyFile(`test/resources/workflows/${name}.yaml`, 'test/env/workflow.yaml');
+}
+
+async function action(options) {
+    options.workflowFile ||= 'test/env/workflow.yaml';
+    options.jobName ||= 'example';
+    options.commitWorkflow ||= () => { };
+
+    return await runAction(options);
+}
+
+function apiCall(type, body) {
+    return {
+        type,
         options: {
-            body: {
-                shareStatus: 'TEAM',
-                preferredPhrase: 'Test Card',
-                collection: { id: 'c123' },
-                boards: [],
-                content: await resource('test_card_expected_output.html')
-            },
+            body,
             headers: {
                 accept: 'application/json',
                 authorization: 'Basic dW5kZWZpbmVkOnVuZGVmaW5lZA==',
                 'content-type': 'application/json'
             }
         }
+    };
+}
+
+function createCardApiCall(options) {
+    return apiCall('createCard', {
+        shareStatus: 'TEAM',
+        ...options
+    });
+}
+
+function updateCardApiCall(options) {
+    return apiCall('updateCard', options);
+}
+
+describe.each([
+    [undefined, undefined, []],
+    ['board123', undefined, [{ id: 'board123' }]],
+    [
+        'board123',
+        'boardSection123',
+        [{
+            id: 'board123',
+            action: {
+                actionType: 'add',
+                prevSiblingItem: 'boardSection123',
+                sectionId: 'boardSection123'
+            }
+        }],
+    ],
+    [undefined, 'boardSection123', []],
+])('when no card_id is given', (boardId, boardSectionId, boards) => {
+    let client = null;
+    let gitCall = null;
+
+    beforeEach(async() => {
+        await initWorkflow('simple');
+        client = createClient({ createCardResult: { id: 'newCard123' } });
+
+        await action({
+            client,
+            commitWorkflow: options => gitCall = options,
+            filePath: 'test/resources/test_card.md',
+            cardTitle: 'Test Card',
+            collectionId: 'c123',
+            boardId,
+            boardSectionId
+        });
+    });
+
+    it('makes exactly one api request to create the card', async() => {
+        expect(client.getCalls().length).toBe(1);
+        expect(client.getCalls()[0]).toEqual(createCardApiCall({
+            preferredPhrase: 'Test Card',
+            collection: { id: 'c123' },
+            boards,
+            content: await resource('test_card_expected_output.html')
+        }));
+    });
+
+    it('inserts the card id into the workflow file', async() => {
+        expect(await readFile('test/env/workflow.yaml')).toBe(await resource('workflows/simple_expectation.yaml'));
+    });
+
+    it('adds, commits, and pushes the workflow file to git', () => {
+        expect(gitCall.path).toBe('test/env/workflow.yaml');
+        expect(typeof gitCall.email).toBe('string');
+        expect(typeof gitCall.name).toBe('string');
+        expect(typeof gitCall.message).toBe('string');
     });
 });
 
-test('creates new card in board if none exists', async() => {
-    const client = createClient({
-        cardsForBoardResult: {
-            items: [
-                {
-                    type: 'fact',
-                    id: 'wrong-title',
-                    preferredPhrase: 'Wrong Title',
-                },
-                {
-                    type: 'section',
-                    id: 's123',
-                    items: [
-                        {
-                            type: 'fact',
-                            id: 'in-section',
-                            preferredPhrase: 'Test Card'
-                        }
-                    ]
-                }
-            ]
-        }
+describe.each([
+    [undefined, undefined, undefined],
+    ['collection123', undefined, undefined],
+    ['collection123', 'board123', undefined],
+    ['collection123', 'board123', 'boardSection123'],
+])('when an existing card_id is given', (collectionId, boardId, boardSectionId) => {
+    let client = null;
+    let gitCall = null;
+
+    beforeEach(async() => {
+        await initWorkflow('simple');
+        client = createClient({ getCardResult: { } });
+
+        await action({
+            client,
+            filePath: 'test/resources/test_card.md',
+            commitWorkflow: options => gitCall = options,
+            cardTitle: 'Final',
+            cardId: 'card123',
+            collectionId,
+            boardId,
+            boardSectionId
+        });
     });
 
-    await action({
-        client,
-        filePath: 'test/resources/test_card.md',
-        cardTitle: 'Test Card',
-        collectionId: 'c123',
-        boardId: 'b123'
+    it('updates the card', async() => {
+        expect(client.getCalls()[1]).toEqual(updateCardApiCall({
+            content: await resource('test_card_expected_output.html')
+        }));
     });
 
-    expect(client.getCalls()[client.getCalls().length - 1]).toEqual({
-        type: 'createCard',
-        options: {
-            body: {
-                shareStatus: 'TEAM',
-                preferredPhrase: 'Test Card',
-                collection: { id: 'c123' },
-                boards: [{ id: 'b123' }],
-                content: await resource('test_card_expected_output.html')
-            },
-            headers: {
-                accept: 'application/json',
-                authorization: 'Basic dW5kZWZpbmVkOnVuZGVmaW5lZA==',
-                'content-type': 'application/json'
-            }
-        }
+    it('does not touch the workflow file', async() => {
+        expect(await readFile('test/env/workflow.yaml')).toBe(await resource('workflows/simple.yaml'));
+    });
+
+    it('does not make a git call', () => {
+        expect(gitCall).toBe(null);
     });
 });
 
-test('creates new card in board section if none exists', async() => {
-    const client = createClient({
-        cardsForBoardResult: {
-            items: [
-                {
-                    type: 'fact',
-                    id: 'wrong-title',
-                    preferredPhrase: 'Wrong Title',
-                },
-                {
-                    type: 'fact',
-                    id: 'not-in-section',
-                    preferredPhrase: 'Test Card',
-                },
-                {
-                    type: 'section',
-                    id: 's123',
-                    items: [
-                        {
-                            type: 'fact',
-                            id: 'wrong-title',
-                            preferredPhrase: 'Wrong Title'
-                        }
-                    ]
-                }
-            ]
-        }
-    });
-
-    await action({
-        client,
-        filePath: 'test/resources/test_card.md',
-        cardTitle: 'Test Card',
-        collectionId: 'c123',
-        boardId: 'b123',
-        boardSectionId: 's123'
-    });
-
-    expect(client.getCalls()[client.getCalls().length - 1]).toEqual({
-        type: 'createCard',
-        options: {
-            body: {
-                shareStatus: 'TEAM',
-                preferredPhrase: 'Test Card',
-                collection: { id: 'c123' },
-                boards: [
-                    {
-                        id: 'b123',
-                        action: {
-                            actionType: 'add',
-                            prevSiblingItem: 's123',
-                            sectionId: 's123'
-                        }
-                    }
-                ],
-                content: await resource('test_card_expected_output.html')
-            },
-            headers: {
-                accept: 'application/json',
-                authorization: 'Basic dW5kZWZpbmVkOnVuZGVmaW5lZA==',
-                'content-type': 'application/json'
+describe.each([
+    [undefined, undefined, []],
+    ['board123', undefined, [{ id: 'board123' }]],
+    [
+        'board123',
+        'boardSection123',
+        [{
+            id: 'board123',
+            action: {
+                actionType: 'add',
+                prevSiblingItem: 'boardSection123',
+                sectionId: 'boardSection123'
             }
-        }
+        }],
+    ],
+    [undefined, 'boardSection123', []],
+])('when a nonexistent card_id is given', (boardId, boardSectionId, boards) => {
+    let client = null;
+    let gitCall = null;
+
+    beforeEach(async() => {
+        await initWorkflow('with_card_id');
+        client = createClient({
+            getCardResult: null,
+            createCardResult: { id: 'newCard123' }
+        });
+
+        await action({
+            client,
+            commitWorkflow: options => gitCall = options,
+            filePath: 'test/resources/test_card.md',
+            cardTitle: 'Test Card',
+            collectionId: 'c123',
+            boardId,
+            boardSectionId,
+            cardId: '1923123'
+        });
+    });
+
+    it('makes an api request to create the card', async() => {
+        expect(client.getCalls()[1]).toEqual(createCardApiCall({
+            preferredPhrase: 'Test Card',
+            collection: { id: 'c123' },
+            boards,
+            content: await resource('test_card_expected_output.html')
+        }));
+    });
+
+    it('replaces the card id in the workflow file', async() => {
+        expect(await readFile('test/env/workflow.yaml')).toBe(await resource('workflows/simple_expectation.yaml'));
+    });
+
+    it('adds, commits, and pushes the workflow file to git', () => {
+        expect(gitCall.path).toBe('test/env/workflow.yaml');
+        expect(typeof gitCall.email).toBe('string');
+        expect(typeof gitCall.name).toBe('string');
+        expect(typeof gitCall.message).toBe('string');
     });
 });
 
-test('updates existing card in collection', async() => {
+it('uploads local images', async() => {
     const client = createClient({
-        searchResult: [
-            {
-                id: 'wrong-title',
-                preferredPhrase: 'Wrong Title'
-            },
-            {
-                id: 'in-board',
-                preferredPhrase: 'Test Card',
-                boards: [{ id: 'b123' }]
-            },
-            {
-                id: 'target',
-                preferredPhrase: 'Test Card',
-                boards: []
-            }
-        ]
-    });
-
-    await action({
-        client,
-        filePath: 'test/resources/test_card.md',
-        cardTitle: 'Test Card',
-        collectionId: 'c123'
-    });
-
-    expect(client.getCalls()[client.getCalls().length - 1]).toEqual({
-        type: 'updateCard',
-        id: 'target',
-        options: {
-            body: {
-                id: 'target',
-                preferredPhrase: 'Test Card',
-                boards: [],
-                content: await resource('test_card_expected_output.html')
-            },
-            headers: {
-                accept: 'application/json',
-                authorization: 'Basic dW5kZWZpbmVkOnVuZGVmaW5lZA==',
-                'content-type': 'application/json'
-            }
-        }
-    });
-});
-
-test('updates existing card in board', async() => {
-    const client = createClient({
-        cardsForBoardResult: {
-            items: [
-                {
-                    type: 'fact',
-                    id: 'wrong-title',
-                    preferredPhrase: 'Wrong Title',
-                },
-                {
-                    type: 'section',
-                    id: 's123',
-                    items: [
-                        {
-                            type: 'fact',
-                            id: 'in-section',
-                            preferredPhrase: 'Test Card'
-                        }
-                    ]
-                },
-                {
-                    type: 'fact',
-                    id: 'target',
-                    preferredPhrase: 'Test Card'
-                }
-            ]
-        }
-    });
-
-    await action({
-        client,
-        filePath: 'test/resources/test_card.md',
-        cardTitle: 'Test Card',
-        collectionId: 'c123',
-        boardId: 'b123'
-    });
-
-    expect(client.getCalls()[client.getCalls().length - 1]).toEqual({
-        type: 'updateCard',
-        id: 'target',
-        options: {
-            body: {
-                type: 'fact',
-                id: 'target',
-                preferredPhrase: 'Test Card',
-                content: await resource('test_card_expected_output.html')
-            },
-            headers: {
-                accept: 'application/json',
-                authorization: 'Basic dW5kZWZpbmVkOnVuZGVmaW5lZA==',
-                'content-type': 'application/json'
-            }
-        }
-    });
-});
-
-test('updates existing card in board section', async() => {
-    const client = createClient({
-        cardsForBoardResult: {
-            items: [
-                {
-                    type: 'fact',
-                    id: 'wrong-title',
-                    preferredPhrase: 'Wrong Title',
-                },
-                {
-                    type: 'fact',
-                    id: 'not-in-section',
-                    preferredPhrase: 'Test Card',
-                },
-                {
-                    type: 'section',
-                    id: 's123',
-                    items: [
-                        {
-                            type: 'fact',
-                            id: 'wrong-title',
-                            preferredPhrase: 'Wrong Title'
-                        },
-                        {
-                            type: 'fact',
-                            id: 'target',
-                            preferredPhrase: 'Test Card'
-                        }
-                    ]
-                }
-            ]
-        }
-    });
-
-    await action({
-        client,
-        filePath: 'test/resources/test_card.md',
-        cardTitle: 'Test Card',
-        collectionId: 'c123',
-        boardId: 'b123',
-        boardSectionId: 's123'
-    });
-
-    expect(client.getCalls()[client.getCalls().length - 1]).toEqual({
-        type: 'updateCard',
-        id: 'target',
-        options: {
-            body: {
-                type: 'fact',
-                id: 'target',
-                preferredPhrase: 'Test Card',
-                content: await resource('test_card_expected_output.html')
-            },
-            headers: {
-                accept: 'application/json',
-                authorization: 'Basic dW5kZWZpbmVkOnVuZGVmaW5lZA==',
-                'content-type': 'application/json'
-            }
-        }
-    });
-});
-
-test('uploads local images', async() => {
-    const client = createClient({
-        searchResult: [],
         attachmentResult: { link: 'https://example.com/attachment.png' }
     });
+    await initWorkflow('simple');
 
     await action({
         client,
@@ -338,7 +220,7 @@ test('uploads local images', async() => {
         collectionId: 'c123',
     });
 
-    expect(client.getCalls()[client.getCalls().length - 3]).toMatchObject({
+    expect(client.getCalls()[0]).toMatchObject({
         type: 'uploadAttachment',
         fileName: 'empty.png',
         options: {
@@ -349,13 +231,14 @@ test('uploads local images', async() => {
         }
     });
 
-    expect(client.getCalls()[client.getCalls().length - 1].options.body.content).toEqual(
+    expect(client.getCalls()[1].options.body.content).toEqual(
         await resource('test_card_with_local_image_expected_output.html')
     );
 });
 
 test('with string card footer appends it', async() => {
-    const client = createClient({ searchResult: [] });
+    const client = createClient();
+    await initWorkflow('simple');
 
     await action({
         client,
@@ -366,13 +249,18 @@ test('with string card footer appends it', async() => {
         repositoryUrl: 'https://example.com'
     });
 
-    expect(client.getCalls()[client.getCalls().length - 1].options.body.content).toEqual(
+    expect(client.getCalls()[0].options.body.content).toEqual(
         await resource('test_card_with_footer_expected_output.html')
     );
 });
 
-test.each([[true], [undefined], [null]])('with true or undefined or null card footer appends default', async(cardFooter) => {
-    const client = createClient({ searchResult: [] });
+test.each([
+    [true],
+    [undefined],
+    [null]
+])('with true or undefined or null card footer appends default', async(cardFooter) => {
+    const client = createClient();
+    await initWorkflow('simple');
 
     await action({
         client,
@@ -390,7 +278,8 @@ test.each([[true], [undefined], [null]])('with true or undefined or null card fo
 });
 
 test('with no card footer given appends default', async() => {
-    const client = createClient({ searchResult: [] });
+    const client = createClient();
+    await initWorkflow('simple');
 
     await action({
         client,
@@ -412,7 +301,8 @@ test.each([
     [123],
     [123.45]
 ])('with any other non-string card footer does not append it', async(cardFooter) => {
-    const client = createClient({ searchResult: [] });
+    const client = createClient();
+    await initWorkflow('simple');
 
     await action({
         client,
@@ -431,7 +321,7 @@ test.each([
 
 test('with failed server JSON response throws proper error', async() => {
     const client = {
-        searchCards() {
+        getCard() {
             return {
                 ok: false,
 
@@ -456,7 +346,8 @@ test('with failed server JSON response throws proper error', async() => {
             client,
             filePath: 'test/resources/test_card.md',
             cardTitle: 'Test Card',
-            collectionId: 'c123'
+            collectionId: 'c123',
+            cardId: 'card123'
         });
     }
     catch (e) {
@@ -474,7 +365,7 @@ test('with failed server JSON response throws proper error', async() => {
 
 test('with failed server text response throws proper error', async() => {
     const client = {
-        searchCards() {
+        getCard() {
             return {
                 ok: false,
 
@@ -499,7 +390,8 @@ test('with failed server text response throws proper error', async() => {
             client,
             filePath: 'test/resources/test_card.md',
             cardTitle: 'Test Card',
-            collectionId: 'c123'
+            collectionId: 'c123',
+            cardId: '123'
         });
     }
     catch (e) {
@@ -517,7 +409,7 @@ test('with failed server text response throws proper error', async() => {
 
 test('with null server response throws proper error', async() => {
     const client = {
-        searchCards() {
+        getCard() {
             return {
                 ok: true,
 
@@ -542,7 +434,8 @@ test('with null server response throws proper error', async() => {
             client,
             filePath: 'test/resources/test_card.md',
             cardTitle: 'Test Card',
-            collectionId: 'c123'
+            collectionId: 'c123',
+            cardId: '123'
         });
     }
     catch (e) {
@@ -560,7 +453,7 @@ test('with null server response throws proper error', async() => {
 
 test('with non-JSON server response throws proper error', async() => {
     const client = {
-        searchCards() {
+        getCard() {
             return {
                 ok: true,
 
@@ -585,7 +478,8 @@ test('with non-JSON server response throws proper error', async() => {
             client,
             filePath: 'test/resources/test_card.md',
             cardTitle: 'Test Card',
-            collectionId: 'c123'
+            collectionId: 'c123',
+            cardId: '123'
         });
     }
     catch (e) {

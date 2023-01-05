@@ -1,5 +1,4 @@
 import { TheGuruError, FetchError, fetchErrorForResponse } from './error.js';
-import { flattenBoardCards } from './api_util.js';
 
 export default function(client, options) {
     const logger = options.logger;
@@ -63,16 +62,6 @@ export default function(client, options) {
         }
     }
 
-    async function cardsForBoard(boardId) {
-        logger.debug(`Getting all cards for board ${boardId}`);
-
-        const response = await client.cardsForBoard(boardId, {
-            headers: headers()
-        });
-
-        return (await validate(response)).items;
-    };
-
     async function createCard(options) {
         logger.debug(`Creating card with options ${JSON.stringify(options)}`);
 
@@ -124,35 +113,11 @@ export default function(client, options) {
             headers: headers()
         });
 
+        if(response.status === 404) {
+            return null;
+        }
+
         return await validate(response);
-    }
-
-    async function searchCards(options) {
-        logger.debug(`Searching cards with options ${JSON.stringify(options)}`);
-
-        const response = await client.searchCards({
-            headers: headers(),
-            body: JSON.stringify(options)
-        });
-
-        return (await validate(response));
-    }
-
-    async function getCardWith(title, collectionId, boardId = null, boardSectionId = null) {
-        let cards = [];
-
-        if(boardId) {
-            cards = flattenBoardCards(await cardsForBoard(boardId))
-                .filter(card => boardSectionId ? card.sectionId === boardSectionId : !card.sectionId);
-        }
-        else {
-            cards = await searchCards({
-                collectionIds: [collectionId]
-            });
-            cards = cards.filter(card => !card.boards || card.boards.length === 0);
-        }
-
-        return cards.find(card => card.preferredPhrase == title);
     }
 
     async function uploadAttachment(fileName, blob) {
@@ -166,12 +131,9 @@ export default function(client, options) {
     }
 
     return {
-        cardsForBoard,
         createCard,
         updateCard,
         getCard,
-        searchCards,
-        getCardWith,
         uploadAttachment
     };
 }

@@ -9,14 +9,6 @@ export default function(fetch, options = {}) {
         return new URL(path, baseEndpoint).href;
     }
 
-    async function cardsForBoard(boardId, options) {
-        const query = new URLSearchParams({
-            lite: true
-        });
-
-        return await fetch('GET', endpoint(`boards/${boardId}?${query}`), options);
-    };
-
     async function createCard(options) {
         return await fetch('POST', endpoint('cards/extended'), options);
     };
@@ -29,10 +21,6 @@ export default function(fetch, options = {}) {
         return await fetch('GET', endpoint(`cards/${id}`));
     }
 
-    async function searchCards(options) {
-        return await fetch('POST', endpoint(`search/cardmgr`), options);
-    }
-
     async function uploadAttachment(fileName, blob, options) {
         const formData = new FormData();
         formData.append('file', blob, fileName);
@@ -43,11 +31,9 @@ export default function(fetch, options = {}) {
     }
 
     return {
-        cardsForBoard,
         createCard,
         updateCard,
         getCard,
-        searchCards,
         uploadAttachment
     };
 }

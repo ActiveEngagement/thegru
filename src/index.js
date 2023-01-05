@@ -6,6 +6,7 @@ import { readFile } from './fs_util.js';
 import getInputs from './inputs.js';
 import createClient from './api_client.js';
 import wrapResponse from './wrap_response.js';
+import commitWorkflow from './commit_workflow';
 
 async function main() {
     try {
@@ -45,9 +46,12 @@ async function main() {
         await action({
             ...inputs,
             client,
+            commitWorkflow,
             logger,
             repositoryUrl: `${github.context.serverUrl}/${repo}`,
-            defaultCardFooter
+            defaultCardFooter,
+            workflowFile: `.github/workflows/${github.context.workflow}`,
+            jobName: github.context.job
         });
     }
     catch (error) {
