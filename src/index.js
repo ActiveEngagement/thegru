@@ -7,7 +7,7 @@ import getInputs from './inputs.js';
 import createClient from './api_client.js';
 import commitCardsFile from './commit_cards_file.js';
 import action from './action.js';
-import { version } from './package.json';
+import { version } from '../package.json';
 import { performance } from 'perf_hooks';
 
 async function main() {
