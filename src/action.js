@@ -55,7 +55,7 @@ export default async function(options) {
         existingCard = await api.getCard(cardId);
     }
 
-    if(existingCard) {
+    if(existingCard && !existingCard.archived) {
         await api.updateCard(existingCard.id, {
             ...existingCard,
             content

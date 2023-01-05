@@ -214,6 +214,47 @@ describe.each([
     });
 });
 
+describe('when an archived card id is present', () => {
+    let client = null;
+    let gitCall = null;
+
+    beforeEach(async() => {
+        await initCardFile('card123');
+        client = createClient({
+            getCardResult: { id: 'card123', archived: true },
+            createCardResult: { id: 'newCard123' }
+        });
+
+        await action({
+            client,
+            commitCardsFile: options => gitCall = options,
+            filePath: 'test/resources/test_card.md',
+            cardTitle: 'Test Card',
+            collectionId: 'c123',
+        });
+    });
+
+    it('makes an api request to create the card', async() => {
+        expect(client.getCalls()[1]).toEqual(createCardApiCall({
+            preferredPhrase: 'Test Card',
+            collection: { id: 'c123' },
+            boards: [],
+            content: await resource('test_card_expected_output.html')
+        }));
+    });
+
+    it('replaces the card id in the cards file', async() => {
+        expect(JSON.parse(await readFile('test/env/uploaded-cards.json'))).toStrictEqual(['newCard123']);
+    });
+
+    it('adds, commits, and pushes the cards file to git', () => {
+        expect(gitCall.path).toBe('test/env/uploaded-cards.json');
+        expect(typeof gitCall.email).toBe('string');
+        expect(typeof gitCall.name).toBe('string');
+        expect(typeof gitCall.message).toBe('string');
+    });
+});
+
 it('uploads local images', async() => {
     const client = createClient({
         attachmentResult: { link: 'https://example.com/attachment.png' }
