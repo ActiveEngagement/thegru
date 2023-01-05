@@ -17,8 +17,8 @@ export default function(fetch, options = {}) {
         return await fetch('PUT', endpoint(`cards/${id}/extended`), options);
     }
 
-    async function getCard(id) {
-        return await fetch('GET', endpoint(`cards/${id}`));
+    async function getCard(id, options) {
+        return await fetch('GET', endpoint(`cards/${id}`), options);
     }
 
     async function uploadAttachment(fileName, blob, options) {
