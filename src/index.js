@@ -50,7 +50,7 @@ async function main() {
             logger,
             repositoryUrl: `${github.context.serverUrl}/${repo}`,
             defaultCardFooter,
-            workflowFile: `.github/workflows/${github.context.workflow}`,
+            workflowFile: `.github/workflows/${inputs.workflowFile}`,
             jobName: github.context.job
         });
     }

@@ -15,6 +15,7 @@ export default function(getCoreInput) {
         boardSectionId: input('board_section_id').get(),
         cardFooter: input('card_footer').boolean({ allowOthers: true }).get(),
         cardId: input('card_id').get(),
+        workflowFile: input('workflow_file').fallback('guru.yaml').get(),
         debugLogging: input('debug_logging').fallback('false').boolean().get()
     };
 }
