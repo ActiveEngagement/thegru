@@ -26,7 +26,7 @@ export default async function(filePath, options = {}) {
     }
 
     async function uploadImage(url) {
-        logger.info(`Uploading and rewriting local image ${url}...`);
+        logger.info(`Uploading and rewriting local image ${url}`);
 
         const parentDir = path.dirname(filePath);
         const previousDir = process.cwd();
