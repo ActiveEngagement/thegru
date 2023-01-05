@@ -1,6 +1,7 @@
 import core from '@actions/core';
 import github from '@actions/github';
 import nodeFetch from 'node-fetch';
+import c from 'ansi-colors';
 import { readFile } from './fs_util.js';
 import { wrapResponse } from './api_util.js';
 import getInputs from './inputs.js';
@@ -39,7 +40,7 @@ async function main() {
             }
         };
 
-        logger.info(`Here we go! theguru v${version} is ready for takeoff!`);
+        logger.info(`Here we go! ${c.yellow('theguru')} ${c.green(`v${version}`)} is ready for takeoff!`);
         logger.debug(`Inputs: ${JSON.stringify(inputs)}`);
 
         async function fetch(method, url, options = {}) {
@@ -67,7 +68,7 @@ async function main() {
         });
 
         const elapsed = ((performance.now() - start) / 1000).toFixed(2);
-        logger.info(`All done in ${elapsed} seconds!`);
+        logger.info(`All done in ${c.green(`${elapsed} seconds!`)}`;
     }
     catch (error) {
         core.info('A fatal exception ocurred!');
