@@ -39,7 +39,7 @@ export default async function(options) {
 
     if(options.cardFooter && typeof options.cardFooter === 'string') {
         options.cardFooter = options.cardFooter.replaceAll('{{repository_url}}', options.repositoryUrl);
-        content += "\n\n" + options.cardFooter;
+        content += '\n\n' + options.cardFooter;
     }
 
     content = wrapGuruMarkdown(await prepare(content, { getImageUrl: getNewLocalImageUrl }));

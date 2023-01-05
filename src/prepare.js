@@ -17,7 +17,7 @@ export default async function(markdownInput, options = {}) {
     }
 
     function fixImageWidth(node) {
-        node.properties.style = "width: auto;";
+        node.properties.style = 'width: auto;';
     }
 
     async function transform(tree) {

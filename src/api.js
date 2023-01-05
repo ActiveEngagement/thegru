@@ -50,14 +50,14 @@ export default function(client, options) {
             throw fetchErrorForResponse(response, jsonOrText(text));
         }
         else if(text === null) {
-            throw new FetchError("Server responded with an invalid response");
+            throw new FetchError('Server responded with an invalid response');
         }
         else {
             try {
                 return JSON.parse(text);
             }
             catch {
-                throw new FetchError("Server responded with an invalid response");
+                throw new FetchError('Server responded with an invalid response');
             }
         }
     }
