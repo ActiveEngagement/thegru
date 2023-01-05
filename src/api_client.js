@@ -25,6 +25,10 @@ export default function(fetch, options = {}) {
         return await fetch('PUT', endpoint(`cards/${id}/extended`), options);
     }
 
+    async function getCard(id) {
+        return await fetch('GET', endpoint(`cards/${id}`));
+    }
+
     async function searchCards(options) {
         return await fetch('POST', endpoint(`search/cardmgr`), options);
     }
@@ -42,6 +46,7 @@ export default function(fetch, options = {}) {
         cardsForBoard,
         createCard,
         updateCard,
+        getCard,
         searchCards,
         uploadAttachment
     };

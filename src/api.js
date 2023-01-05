@@ -117,6 +117,16 @@ export default function(client, options) {
         return await validate(response);
     }
 
+    async function getCard(id) {
+        logger.debug(`Getting card with id ${id}`);
+
+        const response = await client.getCard(id, {
+            headers: headers()
+        });
+
+        return await validate(response);
+    }
+
     async function searchCards(options) {
         logger.debug(`Searching cards with options ${JSON.stringify(options)}`);
 
@@ -159,6 +169,7 @@ export default function(client, options) {
         cardsForBoard,
         createCard,
         updateCard,
+        getCard,
         searchCards,
         getCardWith,
         uploadAttachment

@@ -50,6 +50,15 @@ export default function(clientOptions) {
         return response(options);
     }
 
+    function getCard(id) {
+        calls.push({
+            type: 'getCard',
+            id
+        });
+
+        return response(clientOptions.getCardResult);
+    }
+
     function searchCards(options) {
         options.body = JSON.parse(options.body);
         calls.push({
@@ -76,6 +85,7 @@ export default function(clientOptions) {
         cardsForBoard,
         createCard,
         updateCard,
+        getCard,
         searchCards,
         uploadAttachment
     };
