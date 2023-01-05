@@ -13,7 +13,7 @@ test('correctly builds images', async() => {
     const expected = await resource('markdown_images_test_expectation.html');
 
     function getImageUrl() {
-        return "https://jlockard.com/new_path.png";
+        return 'https://jlockard.com/new_path.png';
     }
 
     expect(await prepare(doc, { getImageUrl })).toBe(expected);

@@ -15,6 +15,8 @@ inputs:
     required: false
   board_section_id:
     required: false
+  card_id:
+    required: false
   card_footer:
     required: false
 # TODO

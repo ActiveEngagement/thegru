@@ -1,5 +1,4 @@
 import { TheGuruError, FetchError, fetchErrorForResponse } from './error.js';
-import { flattenBoardCards } from './api_util.js';
 
 export default function(client, options) {
     const logger = options.logger;
@@ -51,27 +50,17 @@ export default function(client, options) {
             throw fetchErrorForResponse(response, jsonOrText(text));
         }
         else if(text === null) {
-            throw new FetchError("Server responded with an invalid response");
+            throw new FetchError('Server responded with an invalid response');
         }
         else {
             try {
                 return JSON.parse(text);
             }
             catch {
-                throw new FetchError("Server responded with an invalid response");
+                throw new FetchError('Server responded with an invalid response');
             }
         }
     }
-
-    async function cardsForBoard(boardId) {
-        logger.debug(`Getting all cards for board ${boardId}`);
-
-        const response = await client.cardsForBoard(boardId, {
-            headers: headers()
-        });
-
-        return (await validate(response)).items;
-    };
 
     async function createCard(options) {
         logger.debug(`Creating card with options ${JSON.stringify(options)}`);
@@ -117,32 +106,18 @@ export default function(client, options) {
         return await validate(response);
     }
 
-    async function searchCards(options) {
-        logger.debug(`Searching cards with options ${JSON.stringify(options)}`);
+    async function getCard(id) {
+        logger.debug(`Getting card with id ${id}`);
 
-        const response = await client.searchCards({
-            headers: headers(),
-            body: JSON.stringify(options)
+        const response = await client.getCard(id, {
+            headers: headers()
         });
 
-        return (await validate(response));
-    }
-
-    async function getCardWith(title, collectionId, boardId = null, boardSectionId = null) {
-        let cards = [];
-
-        if(boardId) {
-            cards = flattenBoardCards(await cardsForBoard(boardId))
-                .filter(card => boardSectionId ? card.sectionId === boardSectionId : !card.sectionId);
-        }
-        else {
-            cards = await searchCards({
-                collectionIds: [collectionId]
-            });
-            cards = cards.filter(card => !card.boards || card.boards.length === 0);
+        if(response.status === 404) {
+            return null;
         }
 
-        return cards.find(card => card.preferredPhrase == title);
+        return await validate(response);
     }
 
     async function uploadAttachment(fileName, blob) {
@@ -156,11 +131,9 @@ export default function(client, options) {
     }
 
     return {
-        cardsForBoard,
         createCard,
         updateCard,
-        searchCards,
-        getCardWith,
+        getCard,
         uploadAttachment
     };
 }

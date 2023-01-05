@@ -1,4 +1,4 @@
-export default function(clientOptions) {
+export default function(clientOptions = {}) {
     const calls = [];
 
     function getCalls() {
@@ -17,16 +17,6 @@ export default function(clientOptions) {
         };
     }
 
-    function cardsForBoard(boardId, options) {
-        calls.push({
-            type: 'cardsForBoard',
-            boardId,
-            options
-        });
-
-        return response(clientOptions.cardsForBoardResult);
-    }
-
     function createCard(options) {
         options.body = JSON.parse(options.body);
         calls.push({
@@ -34,7 +24,7 @@ export default function(clientOptions) {
             options
         });
 
-        return response({
+        return response(clientOptions.createCardResult || {
             id: '123'
         });
     }
@@ -50,14 +40,26 @@ export default function(clientOptions) {
         return response(options);
     }
 
-    function searchCards(options) {
-        options.body = JSON.parse(options.body);
+    function getCard(id) {
         calls.push({
-            type: 'searchCards',
-            options
+            type: 'getCard',
+            id
         });
 
-        return response(clientOptions.searchResult);
+        if(clientOptions.getCardResult === null) {
+            return {
+                ok: false,
+
+                status: 404,
+
+                text() {
+                    return null;
+                }
+            };
+        }
+        else {
+            return response(clientOptions.getCardResult);
+        }
     }
 
     function uploadAttachment(fileName, blob, options) {
@@ -73,10 +75,9 @@ export default function(clientOptions) {
 
     return {
         getCalls,
-        cardsForBoard,
         createCard,
         updateCard,
-        searchCards,
+        getCard,
         uploadAttachment
     };
 }

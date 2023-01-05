@@ -1,4 +1,4 @@
-import { FormData } from "node-fetch";
+import { FormData } from 'node-fetch';
 
 export default function(fetch, options = {}) {
     const baseEndpoint = options.endpoint || 'https://api.getguru.com/api/v1/';
@@ -9,14 +9,6 @@ export default function(fetch, options = {}) {
         return new URL(path, baseEndpoint).href;
     }
 
-    async function cardsForBoard(boardId, options) {
-        const query = new URLSearchParams({
-            lite: true
-        });
-
-        return await fetch('GET', endpoint(`boards/${boardId}?${query}`), options);
-    };
-
     async function createCard(options) {
         return await fetch('POST', endpoint('cards/extended'), options);
     };
@@ -25,8 +17,8 @@ export default function(fetch, options = {}) {
         return await fetch('PUT', endpoint(`cards/${id}/extended`), options);
     }
 
-    async function searchCards(options) {
-        return await fetch('POST', endpoint(`search/cardmgr`), options);
+    async function getCard(id, options) {
+        return await fetch('GET', endpoint(`cards/${id}`), options);
     }
 
     async function uploadAttachment(fileName, blob, options) {
@@ -35,14 +27,13 @@ export default function(fetch, options = {}) {
 
         options.body = options.body || formData;
 
-        return await fetch('POST', endpoint(`attachments/upload`), options);
+        return await fetch('POST', endpoint('attachments/upload'), options);
     }
 
     return {
-        cardsForBoard,
         createCard,
         updateCard,
-        searchCards,
+        getCard,
         uploadAttachment
     };
 }
