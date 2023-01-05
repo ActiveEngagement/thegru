@@ -6,7 +6,7 @@ import { readFile } from './fs_util.js';
 import getInputs from './inputs.js';
 import createClient from './api_client.js';
 import wrapResponse from './wrap_response.js';
-import commitWorkflow from './commit_workflow.js';
+import commitCardsFile from './commit_cards_file.js';
 
 async function main() {
     try {
@@ -46,7 +46,7 @@ async function main() {
         await action({
             ...inputs,
             client,
-            commitWorkflow,
+            commitCardsFile,
             logger,
             repositoryUrl: `${github.context.serverUrl}/${repo}`,
             defaultCardFooter,
