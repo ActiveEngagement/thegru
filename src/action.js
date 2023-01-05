@@ -64,11 +64,9 @@ export default async function(options) {
         });
 
         logger.info(`Card ${id} created.`);
-        logger.info(`Updating the cards file at ${options.cardsFile}`);
+        logger.info(`Updating ${options.cardsFile}`);
 
         await writeFile(options.cardsFile, JSON.stringify([id]));
-
-        logger.info('Committing the cards file');
 
         await options.commitCardsFile({
             path: options.cardsFile,
