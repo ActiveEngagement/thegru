@@ -1,15 +1,19 @@
-import createInputBuilder from './input_builder.js';
+import createInputBuilder, { valid, invalid } from './input_builder.js';
 
 export default function(getCoreInput) {
     function input(name) {
         return createInputBuilder(name, getCoreInput(name));
     }
 
+    function validateCards(name, value) {
+        const message = `"${name}" must be a valid JSON object with document paths as keys and card titles as values!`;
+        return Array.isArray(value) ? invalid(message) : valid();
+    };
+
     return {
         userEmail: input('user_email').required().get(),
         userToken: input('user_token').required().get(),
-        filePath: input('file_path').required().get(),
-        cardTitle: input('card_title').required().get(),
+        cards: input('cards').required().json().use(validateCards).get(),
         collectionId: input('collection_id').required().get(),
         boardId: input('board_id').get(),
         boardSectionId: input('board_section_id').get(),
