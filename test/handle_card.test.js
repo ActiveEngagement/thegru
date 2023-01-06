@@ -8,7 +8,7 @@ import nullLogger from './support/null_logger.js';
 
 async function handleCard(options) {
     options.logger ||= nullLogger();
-    if (options.client) {
+    if(options.client) {
         options.api = createApi(options.client, pick(options, 'logger'));
         delete options.client;
     }

@@ -17,7 +17,7 @@ export default async function(options) {
     const cardIds = JSON.parse(cardsFileContent);
     const newCardIds = {};
 
-    for (const [filePath, cardTitle] of Object.entries(options.cards)) {
+    for(const [filePath, cardTitle] of Object.entries(options.cards)) {
         logger.startGroup(filePath);
         const id = await handleCard({
             ...pick(options,
@@ -35,14 +35,14 @@ export default async function(options) {
             cardTitle,
             api,
             logger
-        })
+        });
         newCardIds[filePath] = id;
         logger.endGroup();
     }
 
     const newCardsFileContent = JSON.stringify(newCardIds);
 
-    if (newCardsFileContent !== cardsFileContent) {
+    if(newCardsFileContent !== cardsFileContent) {
         logger.info(`Updating ${options.cardsFile}`);
 
         await writeFile(options.cardsFile, JSON.stringify(newCardIds));

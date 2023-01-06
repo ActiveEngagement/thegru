@@ -55,18 +55,20 @@ export default function(name, value) {
     }
 
     function json(options = {}) {
-        if (value === null) {
-            if (options.allowInvalid) {
+        if(value === null) {
+            if(options.allowInvalid) {
                 value = null;
-            } else {
+            }
+            else {
                 throw new InvalidInputsError(`"${name}" must not be null!`);
             }
         }
 
         try {
             value = JSON.parse(value);
-        } catch {
-            if (!options.allowInvalid) {
+        }
+        catch {
+            if(!options.allowInvalid) {
                 throw new InvalidInputsError(`"${name}" must be valid JSON!`);
             }
         }
@@ -77,14 +79,14 @@ export default function(name, value) {
     function use(callback) {
         let result = callback(name, value);
 
-        if (result ===  undefined) {
+        if(result ===  undefined) {
             result = valid();
         }
 
-        if (!result.valid) {
+        if(!result.valid) {
             throw new InvalidInputsError(result.message || `"${name}" is not valid!`);
         }
-        if (result.data !== undefined) {
+        if(result.data !== undefined) {
             value = result.data;
         }
 

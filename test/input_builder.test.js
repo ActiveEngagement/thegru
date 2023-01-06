@@ -10,8 +10,8 @@ const noValueCases = [
 describe('simple builder', () => {
     it('returns value', () => {
         expect(input('test_value', 123).get()).toBe(123);
-    })
-})
+    });
+});
 
 describe('required builder', () => {
     it('returns value', () => {
@@ -24,7 +24,7 @@ describe('required builder', () => {
         expect(f(value)).toThrow(InvalidInputsError);
         expect(f(value)).toThrow('"test_value" is a required input!');
     });
-})
+});
 
 describe('builder with fallback', () => {
     it('returns value', () => {
@@ -34,7 +34,7 @@ describe('builder with fallback', () => {
     it.each(noValueCases)('returns fallback with no value', (value) => {
         expect(input('test_value', value).fallback(456).get()).toBe(456);
     });
-})
+});
 
 describe('boolean builder', () => {
     it('returns true with true', () => {
@@ -67,7 +67,7 @@ describe('json builder', () => {
             "two": {"abc": "value"}
         }`;
         expect(input('test', json).json().get()).toStrictEqual({ one: [1,2,3], two: {abc: 'value'}});
-    })
+    });
 
     describe.each([
         [null, '"test_value" must not be null!'],
@@ -79,13 +79,13 @@ describe('json builder', () => {
 
             expect(f).toThrow(InvalidInputsError);
             expect(f).toThrow(message);
-        })
+        });
 
         it('does nothing with allowInvalid', () => {
             const actual = input('test_value', value).json({ allowInvalid: true }).get();
             expect(actual).toBe(value);
-        })
-    })
+        });
+    });
 });
 
 describe('custom builder', () => {
