@@ -4,12 +4,13 @@ import getInputs from '../src/inputs.js';
 const inputs = {
     user_email: 'test@example.com',
     user_token: 'test123',
-    file_path: 'test.md',
-    card_title: 'Test',
+    cards: JSON.stringify({ }),
     collection_id: '123',
     board_id: '123',
     board_section_id: '123',
-    card_footer: 'Footer!'
+    card_footer: 'Footer!',
+    cards_file: 'something.json',
+    debug_logging: 'false'
 };
 
 function getInput(name) {
@@ -17,15 +18,16 @@ function getInput(name) {
 }
 
 test('returns object', () => {
-    expect(getInputs(getInput)).toMatchObject({
+    expect(getInputs(getInput)).toStrictEqual({
         userEmail: 'test@example.com',
         userToken: 'test123',
-        filePath: 'test.md',
-        cardTitle: 'Test',
+        cards: { },
         collectionId: '123',
         boardId: '123',
         boardSectionId: '123',
-        cardFooter: 'Footer!'
+        cardFooter: 'Footer!',
+        cardsFile: 'something.json',
+        debugLogging: false
     });
 });
 
@@ -45,20 +47,17 @@ test('user_token is required', () => {
     expect(f).toThrow('"user_token" is a required input!');
 });
 
-test('file_path is required', () => {
+test.each([
+    ['', '"cards" is a required input!'],
+    [null, '"cards" is a required input!'],
+    ['invalid', '"cards" must be valid JSON!'],
+    ['[]', '"cards" must be a valid JSON object with document paths as keys and card titles as values!'] 
+])('cards throws error if missing or invalid json', (value, message) => {
     const f = () => {
-        getInputs(name => name === 'file_path' ? '' : getInput(name));
+        getInputs(name => name === 'cards' ? value : getInput(name));
     };
     expect(f).toThrow(InvalidInputsError);
-    expect(f).toThrow('"file_path" is a required input!');
-});
-
-test('card_title is required', () => {
-    const f = () => {
-        getInputs(name => name === 'card_title' ? '' : getInput(name));
-    };
-    expect(f).toThrow(InvalidInputsError);
-    expect(f).toThrow('"card_title" is a required input!');
+    expect(f).toThrow(message);
 });
 
 test('collection_id is required', () => {
@@ -82,6 +81,11 @@ test('board_section_id is not required', () => {
 test('card_footer is not required', () => {
     const actual = getInputs(name => name === 'card_footer' ? '' : getInput(name)).cardFooter;
     expect(actual).toBe(null);
+});
+
+test('cards_file is not required and has default', () => {
+    const actual = getInputs(name => name === 'cards_file' ? '' : getInput(name)).cardsFile;
+    expect(actual).toBe('uploaded-guru-cards.json');
 });
 
 describe('debugLogging', () => {

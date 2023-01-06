@@ -1,6 +1,10 @@
 export default function(clientOptions = {}) {
     const calls = [];
 
+    function call(callable, ...args) {
+        return callable instanceof Function ? callable(...args) : callable;
+    }
+
     function getCalls() {
         return calls;
     }
@@ -24,7 +28,7 @@ export default function(clientOptions = {}) {
             options
         });
 
-        return response(clientOptions.createCardResult || {
+        return response(call(clientOptions.createCardResult, options) || {
             id: '123'
         });
     }
@@ -45,8 +49,9 @@ export default function(clientOptions = {}) {
             type: 'getCard',
             id
         });
+        const result = call(clientOptions.getCardResult, id);
 
-        if(clientOptions.getCardResult === null) {
+        if(result === null) {
             return {
                 ok: false,
 
@@ -58,7 +63,7 @@ export default function(clientOptions = {}) {
             };
         }
         else {
-            return response(clientOptions.getCardResult);
+            return response(result);
         }
     }
 
@@ -70,7 +75,7 @@ export default function(clientOptions = {}) {
             options
         });
 
-        return response(clientOptions.attachmentResult);
+        return response(call(clientOptions.attachmentResult, fileName, blob, options));
     }
 
     return {

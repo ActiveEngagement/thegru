@@ -1,5 +1,17 @@
 import { InvalidInputsError } from './error.js';
 
+export function valid() {
+    return { valid: true };
+}
+
+export function invalid(message = undefined) {
+    return { valid: false, message };
+}
+
+export function result(data = null) {
+    return { valid: true, data };
+}
+
 export default function(name, value) {
     function get() {
         return value;
@@ -10,33 +22,66 @@ export default function(name, value) {
     }
 
     function required() {
-        if(value === null) {
-            throw new InvalidInputsError(`"${name}" is a required input!`);
-        }
-
-        return this;
+        return this.use(() => {
+            if(value === null) {
+                return invalid(`"${name}" is a required input!`);
+            }
+        });
     }
 
     function fallback(fallbackValue) {
-        if(isInputMissing(value)) {
-            value = fallbackValue;
-        }
-
-        return this;
+        return this.use(() => {
+            if(isInputMissing(value)) {
+                return result(fallbackValue);
+            }
+        });
     }
 
     function boolean(options = {}) {
-        switch (value) {
-        case 'true':
-            value = true;
-            break;
-        case 'false':
-            value = false;
-            break;
-        default:
-            if(!options.allowOthers) {
-                throw new InvalidInputsError(`"${name}" must be "true" or "false"!`);
+        return this.use(() => {
+            switch (value) {
+            case 'true':
+                return result(true);
+            case 'false':
+                return result(false);
+            default:
+                if(!options.allowOthers) {
+                    return invalid(`"${name}" must be "true" or "false"!`);
+                }
             }
+        });
+    }
+
+    function json(options = {}) {
+        return this.use(() => {
+            if(value === null && !options.allowInvalid) {
+                return invalid(`"${name}" must not be null!`);
+            }
+
+            try {
+                return result(JSON.parse(value));
+            }
+            catch {
+                if(!options.allowInvalid) {
+                    return invalid(`"${name}" must be valid JSON!`);
+                }
+            }
+        });
+    }
+
+    function use(callback) {
+        let result = callback(name, value);
+
+        if(result === undefined) {
+            result = valid();
+        }
+
+        if(!result.valid) {
+            throw new InvalidInputsError(result.message || `"${name}" is not valid!`);
+        }
+
+        if(result.data !== undefined) {
+            value = result.data;
         }
 
         return this;
@@ -46,5 +91,5 @@ export default function(name, value) {
         value = null;
     }
 
-    return { get, required, fallback, boolean };
+    return { get, required, fallback, boolean, json, use };
 };

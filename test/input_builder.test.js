@@ -1,50 +1,131 @@
 import { InvalidInputsError } from '../src/error';
-import input from '../src/input_builder.js';
+import input, { invalid, result, valid } from '../src/input_builder.js';
 
-test('simple builder returns value', () => {
-    expect(input('test_value', 123).get()).toBe(123);
+const noValueCases = [
+    [null],
+    [undefined],
+    ['']
+];
+
+describe('simple builder', () => {
+    it('returns value', () => {
+        expect(input('test_value', 123).get()).toBe(123);
+    });
 });
 
-test('required builder returns value', () => {
-    expect(input('test_value', 123).required().get()).toBe(123);
+describe('required builder', () => {
+    it('returns value', () => {
+        expect(input('test_value', 123).required().get()).toBe(123);
+    });
+
+    it.each(noValueCases)('throws error with no value', (value) => {
+        const f = value => () => input('test_value', value).required();
+
+        expect(f(value)).toThrow(InvalidInputsError);
+        expect(f(value)).toThrow('"test_value" is a required input!');
+    });
 });
 
-test('required builder without value throws error', () => {
-    const f = value => () => input('test_value', value).required();
+describe('builder with fallback', () => {
+    it('returns value', () => {
+        expect(input('test_value', 123).fallback(456).get()).toBe(123);
+    });
 
-    expect(f(null)).toThrow(InvalidInputsError);
-    expect(f(null)).toThrow('"test_value" is a required input!');
-    expect(f('')).toThrow(InvalidInputsError);
-    expect(f('')).toThrow('"test_value" is a required input!');
+    it.each(noValueCases)('returns fallback with no value', (value) => {
+        expect(input('test_value', value).fallback(456).get()).toBe(456);
+    });
 });
 
-test('builder with fallback returns value', () => {
-    expect(input('test_value', 123).fallback(456).get()).toBe(123);
+describe('boolean builder', () => {
+    it('returns true with true', () => {
+        expect(input('test_value', 'true').boolean().get()).toBe(true);
+    });
+
+    it('returns false with false', () => {
+        expect(input('test_value', 'false').boolean().get()).toBe(false);
+    });
+
+    describe('with invalid value', () => {
+        it('throws error', () => {
+            const f = () => input('test_value', 'bad').boolean();
+
+            expect(f).toThrow(InvalidInputsError);
+            expect(f).toThrow('"test_value" must be "true" or "false"!');
+        });
+
+        it('does nothing with allowOthers', () => {
+            const actual = input('test_value', 'bad').boolean({ allowOthers: true }).get();
+            expect(actual).toBe('bad');
+        });
+    });
 });
 
-test('builder with fallback with no value returns fallback', () => {
-    expect(input('test_value', null).fallback(456).get()).toBe(456);
-    expect(input('test_value', '').fallback(456).get()).toBe(456);
+describe('json builder', () => {
+    it('returns parsed json when valid', () => {
+        const json = `{
+            "one": [1, 2, 3],
+            "two": {"abc": "value"}
+        }`;
+        expect(input('test', json).json().get()).toStrictEqual({ one: [1,2,3], two: {abc: 'value'}});
+    });
+
+    describe.each([
+        [null, '"test_value" must not be null!'],
+        ['invalid', '"test_value" must be valid JSON!'],
+        ['{ one: 123 }', '"test_value" must be valid JSON!']
+    ])('with invalid json', (value, message) => {
+        it('throws error', () => {
+            const f = () => input('test_value', value).json();
+
+            expect(f).toThrow(InvalidInputsError);
+            expect(f).toThrow(message);
+        });
+
+        it('does nothing with allowInvalid', () => {
+            const actual = input('test_value', value).json({ allowInvalid: true }).get();
+            expect(actual).toBe(value);
+        });
+    });
 });
 
-test('boolean builder with true returns true', () => {
-    expect(input('test_value', 'true').boolean().get()).toBe(true);
-});
+describe('custom builder', () => {
+    it('passes the name and value', () => {
+        const builder = function(name, value) {
+            expect(name).toBe('someRandomName!');
+            expect(value).toBe('someRandomValue!');
 
-test('boolean builder with false returns true', () => {
-    expect(input('test_value', 'false').boolean().get()).toBe(false);
-});
+            return valid();
+        };
+        input('someRandomName!', 'someRandomValue!').use(builder);
+    });
 
-test('boolean builder with invalid value throws error', () => {
-    const f = () => input('test_value', 'bad').boolean();
+    it('returns initial value when returns empty valid response', () => {
+        expect(input('input', 'initial').use(() => valid()).get()).toBe('initial');
+    });
 
-    expect(f).toThrow(InvalidInputsError);
-    expect(f).toThrow('"test_value" must be "true" or "false"!');
-});
+    it('returns initial value when returns undefined', () => {
+        expect(input('input', 'initial').use(() => { }).get()).toBe('initial');
+    });
 
-test('boolean builder with invalid value and allowOthers does nothing', () => {
-    const actual = input('test_value', 'bad').boolean({ allowOthers: true }).get();
-    expect(actual).toBe('bad');
+    it('returns new value when returns hydrated valid response', () => {
+        expect(input('input', 'initial').use(() => result(123)).get()).toBe(123);
+    });
+
+    it('returns new value when returns hydrated valid response', () => {
+        expect(input('input', 'initial').use(() => result(123)).get()).toBe(123);
+    });
+
+    it('throws default error when returns empty invalid response', () => {
+        const f = () => input('input', 'value').use(() => invalid());
+        expect(f).toThrow(InvalidInputsError);
+        expect(f).toThrow('"input" is not valid!');
+    });
+
+    it('throws proper error when returns hydrated invalid response', () => {
+        const f = () => input('input', 'value').use(() => invalid('Message!'));
+        expect(f).toThrow(InvalidInputsError);
+        expect(f).toThrow('Message!');
+    });
 });
 
 test('boolean required builder with fallback', () => {
