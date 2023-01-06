@@ -49,7 +49,7 @@ export default async function(options) {
         await writeFile(options.cardsFile, JSON.stringify(newCardIds));
 
         const message = (await readFile(new URL('resources/cards_commit_message.txt', import.meta.url)))
-            .replaceAll('{{cardsfile}}', options.cardsFile);
+            .replaceAll('{{cardsFile}}', options.cardsFile);
 
         await options.commitCardsFile({
             path: options.cardsFile,
