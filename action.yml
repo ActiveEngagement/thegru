@@ -5,9 +5,7 @@ inputs:
     required: true
   user_token:
     required: true
-  file_path:
-    required: true
-  card_title:
+  cards:
     required: true
   collection_id:
     required: true
@@ -15,9 +13,11 @@ inputs:
     required: false
   board_section_id:
     required: false
-  card_id:
-    required: false
   card_footer:
+    required: false
+  cards_file:
+    required: false
+  debug_logging:
     required: false
 # TODO
 runs:
