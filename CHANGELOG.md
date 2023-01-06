@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 0.2.0 - 2021-01-05
+
+### Added
+- Fancy logging.
+
+### Changed
+This version featured some drastic changes:
+- Switched from querying Guru for existing cards by title to storing the card ids in an auto-committed `uploaded-guru-cards.json` in the repository.
+- Switched from the `file_path` and `card_title` inputs to a JSON `cards` input which allows for multiple cards to be synced.
+
 ## 0.1.5 - 2023-01-03
 
 ### Fixed
@@ -42,4 +52,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial documented version.
 
-[Unreleased]: https://github.com/ActiveEngagement/theguru/compare/v0.1.5...HEAD
+[Unreleased]: https://github.com/ActiveEngagement/theguru/compare/v0.2.0...HEAD
