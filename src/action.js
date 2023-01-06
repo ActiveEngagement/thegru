@@ -1,3 +1,4 @@
+import fs from 'fs';
 import createApi from './api.js';
 import { pick } from './util.js';
 import handleCard from './handle_card.js';
@@ -13,7 +14,7 @@ export default async function(options) {
         'logger'
     ));
 
-    const cardsFileContent = await readFile(options.cardsFile);
+    const cardsFileContent = fs.existsSync(options.cardsFile) ? await readFile(options.cardsFile) : '{}';
     const cardIds = JSON.parse(cardsFileContent);
     const newCardIds = {};
 

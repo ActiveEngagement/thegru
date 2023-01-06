@@ -23,6 +23,7 @@ async function action(options) {
     options.cardsFile ||= 'test/env/uploaded-cards.json';
     options.defaultCardFooter ||= '<{{repository_url}}>';
     options.repositoryUrl ||= 'https://example.com';
+    options.commitCardsFile ||= () => { };
 
     return await runAction(options);
 }
@@ -98,5 +99,29 @@ describe('in a typical scenario', () => {
         expect(typeof gitCall.email).toBe('string');
         expect(typeof gitCall.name).toBe('string');
         expect(typeof gitCall.message).toBe('string');
+    });
+});
+
+describe('with nonexistent cards file', () => {
+    beforeEach(async() => {
+        await action({
+            client: createClient({
+                createCardResult: { id: '123' }
+            }),
+            collectionId: 'c123',
+            cards: {
+                'test/resources/test_card.md': 'Test 123',
+                'test/resources/test_card_3.md': 'Test 789',
+                'test/resources/test_card_2.md': 'Test 456',
+            }
+        });
+    });
+
+    it('creates the cards file', async() => {
+        expect(JSON.parse(await readFile('test/env/uploaded-cards.json'))).toStrictEqual({
+            'test/resources/test_card.md': '123',
+            'test/resources/test_card_3.md': '123',
+            'test/resources/test_card_2.md': '123'
+        });
     });
 });
