@@ -14,9 +14,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Changed the cards file serializer to output formatted JSON for better readability.
 
-### Fixed
-- Fixed an issue where the action might fail if debug logging was enabled.
-
 ## 0.2.0 - 2021-01-05
 
 ### Added
@@ -38,7 +35,7 @@ This version featured some drastic changes:
 - Fixed a bug where the default card footer was not getting appended.
 - Fixed a bug where the `card_footer: true` did not cause the default card footer to be appended.
 - Fixed an issue where new cards were being created instead of existing ones being overwritten.
-- Fixed an issue where the action might fail if debug logging was enabled. (*NOTE*: This did not actually solve the problem. Please use v0.3.0 or greater.).
+- Fixed an issue where the action might fail if debug logging was enabled.
 
 
 ## 0.1.3 - 2023-01-03
