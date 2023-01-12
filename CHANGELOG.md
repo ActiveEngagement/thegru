@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 0.3.0 - 2021-01-12
+
+## Added
+- Added the functionality to automatically delete cards from Guru. Now, cards removed from the workflow will be deleted automatically.
+
+### Changed
+- Changed the cards file serializer to output formatted JSON for better readability.
+
 ## 0.2.0 - 2021-01-05
 
 ### Added
@@ -52,4 +60,4 @@ This version featured some drastic changes:
 ### Added
 - Initial documented version.
 
-[Unreleased]: https://github.com/ActiveEngagement/theguru/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/ActiveEngagement/theguru/compare/v0.3.0...HEAD
