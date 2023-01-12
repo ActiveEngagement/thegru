@@ -17,6 +17,10 @@ export default function(fetch, options = {}) {
         return await fetch('PUT', endpoint(`cards/${id}/extended`), options);
     }
 
+    async function destroyCard(id, options) {
+        return await fetch('DELETE', endpoint(`cards/${id}`), options);
+    }
+
     async function getCard(id, options) {
         return await fetch('GET', endpoint(`cards/${id}`), options);
     }
@@ -33,6 +37,7 @@ export default function(fetch, options = {}) {
     return {
         createCard,
         updateCard,
+        destroyCard,
         getCard,
         uploadAttachment
     };

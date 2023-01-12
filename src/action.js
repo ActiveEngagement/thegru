@@ -3,6 +3,7 @@ import createApi from './api.js';
 import { pick } from './util.js';
 import handleCard from './handle_card.js';
 import { readFile, writeFile } from './fs_util.js';
+import { FetchError } from './error.js';
 
 export default async function(options) {
     const { logger } = options;
@@ -39,6 +40,25 @@ export default async function(options) {
         });
         newCardIds[filePath] = id;
         logger.endGroup();
+    }
+
+    for(const [filePath, id] of Object.entries(cardIds)) {
+        if(!Object.values(newCardIds).some((newId) => id === newId)) {
+            logger.startGroup(filePath);
+            logger.info(`Previously uploaded card ${id} has been removed from the cards config. It will be destroyed.`);
+            try {
+                await api.destroyCard(id);
+            }
+            catch (e) {
+                if(e instanceof FetchError && e.response.status === 404) {
+                    logger.info(`Could not destroy card ${id} that does not eixst in Guru.`);
+                }
+                else {
+                    throw e;
+                }
+            }
+            logger.endGroup();
+        }
     }
 
     const newCardsFileContent = JSON.stringify(newCardIds);

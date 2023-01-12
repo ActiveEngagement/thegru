@@ -3,7 +3,7 @@ import createClient from './support/api_client.js';
 import { resource } from './support/util.js';
 import fs from 'fs';
 import { readFile, writeFile } from '../src/fs_util.js';
-import consoleLogger from './support/console_logger.js';
+import arrayLogger from './support/array_logger.js';
 import nullLogger from './support/null_logger.js';
 
 beforeEach(async() => {
@@ -32,18 +32,23 @@ describe('in a typical scenario', () => {
     let client = null;
     let gitCall = null;
     let expectedContent = null;
+    let logger = null;
 
     beforeEach(async() => {
         await initCardsFile({
             'test/resources/test_card.md': '123',
             'test/resources/test_card_2.md': '456',
-            'nonexistent': '000'
+            'removed_locally': '000',
+            'removed_remotely': 'xxx'
         });
 
         client = createClient({
             createCardResult: { id: '789' },
-            getCardResult: (id) => id === '123' || id === '456' ? { id } : null
+            destroyCardResult: (id) => id === 'xxx' ? 'not_found' : undefined,
+            getCardResult: (id) => id === '123' || id === '456' ? { id } : 'not_found'
         });
+
+        logger = arrayLogger();
 
         expectedContent = await resource('test_card_with_footer_expected_output.html');
 
@@ -55,7 +60,8 @@ describe('in a typical scenario', () => {
                 'test/resources/test_card.md': 'Test 123',
                 'test/resources/test_card_3.md': 'Test 789',
                 'test/resources/test_card_2.md': 'Test 456',
-            }
+            },
+            logger
         });
     });
 
@@ -84,6 +90,23 @@ describe('in a typical scenario', () => {
         );
         expect(call).toBeTruthy();
         expect(call.options.body.content).toBe(expectedContent);
+    });
+
+    it('destroys 000', () => {
+        const call = client.getCalls().find((call) =>
+            call.type === 'destroyCard' &&
+            call.id === '000'
+        );
+        expect(call).toBeTruthy();
+    });
+
+    it('attempts to destroy xxx', () => {
+        const call = client.getCalls().find((call) =>
+            call.type === 'destroyCard' &&
+            call.id === 'xxx'
+        );
+        expect(call).toBeTruthy();
+        expect(logger.getMessages().some((msg) => msg.startsWith('Could not destroy card xxx')));
     });
 
     it('correctly updates the cards file', async() => {
