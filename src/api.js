@@ -1,3 +1,4 @@
+import { wrapResponse } from './api_util.js';
 import { TheGuruError, FetchError, fetchErrorForResponse } from './error.js';
 
 export default function(client, options) {
@@ -44,6 +45,7 @@ export default function(client, options) {
     }
 
     async function validate(response) {
+        wrapResponse(response);
         const text = await response.text();
 
         if(!response.ok) {
