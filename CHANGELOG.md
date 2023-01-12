@@ -8,11 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.3.0 - 2021-01-12
 
-## Added
+### Added
 - Added the functionality to automatically delete cards from Guru. Now, cards removed from the workflow will be deleted automatically.
 
 ### Changed
 - Changed the cards file serializer to output formatted JSON for better readability.
+
+### Fixed
+- Fixed an issue where the action might fail if debug logging was enabled.
 
 ## 0.2.0 - 2021-01-05
 
@@ -35,7 +38,7 @@ This version featured some drastic changes:
 - Fixed a bug where the default card footer was not getting appended.
 - Fixed a bug where the `card_footer: true` did not cause the default card footer to be appended.
 - Fixed an issue where new cards were being created instead of existing ones being overwritten.
-- Fixed an issue where the action might fail if debug logging was enabled.
+- Fixed an issue where the action might fail if debug logging was enabled. (*NOTE*: This did not actually solve the problem. Please use v0.3.0 or greater.).
 
 
 ## 0.1.3 - 2023-01-03
@@ -49,7 +52,7 @@ This version featured some drastic changes:
 ## 0.1.2 - 2023-01-03
 
 ### Fixed
-- Fixed a fatal error related to a broken resource path. (**NOTE**: This did not actually solve the problem. Please use v0.1.3 or greater.)
+- Fixed a fatal error related to a broken resource path. (*NOTE*: This did not actually solve the problem. Please use v0.1.3 or greater.)
 
 ## 0.1.1 - 2023-01-03
 
