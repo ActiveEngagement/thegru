@@ -32,7 +32,7 @@ export default async function(options) {
     }
     else {
         if(cardId) {
-            logger.info(`Previously uploaded card ${cardId} no longer exists. A new card will be created.`);
+            logger.info(`Previously uploaded card ${cardId} no longer exists. Creating a new one...`);
         }
         else {
             logger.info('No previously uploaded card found. Creating a new one...');
