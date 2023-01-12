@@ -108,7 +108,7 @@ Since this is a sensitive value, you should store it in an Actions secret and pa
 
 REQUIRED. The UUID or slug of the collection in which to create cards.
 
-If a card has not yet been created for one of the synced Markdown files, or if it has been deleted in Guru, then we will automatically create a new card in the collection indicated by this input.
+If a card does not exist in Guru for one of the synced Markdown files (i.e. it has not yet been created or it has been removed from Guru), then we will automatically create a new card in the collection indicated by this input.
 
 If a `board_id` is not also specified, then the cards will show up under the "Card not on a Board" node in the Guru interface.
 
@@ -146,13 +146,13 @@ The following will **NOT** work:
 
 OPTIONAL. The UUID or slug of the board in which to create cards.
 
-If a card has not yet been created for one of the synced Markdown files, or if it has been deleted in Guru, then we will automatically create a new card in the collection indicated by `collection_id` and the board indicated by this input.
+If a card does not exist in Guru for one of the synced Markdown files (i.e. it has not yet been created or it has been removed from Guru), then we will automatically create a new card in the collection indicated by `collection_id` and the board indicated by this input.
 
 ### `board_section_id`
 
 OPTIONAL. The UUID of the board section in which to create cards.
 
-If a card has not yet been created for one of the synced Markdown files, or if it has been deleted in Guru, then we will automatically create a new card in the collection indicated by `collection_id`, the board indicated by `board_id`, and the board section indicated by this input.
+If a card does not exist in Guru for one of the synced Markdown files (i.e. it has not yet been created or it has been removed from Guru), then we will automatically create a new card in the collection indicated by `collection_id`, the board indicated by `board_id`, and the board section indicated by this input.
 
 If `board_id` is not also specified, this input will be ignored.
 
