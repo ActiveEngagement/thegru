@@ -92,7 +92,7 @@ Additionally, if you change the file paths of any Markdown files (i.e. rename th
 
 REQUIRED. The user email.
 
-This email will be included in the HTTP Basic Auth header on all API requests. API tokens are tied to a user in Guru. This email must be that of the user to which the `user_token` is associated.
+This email will be included in the HTTP Basic Auth header on all API requests. API tokens are tied to a user in Guru. This email must be that of the user with which the `user_token` is associated.
 
 If you wish to keep this email a secret, you may store it in an Actions secret and pass it to theguru.
 
