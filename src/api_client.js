@@ -11,7 +11,7 @@ export default function(fetch, options = {}) {
 
     async function createCard(options) {
         return await fetch('POST', endpoint('cards/extended'), options);
-    };
+    }
 
     async function updateCard(id, options) {
         return await fetch('PUT', endpoint(`cards/${id}/extended`), options);
