@@ -10,10 +10,10 @@ export function wrapResponse(response) {
 
     response.text = async function() {
         if(text === undefined) {
-            if (response.status === 204) {
+            if (this.status === 204) {
                 text = null;
             } else {
-                text = await response.readTextFromStream();
+                text = await this.readTextFromStream();
             }
         }
 
