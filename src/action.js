@@ -46,7 +46,7 @@ export default async function(options) {
     if(newCardsFileContent !== cardsFileContent) {
         logger.info(`Updating ${options.cardsFile}`);
 
-        await writeFile(options.cardsFile, JSON.stringify(newCardIds));
+        await writeFile(options.cardsFile, JSON.stringify(newCardIds, null, 4));
 
         const message = (await readFile(new URL('resources/cards_commit_message.txt', import.meta.url)))
             .replaceAll('{{cardsFile}}', options.cardsFile);
