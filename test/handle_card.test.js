@@ -347,6 +347,7 @@ test('with failed server JSON response throws proper error', async() => {
 
     expect(response).toBe(null);
     expect(error.toString()).toBe('FetchError: Server responded with a 400 status code: Custom error message!');
+    expect(error.response.status).toBe(400);
 });
 
 test('with failed server text response throws proper error', async() => {
@@ -391,6 +392,7 @@ test('with failed server text response throws proper error', async() => {
 
     expect(response).toBe(null);
     expect(error.toString()).toBe('FetchError: Server responded with a 403 status code');
+    expect(error.response.status).toBe(403);
 });
 
 test('with null server response throws proper error', async() => {
@@ -435,6 +437,7 @@ test('with null server response throws proper error', async() => {
 
     expect(response).toBe(null);
     expect(error.toString()).toBe('FetchError: Server responded with an invalid response');
+    expect(error.response.text()).toBe(null);
 });
 
 test('with non-JSON server response throws proper error', async() => {
@@ -479,4 +482,5 @@ test('with non-JSON server response throws proper error', async() => {
 
     expect(response).toBe(null);
     expect(error.toString()).toBe('FetchError: Server responded with an invalid response');
+    expect(error.response.text()).toBe('Random response.');
 });
