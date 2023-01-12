@@ -15,15 +15,15 @@ export class InvalidInputsError extends TheGuruError {
 export function fetchErrorForResponse(response, json) {
     const description = json?.description;
     const message = description ? `Server responded with a ${response.status} status code: ${description}` : `Server responded with a ${response.status} status code`;
-    const error = new FetchError(message);
-    error.response = response;
+    const error = new FetchError(message, response);
     error.json = json;
 
     return error;
 }
 export class FetchError extends TheGuruError {
-    constructor(message) {
+    constructor(message, response) {
         super(message);
         this.name = this.constructor.name;
+        this.response = response;
     }
 }
