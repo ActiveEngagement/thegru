@@ -21,6 +21,18 @@ export default function(clientOptions = {}) {
         };
     }
 
+    function notFoundResponse() {
+        return {
+            ok: false,
+
+            status: 404,
+
+            text() {
+                return null;
+            }
+        };
+    }
+
     function createCard(options) {
         options.body = JSON.parse(options.body);
         calls.push({
@@ -44,6 +56,21 @@ export default function(clientOptions = {}) {
         return response(options);
     }
 
+    function destroyCard(id, options) {
+        calls.push({
+            type: 'destroyCard',
+            id,
+            options
+        });
+
+        if(call(clientOptions.destroyCardResult, id) === 'not_found') {
+            return notFoundResponse();
+        }
+        else {
+            return response(options);
+        }
+    }
+
     function getCard(id) {
         calls.push({
             type: 'getCard',
@@ -51,16 +78,8 @@ export default function(clientOptions = {}) {
         });
         const result = call(clientOptions.getCardResult, id);
 
-        if(result === null) {
-            return {
-                ok: false,
-
-                status: 404,
-
-                text() {
-                    return null;
-                }
-            };
+        if(result === 'not_found') {
+            return notFoundResponse();
         }
         else {
             return response(result);
@@ -82,6 +101,7 @@ export default function(clientOptions = {}) {
         getCalls,
         createCard,
         updateCard,
+        destroyCard,
         getCard,
         uploadAttachment
     };

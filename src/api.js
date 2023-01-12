@@ -106,6 +106,16 @@ export default function(client, options) {
         return await validate(response);
     }
 
+    async function destroyCard(id) {
+        logger.debug(`Destroying card with id ${id}`);
+
+        const response = await client.destroyCard(id, {
+            headers: headers()
+        });
+
+        return await validate(response);
+    }
+
     async function getCard(id) {
         logger.debug(`Getting card with id ${id}`);
 
@@ -133,6 +143,7 @@ export default function(client, options) {
     return {
         createCard,
         updateCard,
+        destroyCard,
         getCard,
         uploadAttachment
     };
