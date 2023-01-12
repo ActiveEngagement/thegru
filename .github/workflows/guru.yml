@@ -1,0 +1,19 @@
+name: Guru
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  guru:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ActiveEngagement/theguru@v0.3
+        with:
+          user_email: ${{ secrets.GURU_USER_EMAIL }}
+          user_token: ${{ secrets.GURU_USER_TOKEN }}
+          collection_id: 68517b36-e873-4bf0-8aae-c486ea45ea0d
+          cards: |
+            { "README.md": "theguru GitHub Action" }
