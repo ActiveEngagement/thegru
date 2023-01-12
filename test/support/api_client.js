@@ -21,6 +21,18 @@ export default function(clientOptions = {}) {
         };
     }
 
+    function noContentResponse() {
+        return {
+            ok: true,
+
+            status: 204,
+
+            text() {
+                return null;
+            }
+        };
+    }
+
     function notFoundResponse() {
         return {
             ok: false,
@@ -63,12 +75,7 @@ export default function(clientOptions = {}) {
             options
         });
 
-        if(call(clientOptions.destroyCardResult, id) === 'not_found') {
-            return notFoundResponse();
-        }
-        else {
-            return response(options);
-        }
+        return noContentResponse();
     }
 
     function getCard(id) {

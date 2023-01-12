@@ -1,5 +1,4 @@
-import { wrapResponse } from './api_util.js';
-import { TheGuruError, FetchError, fetchErrorForResponse } from './error.js';
+import { FetchError, fetchErrorForResponse } from './error.js';
 
 export default function(client, options) {
     const logger = options.logger;
@@ -45,21 +44,20 @@ export default function(client, options) {
     }
 
     async function validate(response) {
-        wrapResponse(response);
         const text = await response.text();
 
         if(!response.ok) {
             throw fetchErrorForResponse(response, jsonOrText(text));
         }
         else if(text === null) {
-            throw new FetchError('Server responded with an invalid response');
+            return null;
         }
         else {
             try {
                 return JSON.parse(text);
             }
             catch {
-                throw new FetchError('Server responded with an invalid response');
+                throw new FetchError('Server responded with an invalid response', response);
             }
         }
     }

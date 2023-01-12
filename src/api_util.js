@@ -4,12 +4,19 @@ export function wrapGuruMarkdown(input) {
 }
 
 export function wrapResponse(response) {
-    let text = null;
+    let text = undefined;
 
     response.readTextFromStream = response.text;
 
     response.text = async function() {
-        text ||= await response.readTextFromStream();
+        if(text === undefined) {
+            if(response.status === 204) {
+                text = null;
+            }
+            else {
+                text = await response.readTextFromStream();
+            }
+        }
 
         return text;
     };

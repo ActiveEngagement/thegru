@@ -45,7 +45,7 @@ export default async function(options) {
     for(const [filePath, id] of Object.entries(cardIds)) {
         if(!Object.values(newCardIds).some((newId) => id === newId)) {
             logger.startGroup(filePath);
-            logger.info(`Previously uploaded card ${id} has been removed from the cards config. It will be destroyed.`);
+            logger.info(`Previously uploaded card ${id} has been removed from the cards config. Removing it from Guru...`);
             try {
                 await api.destroyCard(id);
             }

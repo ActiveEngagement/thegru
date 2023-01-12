@@ -347,6 +347,7 @@ test('with failed server JSON response throws proper error', async() => {
 
     expect(response).toBe(null);
     expect(error.toString()).toBe('FetchError: Server responded with a 400 status code: Custom error message!');
+    expect(error.response.status).toBe(400);
 });
 
 test('with failed server text response throws proper error', async() => {
@@ -391,51 +392,9 @@ test('with failed server text response throws proper error', async() => {
 
     expect(response).toBe(null);
     expect(error.toString()).toBe('FetchError: Server responded with a 403 status code');
+    expect(error.response.status).toBe(403);
 });
 
-test('with null server response throws proper error', async() => {
-    const client = {
-        getCard() {
-            return {
-                ok: true,
-
-                status: 200,
-
-                text() {
-                    return null;
-                },
-
-                json() {
-                    return null;
-                }
-            };
-        }
-    };
-
-    let error = null;
-    let response = null;
-
-    try {
-        response = await handleCard({
-            client,
-            filePath: 'test/resources/test_card.md',
-            cardTitle: 'Test Card',
-            collectionId: 'c123',
-            existingCardIds: { 'test/resources/test_card.md': 'card123', }
-        });
-    }
-    catch (e) {
-        if(e instanceof FetchError) {
-            error = e;
-        }
-        else {
-            throw e;
-        }
-    }
-
-    expect(response).toBe(null);
-    expect(error.toString()).toBe('FetchError: Server responded with an invalid response');
-});
 
 test('with non-JSON server response throws proper error', async() => {
     const client = {
@@ -479,4 +438,5 @@ test('with non-JSON server response throws proper error', async() => {
 
     expect(response).toBe(null);
     expect(error.toString()).toBe('FetchError: Server responded with an invalid response');
+    expect(error.response.text()).toBe('Random response.');
 });
