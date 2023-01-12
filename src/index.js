@@ -3,7 +3,6 @@ import github from '@actions/github';
 import nodeFetch from 'node-fetch';
 import c from 'ansi-colors';
 import { readFile } from './fs_util.js';
-import { wrapResponse } from './api_util.js';
 import getInputs from './inputs.js';
 import createClient from './api_client.js';
 import commitCardsFile from './commit_cards_file.js';
@@ -47,7 +46,7 @@ async function main() {
             options.method = options.method || method;
             logger.debug(`Sending HTTP request to ${url} with options: ${JSON.stringify(options)}`);
 
-            const response = wrapResponse(await nodeFetch(url, options));
+            const response = await nodeFetch(url, options);
 
             logger.debug(`Received response from ${url}: ${await response.text()}`);
 
