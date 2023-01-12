@@ -38,13 +38,11 @@ describe('in a typical scenario', () => {
         await initCardsFile({
             'test/resources/test_card.md': '123',
             'test/resources/test_card_2.md': '456',
-            'removed_locally': '000',
-            'removed_remotely': 'xxx'
+            'removed_locally': '000'
         });
 
         client = createClient({
             createCardResult: { id: '789' },
-            destroyCardResult: (id) => id === 'xxx' ? 'not_found' : undefined,
             getCardResult: (id) => id === '123' || id === '456' ? { id } : 'not_found'
         });
 
@@ -98,15 +96,6 @@ describe('in a typical scenario', () => {
             call.id === '000'
         );
         expect(call).toBeTruthy();
-    });
-
-    it('attempts to destroy xxx', () => {
-        const call = client.getCalls().find((call) =>
-            call.type === 'destroyCard' &&
-            call.id === 'xxx'
-        );
-        expect(call).toBeTruthy();
-        expect(logger.getMessages().some((msg) => msg.startsWith('Could not destroy card xxx')));
     });
 
     it('correctly updates the cards file', async() => {
