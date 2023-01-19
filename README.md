@@ -18,7 +18,7 @@ Get the [ids or slugs](#identifiers) of the Guru collection, board, and/or board
 Finally, add the template below to your workflow file (in `.github/workflows`). You may add this to an existing workflow or create a new one solely for Guru. Insert your own [`collection_id`](#collection_id). Optionally insert your own [`board_id`](#board_id) and/or [`board_section_id`](#board_section_id), or remove those lines. Adjust [`cards`](#cards) as desired.
 
 ```yaml
-      - uses: ActiveEngagement/theguru@v0.3
+      - uses: ActiveEngagement/theguru@v0.4
         with:
           user_email: ${{ secrets.GURU_USER_EMAIL }}
           user_token: ${{ secrets.GURU_USER_TOKEN }}
@@ -73,7 +73,7 @@ Additionally, if you change the file paths of any Markdown files (i.e. rename th
 ## Usage
 
 ```yaml
-      - uses: ActiveEngagement/theguru@v0.3
+      - uses: ActiveEngagement/theguru@v0.4
         with:
           # REQUIRED
           user_email:
