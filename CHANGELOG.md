@@ -6,10 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## v0.4.0 - 2023-01-19
+
 ### Added
 - Added the functionality to use public GitHub URLs for embedded images instead of uploading them as attachments to Guru. This feature is automatically enabled on public repositories and can be controlled with the `image_handler` input.
 
-## 0.3.0 - 2021-01-12
+## 0.3.0 - 2023-01-12
 
 ### Added
 - Added the functionality to automatically delete cards from Guru. Now, cards removed from the workflow will be deleted automatically.
@@ -17,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Changed the cards file serializer to output formatted JSON for better readability.
 
-## 0.2.0 - 2021-01-05
+## 0.2.0 - 2023-01-05
 
 ### Added
 - Fancy logging.
@@ -63,4 +65,4 @@ This version featured some drastic changes:
 ### Added
 - Initial documented version.
 
-[Unreleased]: https://github.com/ActiveEngagement/theguru/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/ActiveEngagement/theguru/compare/v0.4.0...HEAD
