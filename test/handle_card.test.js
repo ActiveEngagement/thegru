@@ -210,14 +210,17 @@ describe.each([
     ['upload', false],
     ['auto', false],
 ])('when imageHandler is upload', (imageHandler, isPublic) => {
-    it('uploads images', async() => {
+    it.each([
+        ['test/resources/test_card_with_local_image.md', 'test_card_with_local_image_expected_output.html'],
+        ['test/resources/test_card_with_local_root_image.md', 'test_card_with_local_image_expected_output.html']
+    ])('uploads images', async(filePath, expected) => {
         const client = createClient({
             attachmentResult: { link: 'https://example.com/attachment.png' }
         });
 
         await handleCard({
             client,
-            filePath: 'test/resources/test_card_with_local_image.md',
+            filePath,
             cardTitle: 'Local Image',
             collectionId: 'c123',
             imageHandler,
@@ -236,7 +239,7 @@ describe.each([
         });
 
         expect(client.getCalls()[1].options.body.content).toEqual(
-            await resource('test_card_with_local_image_expected_output.html')
+            await resource(expected)
         );
     });
 });
@@ -246,12 +249,15 @@ describe.each([
     ['github_urls', false],
     ['auto', true],
 ])('when imageHandler is github_urls', (imageHandler, isPublic) => {
-    it('uses GitHub image URLs', async() => {
+    it.each([
+        ['test/resources/test_card_with_local_image.md', 'test_card_with_github_urls_image_expected_output.html'],
+        ['test/resources/test_card_with_local_root_image.md', 'test_card_with_github_urls_image_expected_output.html']
+    ])('uses GitHub image URLs', async(filePath, expected) => {
         const client = createClient();
 
         await handleCard({
             client,
-            filePath: 'test/resources/test_card_with_local_image.md',
+            filePath,
             cardTitle: 'Local Image',
             collectionId: 'c123',
             imageHandler,
@@ -259,7 +265,7 @@ describe.each([
         });
 
         expect(client.getCalls()[0].options.body.content).toEqual(
-            await resource('test_card_with_github_urls_image_expected_output.html')
+            await resource(expected)
         );
     });
 });

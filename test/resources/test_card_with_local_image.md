@@ -1,1 +1,1 @@
-![local image](./empty.png)
+![local image](empty.png)

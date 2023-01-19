@@ -25,22 +25,24 @@ export default async function(filePath, options = {}) {
         logger.info('Skipping card footer...');
     }
 
+    function resolveUrl(url) {
+        if(url.startsWith('/')) {
+            return url.substring(1);
+        }
+        return path.join(path.dirname(filePath), url);
+    }
+
     async function uploadImage(url) {
         logger.info(`Uploading and rewriting local image ${url}`);
 
-        const parentDir = path.dirname(filePath);
-        const previousDir = process.cwd();
-
-        process.chdir(parentDir);
-        const { link } = await api.uploadAttachment(path.basename(url), blobFromSync(url));
-        process.chdir(previousDir);
+        const { link } = await api.uploadAttachment(path.basename(url), blobFromSync(resolveUrl(url)));
 
         return link;
     }
 
     function getGithubImageUrl(url) {
         logger.info(`Rewriting local image ${url}`);
-        return 'https://raw.githubusercontent.com/' + path.join(repositoryName, 'HEAD', url);
+        return 'https://raw.githubusercontent.com/' + path.join(repositoryName, 'HEAD', resolveUrl(url));
     }
 
     async function getImageUrl(url) {
