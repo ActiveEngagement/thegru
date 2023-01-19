@@ -58,6 +58,7 @@ async function main() {
 
         const repositoryName = github.context?.payload?.repository?.full_name;
         const repositoryUrl = `${github.context.serverUrl}/${repositoryName}`;
+        const sha = github.context.sha;
         const isPublic = await isRepoPublic(repositoryUrl);
         const defaultCardFooter = await readFile(new URL('resources/default_card_footer.md', import.meta.url));
         const client = createClient(fetch);
@@ -71,6 +72,7 @@ async function main() {
             github: {
                 repositoryName,
                 repositoryUrl,
+                sha,
                 isPublic
             }
         });
