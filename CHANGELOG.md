@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Added the functionality to use public GitHub URLs for embedded images instead of uploading them as attachments to Guru. This feature is automatically enabled on public repositories and can be controlled with the `image_handler` input.
+
 ## 0.3.0 - 2021-01-12
 
 ### Added
