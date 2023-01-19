@@ -25,6 +25,7 @@ async function action(options) {
     options.github ||= {};
     options.github.repositoryUrl ||= 'https://example.com';
     options.github.repositoryName ||= 'ActiveEngagement/test';
+    options.github.sha ||= '1234567890';
     if(options.github.isPublic === undefined) {
         options.github.isPublic = false;
     }
