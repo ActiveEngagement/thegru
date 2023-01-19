@@ -25,7 +25,6 @@ async function action(options) {
     options.github ||= {};
     options.github.repositoryUrl ||= 'https://example.com';
     options.github.repositoryName ||= 'ActiveEngagement/test';
-    options.github.mainBranch ||= 'master';
     if(options.github.isPublic === undefined) {
         options.github.isPublic = false;
     }
