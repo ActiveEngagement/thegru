@@ -22,7 +22,13 @@ async function action(options) {
     options.logger ||= nullLogger();
     options.cardsFile ||= 'test/env/uploaded-cards.json';
     options.defaultCardFooter ||= '<{{repository_url}}>';
-    options.repositoryUrl ||= 'https://example.com';
+    options.github ||= {};
+    options.github.repositoryUrl ||= 'https://example.com';
+    options.github.repositoryName ||= 'ActiveEngagement/test';
+    if(options.github.isPublic === undefined) {
+        options.github.isPublic = false;
+    }
+    options.imageHandler ||= 'auto';
     options.commitCardsFile ||= () => { };
 
     return await runAction(options);

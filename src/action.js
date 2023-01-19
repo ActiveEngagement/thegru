@@ -30,7 +30,8 @@ export default async function(options) {
                 'commitCardsFile',
                 'cardFooter',
                 'defaultCardFooter',
-                'repositoryUrl'
+                'imageHandler',
+                'github'
             ),
             existingCardIds: cardIds,
             filePath,

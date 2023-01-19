@@ -4,12 +4,17 @@ import { pick } from './util.js';
 export default async function(options) {
     const { api, logger } = options;
 
+    if(options.imageHandler === 'auto') {
+        options.imageHandler = options.github.isPublic ? 'github_urls' : 'upload';
+    }
+
     const content = await buildContent(options.filePath, {
         ...pick(options,
             { footer: 'cardFooter' },
             { defaultFooter: 'defaultCardFooter' },
-            'repositoryUrl',
-            'logger'
+            'logger',
+            'imageHandler',
+            'github'
         ),
         api
     });

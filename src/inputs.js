@@ -19,6 +19,7 @@ export default function(getCoreInput) {
         boardSectionId: input('board_section_id').get(),
         cardFooter: input('card_footer').boolean({ allowOthers: true }).get(),
         cardsFile: input('cards_file').fallback('uploaded-guru-cards.json').get(),
+        imageHandler: input('image_handler').fallback('auto').of('auto', 'github_urls', 'upload').get(),
         debugLogging: input('debug_logging').fallback('false').boolean().get()
     };
 }

@@ -17,6 +17,8 @@ inputs:
     required: false
   cards_file:
     required: false
+  image_handler:
+    required: false
   debug_logging:
     required: false
 # TODO

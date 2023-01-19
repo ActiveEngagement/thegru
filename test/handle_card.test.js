@@ -13,6 +13,13 @@ async function handleCard(options) {
         delete options.client;
     }
     options.existingCardIds ||= [];
+    options.github ||= {};
+    options.github.repositoryUrl ||= 'https://example.com';
+    options.github.repositoryName ||= 'ActiveEngagement/test';
+    if(options.github.isPublic === undefined) {
+        options.github.isPublic = false;
+    }
+    options.imageHandler ||= 'auto';
 
     return await runHandleCard(options);
 }
@@ -198,32 +205,69 @@ describe('when an archived card id is present', () => {
     });
 });
 
-it('uploads local images', async() => {
-    const client = createClient({
-        attachmentResult: { link: 'https://example.com/attachment.png' }
-    });
+describe.each([
+    ['upload', true],
+    ['upload', false],
+    ['auto', false],
+])('when imageHandler is upload', (imageHandler, isPublic) => {
+    it.each([
+        ['test/resources/test_card_with_local_image.md', 'test_card_with_local_image_expected_output.html'],
+        ['test/resources/test_card_with_local_root_image.md', 'test_card_with_local_image_expected_output.html']
+    ])('uploads images', async(filePath, expected) => {
+        const client = createClient({
+            attachmentResult: { link: 'https://example.com/attachment.png' }
+        });
 
-    await handleCard({
-        client,
-        filePath: 'test/resources/test_card_with_local_image.md',
-        cardTitle: 'Local Image',
-        collectionId: 'c123'
-    });
+        await handleCard({
+            client,
+            filePath,
+            cardTitle: 'Local Image',
+            collectionId: 'c123',
+            imageHandler,
+            github: { isPublic }
+        });
 
-    expect(client.getCalls()[0]).toMatchObject({
-        type: 'uploadAttachment',
-        fileName: 'empty.png',
-        options: {
-            headers: {
-                accept: 'application/json',
-                authorization: 'Basic dW5kZWZpbmVkOnVuZGVmaW5lZA=='
+        expect(client.getCalls()[0]).toMatchObject({
+            type: 'uploadAttachment',
+            fileName: 'empty.png',
+            options: {
+                headers: {
+                    accept: 'application/json',
+                    authorization: 'Basic dW5kZWZpbmVkOnVuZGVmaW5lZA=='
+                }
             }
-        }
-    });
+        });
 
-    expect(client.getCalls()[1].options.body.content).toEqual(
-        await resource('test_card_with_local_image_expected_output.html')
-    );
+        expect(client.getCalls()[1].options.body.content).toEqual(
+            await resource(expected)
+        );
+    });
+});
+
+describe.each([
+    ['github_urls', true],
+    ['github_urls', false],
+    ['auto', true],
+])('when imageHandler is github_urls', (imageHandler, isPublic) => {
+    it.each([
+        ['test/resources/test_card_with_local_image.md', 'test_card_with_github_urls_image_expected_output.html'],
+        ['test/resources/test_card_with_local_root_image.md', 'test_card_with_github_urls_image_expected_output.html']
+    ])('uses GitHub image URLs', async(filePath, expected) => {
+        const client = createClient();
+
+        await handleCard({
+            client,
+            filePath,
+            cardTitle: 'Local Image',
+            collectionId: 'c123',
+            imageHandler,
+            github: { isPublic }
+        });
+
+        expect(client.getCalls()[0].options.body.content).toEqual(
+            await resource(expected)
+        );
+    });
 });
 
 test('with string card footer appends it', async() => {
@@ -234,8 +278,7 @@ test('with string card footer appends it', async() => {
         filePath: 'test/resources/test_card.md',
         cardTitle: 'Test Card',
         collectionId: 'c123',
-        cardFooter: '<{{repository_url}}>',
-        repositoryUrl: 'https://example.com'
+        cardFooter: '<{{repository_url}}>'
     });
 
     expect(client.getCalls()[0].options.body.content).toEqual(
@@ -256,7 +299,6 @@ test.each([
         cardTitle: 'Test Card',
         collectionId: 'c123',
         cardFooter,
-        repositoryUrl: 'https://example.com',
         defaultCardFooter: '<{{repository_url}}>'
     });
 
@@ -273,7 +315,6 @@ test('with no card footer given appends default', async() => {
         filePath: 'test/resources/test_card.md',
         cardTitle: 'Test Card',
         collectionId: 'c123',
-        repositoryUrl: 'https://example.com',
         defaultCardFooter: '<{{repository_url}}>'
     });
 
@@ -296,7 +337,6 @@ test.each([
         cardTitle: 'Test Card',
         collectionId: 'c123',
         cardFooter,
-        repositoryUrl: 'https://example.com',
         defaultCardFooter: '<{{repository_url}}>'
     });
 
