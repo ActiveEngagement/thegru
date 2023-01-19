@@ -76,9 +76,10 @@ export default function(name, value) {
                 const currentValueTerm = typeof currentValue === 'string' ? currentValue.toLowerCase() : currentValue;
                 return currentValueTerm === valueTerm;
             });
-            if (matchIndex >= 0) {
+            if(matchIndex >= 0) {
                 return result(values[matchIndex]);
-            } else {
+            }
+            else {
                 return invalid(`"${name}" must be one of [${values.join(', ')}]`);
             }
         });

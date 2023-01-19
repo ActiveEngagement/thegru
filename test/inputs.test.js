@@ -131,5 +131,5 @@ describe('imageHandler', () => {
         const f = () => getInputs(name => name === 'image_handler' ? 'invalid' : getInput(name));
         expect(f).toThrow(InvalidInputsError);
         expect(f).toThrow('"image_handler" must be one of [auto, github_urls, upload]');
-    })
-})
+    });
+});
