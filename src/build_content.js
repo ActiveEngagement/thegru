@@ -39,6 +39,7 @@ export default async function(filePath, options = {}) {
     }
 
     function getGithubImageUrl(url) {
+        logger.info(`Rewriting local image ${url}`);
         return 'https://raw.githubusercontent.com/' + path.join(repositoryName, mainBranch, url);
     }
 
