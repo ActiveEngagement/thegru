@@ -1,3 +1,6 @@
+import fetch from 'node-fetch';
+import path from 'path';
+
 export function pick(obj, ...keys) {
     return Object.fromEntries(
         keys
@@ -10,4 +13,9 @@ export function pick(obj, ...keys) {
                 }
             })
     );
+}
+
+export async function isRepoPublic(url) {
+    const response = await fetch(path.join(url, '/info/refs?service=git-upload-pack'));
+    return response.status === 200;
 }

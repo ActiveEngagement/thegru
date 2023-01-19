@@ -13,6 +13,13 @@ async function handleCard(options) {
         delete options.client;
     }
     options.existingCardIds ||= [];
+    options.github ||= {};
+    options.github.repositoryUrl ||= 'https://example.com';
+    options.github.repositoryName ||= 'ActiveEngagement/test';
+    if(options.github.isPublic === undefined) {
+        options.github.isPublic = false;
+    }
+    options.imageHandler ||= 'upload';
 
     return await runHandleCard(options);
 }
@@ -234,8 +241,7 @@ test('with string card footer appends it', async() => {
         filePath: 'test/resources/test_card.md',
         cardTitle: 'Test Card',
         collectionId: 'c123',
-        cardFooter: '<{{repository_url}}>',
-        repositoryUrl: 'https://example.com'
+        cardFooter: '<{{repository_url}}>'
     });
 
     expect(client.getCalls()[0].options.body.content).toEqual(
@@ -256,7 +262,6 @@ test.each([
         cardTitle: 'Test Card',
         collectionId: 'c123',
         cardFooter,
-        repositoryUrl: 'https://example.com',
         defaultCardFooter: '<{{repository_url}}>'
     });
 
@@ -273,7 +278,6 @@ test('with no card footer given appends default', async() => {
         filePath: 'test/resources/test_card.md',
         cardTitle: 'Test Card',
         collectionId: 'c123',
-        repositoryUrl: 'https://example.com',
         defaultCardFooter: '<{{repository_url}}>'
     });
 
@@ -296,7 +300,6 @@ test.each([
         cardTitle: 'Test Card',
         collectionId: 'c123',
         cardFooter,
-        repositoryUrl: 'https://example.com',
         defaultCardFooter: '<{{repository_url}}>'
     });
 

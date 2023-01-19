@@ -6,7 +6,7 @@ import { readFile } from './fs_util.js';
 import prepare from './prepare.js';
 
 export default async function(filePath, options = {}) {
-    let { footer, defaultFooter, repositoryUrl, api, logger } = options;
+    let { footer, defaultFooter, imageHandler, api, logger, github: { repositoryUrl, repositoryName } } = options;
 
     logger.info(`Reading ${filePath}`);
 
@@ -38,7 +38,20 @@ export default async function(filePath, options = {}) {
         return link;
     }
 
-    content = wrapGuruMarkdown(await prepare(content, { getImageUrl: uploadImage }));
+    function getGithubImageUrl(url) {
+        return path.join('https://raw.githubusercontent.com', repositoryName, url);
+    }
+
+    async function getImageUrl(url) {
+        switch (imageHandler) {
+        case 'upload':
+            return await uploadImage(url);
+        case 'github_urls':
+            return getGithubImageUrl(url);
+        }
+    }
+
+    content = wrapGuruMarkdown(await prepare(content, { getImageUrl }));
 
     return content;
 }

@@ -8,8 +8,9 @@ export default async function(options) {
         ...pick(options,
             { footer: 'cardFooter' },
             { defaultFooter: 'defaultCardFooter' },
-            'repositoryUrl',
-            'logger'
+            'logger',
+            'imageHandler',
+            'github'
         ),
         api
     });

@@ -10,6 +10,7 @@ import commitCardsFile from './commit_cards_file.js';
 import action from './action.js';
 import version from './version.cjs';
 import { performance } from 'perf_hooks';
+import { isRepoPublic } from './util.js';
 
 async function main() {
     try {
@@ -54,17 +55,23 @@ async function main() {
             return response;
         }
 
-        const repo = github.context?.payload?.repository?.full_name;
+        const repositoryName = github.context?.payload?.repository?.full_name;
+        const repositoryUrl = `${github.context.serverUrl}/${repositoryName}`;
+        const isPublic = await isRepoPublic(repositoryUrl);
         const defaultCardFooter = await readFile(new URL('resources/default_card_footer.md', import.meta.url));
         const client = createClient(fetch);
 
         await action({
             ...inputs,
-            repositoryUrl: `${github.context.serverUrl}/${repo}`,
             defaultCardFooter,
             client,
             logger,
             commitCardsFile,
+            github: {
+                repositoryName,
+                repositoryUrl,
+                isPublic
+            }
         });
 
         const elapsed = ((performance.now() - start) / 1000).toFixed(2);

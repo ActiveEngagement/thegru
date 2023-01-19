@@ -10,6 +10,7 @@ const inputs = {
     board_section_id: '123',
     card_footer: 'Footer!',
     cards_file: 'something.json',
+    image_handler: 'auto',
     debug_logging: 'false'
 };
 
@@ -27,6 +28,7 @@ test('returns object', () => {
         boardSectionId: '123',
         cardFooter: 'Footer!',
         cardsFile: 'something.json',
+        imageHandler: 'auto',
         debugLogging: false
     });
 });
@@ -109,3 +111,25 @@ describe('debugLogging', () => {
         expect(f).toThrow(InvalidInputsError);
     });
 });
+
+describe('imageHandler', () => {
+    test('is not required and has default', () => {
+        const actual = getInputs(name => name === 'image_handler' ? '' : getInput(name)).imageHandler;
+        expect(actual).toBe('auto');
+    });
+
+    test.each([
+        ['auto'],
+        ['github_urls'],
+        ['upload']
+    ])('with a valid option', (input) => {
+        const actual = getInputs(name => name === 'image_handler' ? input : getInput(name)).imageHandler;
+        expect(actual).toBe(input);
+    });
+
+    test('with invalid option throws error', () => {
+        const f = () => getInputs(name => name === 'image_handler' ? 'invalid' : getInput(name));
+        expect(f).toThrow(InvalidInputsError);
+        expect(f).toThrow('"image_handler" must be one of [auto, github_urls, upload]');
+    })
+})

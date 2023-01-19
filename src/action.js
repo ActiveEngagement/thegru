@@ -8,6 +8,10 @@ import { FetchError } from './error.js';
 export default async function(options) {
     const { logger } = options;
 
+    if(options.imageHandler === 'auto') {
+        options.imageHandler = options.github.isPublic ? 'github_urls' : 'upload';
+    }
+
     const api = createApi(options.client, pick(options,
         { guruEndpoint: 'endpoint' },
         'userEmail',
@@ -30,7 +34,8 @@ export default async function(options) {
                 'commitCardsFile',
                 'cardFooter',
                 'defaultCardFooter',
-                'repositoryUrl'
+                'imageHandler',
+                'github'
             ),
             existingCardIds: cardIds,
             filePath,

@@ -69,6 +69,21 @@ export default function(name, value) {
         });
     }
 
+    function of(...values) {
+        return this.use(() => {
+            const valueTerm = typeof value === 'string' ? value.toLowerCase() : value;
+            const matchIndex = values.findIndex(currentValue => {
+                const currentValueTerm = typeof currentValue === 'string' ? currentValue.toLowerCase() : currentValue;
+                return currentValueTerm === valueTerm;
+            });
+            if (matchIndex >= 0) {
+                return result(values[matchIndex]);
+            } else {
+                return invalid(`"${name}" must be one of [${values.join(', ')}]`);
+            }
+        });
+    }
+
     function use(callback) {
         let result = callback(name, value);
 
@@ -91,5 +106,5 @@ export default function(name, value) {
         value = null;
     }
 
-    return { get, required, fallback, boolean, json, use };
+    return { get, required, fallback, boolean, json, of, use };
 };

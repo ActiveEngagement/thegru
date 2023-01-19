@@ -88,6 +88,31 @@ describe('json builder', () => {
     });
 });
 
+describe('array builder', () => {
+    it.each([
+        [['one', 'two', 'three'], 'three'],
+        [[1, 3, undefined, 'another'], 3],
+    ])('returns value with valid option', (options, inputValue) => {
+        expect(input('test', inputValue).of(...options).get()).toBe(inputValue);
+    });
+
+    it.each([
+        [['one', 'two', 'three'], 'four'],
+        [[], ''],
+        [[], 'something'],
+        [[], null],
+        [[], undefined],
+        [['', 'another', 3, 5], 4],
+    ])('throws error with invalid option', (options, inputValue) => {
+        const f = () => input('test', inputValue).of(...options);
+        expect(f).toThrow(InvalidInputsError);
+    });
+
+    it('finds value with different case', () => {
+        expect(input('test', 'VaLid').of('one', 'two', 'valiD').get()).toBe('valiD');
+    });
+});
+
 describe('custom builder', () => {
     it('passes the name and value', () => {
         const builder = function(name, value) {
