@@ -11,7 +11,7 @@ import action from './action.js';
 import version from './version.cjs';
 import { performance } from 'perf_hooks';
 import { isRepoPublic } from './util.js';
-import simpleGit from 'simple-git';
+import { didFileChange } from './file_changes.js';
 
 async function main() {
     try {
@@ -74,7 +74,8 @@ async function main() {
                 repositoryUrl,
                 sha,
                 isPublic
-            }
+            },
+            didFileChange
         });
 
         const elapsed = ((performance.now() - start) / 1000).toFixed(2);

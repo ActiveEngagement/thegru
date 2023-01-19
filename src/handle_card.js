@@ -1,4 +1,9 @@
+import { unified } from 'unified';
+import remarkParse from 'remark-parse';
+import remarkRehype from 'remark-rehype';
 import buildContent from './build_content.js';
+import { readFile } from './fs_util.js';
+import { analyzeTree } from './hast_util.js';
 import { pick } from './util.js';
 
 export default async function(options) {
@@ -6,6 +11,17 @@ export default async function(options) {
 
     if(options.imageHandler === 'auto') {
         options.imageHandler = options.github.isPublic ? 'github_urls' : 'upload';
+    }
+
+    const cardId = options.existingCardIds[options.filePath];
+    
+    const initialTree = unified().use(remarkParse).parse(await readFile(options.filePath));
+    const tree = await unified().use(remarkRehype).run(initialTree);
+    const imagePaths = analyzeTree(tree, { image: /img/ }).image.map(node => node.properties.src);
+    
+    if(cardId && ![options.filePath, ...imagePaths].some(file => options.didFileChange(file))) {
+        logger.info(`Skipping card ${cardId} because it has not changed.`);
+        return cardId;
     }
 
     const content = await buildContent(options.filePath, {
@@ -20,7 +36,6 @@ export default async function(options) {
     });
 
     let existingCard = null;
-    const cardId = options.existingCardIds[options.filePath];
 
     if(cardId) {
         existingCard = await api.getCard(cardId);

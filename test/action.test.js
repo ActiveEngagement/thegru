@@ -31,6 +31,7 @@ async function action(options) {
     }
     options.imageHandler ||= 'auto';
     options.commitCardsFile ||= () => { };
+    options.didFileChange ||= () => true;
 
     return await runAction(options);
 }
