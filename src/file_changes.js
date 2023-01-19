@@ -4,7 +4,7 @@ import github from '@actions/github';
 export async function getChangedFiles() {
     let output = '';
 
-    await exec.exec(`git diff --name-only ${github.context.event.before} ${github.context.event.after}`, {
+    await exec.exec(`git diff --name-only ${github.event.before} ${github.event.after}`, {
         listeners: {
             stdout: (data) => {
                 output += data.toString();
