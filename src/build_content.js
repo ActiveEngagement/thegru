@@ -6,7 +6,7 @@ import { readFile } from './fs_util.js';
 import prepare from './prepare.js';
 
 export default async function(filePath, options = {}) {
-    let { footer, defaultFooter, imageHandler, api, logger, github: { repositoryUrl, repositoryName } } = options;
+    let { footer, defaultFooter, imageHandler, api, logger, github: { repositoryUrl, repositoryName, mainBranch } } = options;
 
     logger.info(`Reading ${filePath}`);
 
@@ -39,7 +39,7 @@ export default async function(filePath, options = {}) {
     }
 
     function getGithubImageUrl(url) {
-        return path.join('https://raw.githubusercontent.com', repositoryName, url);
+        return 'https://raw.githubusercontent.com/' + path.join(repositoryName, mainBranch, url);
     }
 
     async function getImageUrl(url) {
