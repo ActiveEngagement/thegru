@@ -251,13 +251,13 @@ describe.each([
             expect(client.getCalls()[1].options.body.attachments).toStrictEqual([
                 { link: 'https://example.com/attachment.png', someProp: true }
             ]);
-        })
+        });
 
         it('renders the content correctly', async() => {
             expect(client.getCalls()[1].options.body.content).toEqual(
                 await resource(expected)
             );
-        })
+        });
     });
 });
 
