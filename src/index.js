@@ -10,7 +10,7 @@ import commitCardsFile from './commit_cards_file.js';
 import action from './action.js';
 import version from './version.cjs';
 import { performance } from 'perf_hooks';
-import { isRepoPublic } from './util.js';
+import { pick, isRepoPublic } from './util.js';
 import getChangedFiles from './file_changes.js';
 
 async function main() {
