@@ -78,7 +78,7 @@ async function main() {
                 else {
                     const changedFiles = await getChangedFiles({ github: inputs.github, logger });
                     if(changedFiles === null) {
-                        logger.warning('We were unable to determine which Markdown files have changed due to a Git error. Most likely, you forgot to include `fetch-depth: 0` in your checkout action. \nAll cards will be updated.')
+                        logger.warning('We were unable to determine which Markdown files have changed due to a Git error. Most likely, you forgot to include `fetch-depth: 0` in your checkout action. All cards will be updated.')
                     } else {
                         didFileChange = (filePath) => changedFiles.include(filePath);
                     }
