@@ -80,11 +80,11 @@ async function main() {
                     didFileChange = (filePath) => changedFiles.include(filePath);
                 }
             } else {
-                logger.warning(c.yellow('We were unable to read the latest commit message. Any commit flags will be ignored.'));
+                logger.warning('We were unable to read the latest commit message. Any commit flags will be ignored.');
             }
         }
         else {
-            logger.warning(c.yellow('Since the "github" option was not set, we are unable to determine which Markdown files have changed. All cards will be updated.'));
+            logger.warning('Since the "github" option was not set, we are unable to determine which Markdown files have changed. All cards will be updated.');
         }
 
         await action({
