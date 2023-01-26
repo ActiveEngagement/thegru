@@ -20,6 +20,7 @@ export default async function(options) {
     const newCardIds = {};
 
     for(const [filePath, cardTitle] of Object.entries(options.cards)) {
+        logger.startGroup(filePath);
         const id = await handleCard({
             ...pick(options,
                 'cardsFile',
