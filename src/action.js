@@ -3,7 +3,6 @@ import createApi from './api.js';
 import { pick } from './util.js';
 import handleCard from './handle_card.js';
 import { readFile, writeFile } from './fs_util.js';
-import { FetchError } from './error.js';
 
 export default async function(options) {
     const { logger } = options;
