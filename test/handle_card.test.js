@@ -126,6 +126,7 @@ describe.each([
 
     it('updates the card', async() => {
         expect(client.getCalls()[1]).toEqual(updateCardApiCall({
+            preferredPhrase: 'Final',
             content: await resource('test_card_expected_output.html')
         }));
     });

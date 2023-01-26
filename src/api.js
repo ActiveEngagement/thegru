@@ -98,6 +98,9 @@ export default function(client, options) {
     async function updateCard(id, options) {
         logger.debug(`Updating card with id ${id} with options ${JSON.stringify(options)}`);
 
+        options.preferredPhrase = options.title;
+        delete options.title;
+
         const response = await client.updateCard(id, {
             headers: headers(),
             body: JSON.stringify(options),
