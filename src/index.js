@@ -77,7 +77,11 @@ async function main() {
                 }
                 else {
                     const changedFiles = getChangedFiles(inputs.github);
-                    didFileChange = (filePath) => changedFiles.include(filePath);
+                    if(changedFiles === null) {
+                        logger.warning('We were unable to determine which Markdown files have changed due to a Git error. Most likely, you forgot to include `fetch-depth: 0` in your checkout action. \nAll cards will be updated.')
+                    } else {
+                        didFileChange = (filePath) => changedFiles.include(filePath);
+                    }
                 }
             } else {
                 logger.warning('We were unable to read the latest commit message. Any commit flags will be ignored.');
