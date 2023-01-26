@@ -10,7 +10,7 @@ import commitCardsFile from './commit_cards_file.js';
 import action from './action.js';
 import version from './version.cjs';
 import { performance } from 'perf_hooks';
-import { pick, isRepoPublic } from './util.js';
+import { isRepoPublic } from './util.js';
 import getChangedFiles from './file_changes.js';
 
 async function main() {
@@ -76,7 +76,7 @@ async function main() {
                     logger.info('Since [guru update] was included in the commit, all cards will be updated.');
                 }
                 else {
-                    const changedFiles = getChangedFiles(pick(options, 'github', 'logger'));
+                    const changedFiles = getChangedFiles({ github: inputs.github, logger });
                     if(changedFiles === null) {
                         logger.warning('We were unable to determine which Markdown files have changed due to a Git error. Most likely, you forgot to include `fetch-depth: 0` in your checkout action. \nAll cards will be updated.')
                     } else {
