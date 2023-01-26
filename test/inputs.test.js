@@ -137,9 +137,10 @@ describe('imageHandler', () => {
 });
 
 describe('github', () => {
-    test('is not required', () => {
-        const actual = getInputs(name => name === 'github' ? '' : getInput(name)).github;
-        expect(actual).toBe(null);
+    test('is required', () => {
+        const f = () => getInputs(name => name === 'github' ? '' : getInput(name));
+        expect(f).toThrow(InvalidInputsError);
+        expect(f).toThrow('"github" is a required input!');
     });
 
     test('with valid json parses', () => {

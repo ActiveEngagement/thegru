@@ -11,7 +11,7 @@ import action from './action.js';
 import version from './version.cjs';
 import { performance } from 'perf_hooks';
 import { isRepoPublic } from './util.js';
-import getChangedFiles from './file_changes.js';
+import getChangedFilesBase from './file_changes.js';
 
 async function main() {
     try {
@@ -64,36 +64,9 @@ async function main() {
         const repositoryUrl = `${github.context.serverUrl}/${repositoryName}`;
         const sha = github.context.sha;
         const isPublic = await isRepoPublic(repositoryUrl);
+        const commitMessage = inputs.github.event.head_commit?.message;
         const defaultCardFooter = await readFile(new URL('resources/default_card_footer.md', import.meta.url));
         const client = createClient(fetch);
-
-        let didFileChange = () => true;
-
-        if(inputs.github) {
-            const commitMessage = inputs.github.event.head_commit?.message;
-            if(commitMessage) {
-                if(commitMessage.includes('[guru update]')) {
-                    logger.info(c.blue('Since [guru update] was included in the commit, all cards will be updated.'));
-                }
-                else {
-                    const changedFiles = await getChangedFiles({ github: inputs.github, logger });
-                    if(changedFiles === null) {
-                        logger.warning('We were unable to determine which Markdown files have changed due to a Git error. Most likely, you forgot to include `fetch-depth: 0` in your checkout action. All cards will be updated.');
-                    }
-                    else {
-                        didFileChange = (filePath) => changedFiles.includes(filePath);
-                    }
-                }
-            }
-            else {
-                logger.warning('We were unable to read the latest commit message. Any commit flags will be ignored.');
-            }
-        }
-        else {
-            logger.warning('Since the "github" option was not set, we are unable to determine which Markdown files have changed. All cards will be updated.');
-        }
-
-        logger.info('');
 
         await action({
             ...inputs,
@@ -105,9 +78,10 @@ async function main() {
                 repositoryName,
                 repositoryUrl,
                 sha,
-                isPublic
+                isPublic,
+                commitMessage
             },
-            didFileChange
+            getChangedFiles: opts => getChangedFilesBase({ ...opts, github: inputs.github })
         });
 
         const elapsed = ((performance.now() - start) / 1000).toFixed(2);

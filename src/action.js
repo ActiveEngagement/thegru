@@ -5,7 +5,33 @@ import handleCard from './handle_card.js';
 import { readFile, writeFile } from './fs_util.js';
 
 export default async function(options) {
-    const { logger } = options;
+    const { logger, github: { commitMessage } } = options;
+
+    if (options.updateAll) {
+        logger.info('"update_all" is true. All cards will be updated.');
+    }
+
+    if(commitMessage) {
+        if(!options.updateAll && commitMessage.includes('[guru update]')) {
+            logger.info(c.blue('Since [guru update] was included in the commit, all cards will be updated.'));
+            options.updateAll = true;
+        }
+    }
+    else {
+        logger.warning('We were unable to read the latest commit message. Any commit flags will be ignored.');
+    }
+
+    let didFileChange = () => true;
+
+    if (!options.updateAll) {
+        const changedFiles = await options.getChangedFiles({ logger });
+        if(changedFiles === null) {
+            logger.warning('We were unable to determine which Markdown files have changed due to a Git error. Most likely, you forgot to include `fetch-depth: 0` in your checkout action. All cards will be updated.');
+        }
+        else {
+            options.didFileChange = (filePath) => changedFiles.includes(filePath);
+        }
+    }
 
     const api = createApi(options.client, pick(options,
         { guruEndpoint: 'endpoint' },
@@ -30,10 +56,10 @@ export default async function(options) {
                 'cardFooter',
                 'defaultCardFooter',
                 'imageHandler',
-                'github',
-                'didFileChange'
+                'github'
             ),
             existingCardIds: cardIds,
+            didFileChange,
             filePath,
             cardTitle,
             api,
