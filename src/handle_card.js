@@ -31,9 +31,6 @@ export default async function(options) {
         await api.updateCard(existingCard.id, {
             ...existingCard,
             title: options.cardTitle,
-            collectionId: options.collectionId,
-            boardId: options.boardId,
-            sectionId: options.boardSectionId,
             content
         });
 
