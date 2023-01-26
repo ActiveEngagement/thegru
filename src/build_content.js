@@ -8,6 +8,8 @@ import prepare from './prepare.js';
 export default async function(filePath, options = {}) {
     let { footer, defaultFooter, imageHandler, api, logger, github: { repositoryUrl, repositoryName, sha } } = options;
 
+    const attachments = [];
+
     logger.info(`Reading ${filePath}`);
 
     let content = await readFile(filePath);
@@ -35,9 +37,10 @@ export default async function(filePath, options = {}) {
     async function uploadImage(url) {
         logger.info(`Uploading and rewriting local image ${url}`);
 
-        const { link } = await api.uploadAttachment(path.basename(url), blobFromSync(resolveUrl(url)));
+        const attachment = await api.uploadAttachment(path.basename(url), blobFromSync(resolveUrl(url)));
+        attachments.push(attachment);
 
-        return link;
+        return attachment.link;
     }
 
     function getGithubImageUrl(url) {
@@ -56,5 +59,5 @@ export default async function(filePath, options = {}) {
 
     content = wrapGuruMarkdown(await prepare(content, { getImageUrl }));
 
-    return content;
+    return { content, attachments };
 }

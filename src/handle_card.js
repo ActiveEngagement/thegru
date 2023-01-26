@@ -8,7 +8,7 @@ export default async function(options) {
         options.imageHandler = options.github.isPublic ? 'github_urls' : 'upload';
     }
 
-    const content = await buildContent(options.filePath, {
+    const { content, attachments } = await buildContent(options.filePath, {
         ...pick(options,
             { footer: 'cardFooter' },
             { defaultFooter: 'defaultCardFooter' },
@@ -30,7 +30,8 @@ export default async function(options) {
         logger.info(`Updating previously uploaded card ${cardId}`);
         await api.updateCard(existingCard.id, {
             ...existingCard,
-            content
+            content,
+            attachments
         });
 
         return cardId;
@@ -48,7 +49,8 @@ export default async function(options) {
             collectionId: options.collectionId,
             boardId: options.boardId,
             sectionId: options.boardSectionId,
-            content
+            content,
+            attachments
         });
 
         logger.info(`Card ${id} created.`);
