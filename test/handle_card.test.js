@@ -153,7 +153,7 @@ describe.each([
 
     beforeEach(async() => {
         client = createClient({
-            getCardResult: null,
+            getCardResult: 'not_found',
             createCardResult: { id: 'newCard123' }
         });
 

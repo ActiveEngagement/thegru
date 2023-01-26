@@ -102,7 +102,7 @@ describe('array builder', () => {
 });
 
 describe('ifPresent', () => {
-    describe.each('when input is present', () => {
+    describe('when input is present', () => {
         it('uses the callback', () => {
             expect(input('test', 'true').required().ifPresent(i => i.boolean()).get()).toBe(true);
         });
@@ -110,7 +110,7 @@ describe('ifPresent', () => {
             it('throws it', () => {
                 const f = () => input('test', 'invalid').required().ifPresent(i => i.boolean());
                 expect(f).toThrow(InvalidInputsError);
-                expect(f).toThrow('"test" must be either true or false!');
+                expect(f).toThrow('"test" must be "true" or "false"!');
             });
         });
     });

@@ -8,6 +8,9 @@ export default function() {
         info(message) {
             messages.push(message);
         },
+        warning(message) {
+            messages.push(message);
+        },
         startGroup(name) {
             messages.push('===' + name + '===');
         },

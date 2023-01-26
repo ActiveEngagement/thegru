@@ -3,10 +3,36 @@ import createApi from './api.js';
 import { pick } from './util.js';
 import handleCard from './handle_card.js';
 import { readFile, writeFile } from './fs_util.js';
-import { FetchError } from './error.js';
+import c from 'ansi-colors';
 
 export default async function(options) {
-    const { logger } = options;
+    const { logger, github: { commitMessage } } = options;
+
+    if(options.updateAll) {
+        logger.info('"update_all" is true. All cards will be updated.');
+    }
+
+    if(commitMessage) {
+        if(!options.updateAll && commitMessage.includes('[guru update]')) {
+            logger.info(c.blue('Since [guru update] was included in the commit, all cards will be updated.'));
+            options.updateAll = true;
+        }
+    }
+    else {
+        logger.warning('We were unable to read the latest commit message. Any commit flags will be ignored.');
+    }
+
+    let didFileChange = () => true;
+
+    if(!options.updateAll) {
+        const changedFiles = await options.getChangedFiles({ logger });
+        if(changedFiles === null) {
+            logger.warning('We were unable to determine which Markdown files have changed due to a Git error. Most likely, you forgot to include `fetch-depth: 0` in your checkout action. All cards will be updated.');
+        }
+        else {
+            didFileChange = (filePath) => changedFiles.includes(filePath);
+        }
+    }
 
     const api = createApi(options.client, pick(options,
         { guruEndpoint: 'endpoint' },
@@ -31,10 +57,10 @@ export default async function(options) {
                 'cardFooter',
                 'defaultCardFooter',
                 'imageHandler',
-                'github',
-                'didFileChange'
+                'github'
             ),
             existingCardIds: cardIds,
+            didFileChange,
             filePath,
             cardTitle,
             api,
@@ -48,17 +74,9 @@ export default async function(options) {
         if(!Object.values(newCardIds).some((newId) => id === newId)) {
             logger.startGroup(filePath);
             logger.info(`Previously uploaded card ${id} has been removed from the cards config. Removing it from Guru...`);
-            try {
-                await api.destroyCard(id);
-            }
-            catch (e) {
-                if(e instanceof FetchError && e.response.status === 404) {
-                    logger.info(`Could not destroy card ${id} that does not eixst in Guru.`);
-                }
-                else {
-                    throw e;
-                }
-            }
+            // Note that Guru will never return a 404 for a card that has previously existed.
+            // Therefore, we won't try to handle it, since that would be a signifcant error anyway.
+            await api.destroyCard(id);
             logger.endGroup();
         }
     }
