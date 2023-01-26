@@ -8,7 +8,7 @@ import c from 'ansi-colors';
 export default async function(options) {
     const { logger, github: { commitMessage } } = options;
 
-    if (options.updateAll) {
+    if(options.updateAll) {
         logger.info('"update_all" is true. All cards will be updated.');
     }
 
@@ -24,7 +24,7 @@ export default async function(options) {
 
     let didFileChange = () => true;
 
-    if (!options.updateAll) {
+    if(!options.updateAll) {
         const changedFiles = await options.getChangedFiles({ logger });
         if(changedFiles === null) {
             logger.warning('We were unable to determine which Markdown files have changed due to a Git error. Most likely, you forgot to include `fetch-depth: 0` in your checkout action. All cards will be updated.');

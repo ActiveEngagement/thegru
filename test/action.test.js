@@ -203,8 +203,8 @@ describe('with update_all', () => {
     it('emits a log notice', () => {
         const actual = logger.getMessages().some(msg => msg === '"update_all" is true. All cards will be updated.');
         expect(actual).toBe(true);
-    })
-})
+    });
+});
 
 describe('with no commit message', () => {
     let client = null;
@@ -242,8 +242,8 @@ describe('with no commit message', () => {
     it('emits a log notice', () => {
         const actual = logger.getMessages().some(msg => msg === 'We were unable to read the latest commit message. Any commit flags will be ignored.');
         expect(actual).toBe(true);
-    })
-})
+    });
+});
 
 describe('with [guru update] flag', () => {
     let client = null;
@@ -285,8 +285,8 @@ describe('with [guru update] flag', () => {
     it('emits a log notice', () => {
         const actual = logger.getMessages().some(msg => msg.includes('Since [guru update] was included in the commit, all cards will be updated.'));
         expect(actual).toBe(true);
-    })
-})
+    });
+});
 
 describe('with git object error', () => {
     let client = null;
@@ -326,5 +326,5 @@ describe('with git object error', () => {
     it('emits a log notice', () => {
         const actual = logger.getMessages().some(msg => msg === 'We were unable to determine which Markdown files have changed due to a Git error. Most likely, you forgot to include `fetch-depth: 0` in your checkout action. All cards will be updated.');
         expect(actual).toBe(true);
-    })
-})
+    });
+});
