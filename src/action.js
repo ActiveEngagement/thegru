@@ -48,17 +48,9 @@ export default async function(options) {
         if(!Object.values(newCardIds).some((newId) => id === newId)) {
             logger.startGroup(filePath);
             logger.info(`Previously uploaded card ${id} has been removed from the cards config. Removing it from Guru...`);
-            try {
-                await api.destroyCard(id);
-            }
-            catch (e) {
-                if(e instanceof FetchError && e.response.status === 404) {
-                    logger.info(`Could not destroy card ${id} that does not eixst in Guru.`);
-                }
-                else {
-                    throw e;
-                }
-            }
+            // Note that Guru will never return a 404 for a card that has previously existed.
+            // Therefore, we won't try to handle it, since that would be a signifcant error anyway.
+            await api.destroyCard(id);
             logger.endGroup();
         }
     }
