@@ -11,7 +11,7 @@ import action from './action.js';
 import version from './version.cjs';
 import { performance } from 'perf_hooks';
 import { isRepoPublic } from './util.js';
-import { didFileChange } from './file_changes.js';
+import getChangedFiles from './file_changes.js';
 
 async function main() {
     try {
@@ -60,8 +60,26 @@ async function main() {
         const repositoryUrl = `${github.context.serverUrl}/${repositoryName}`;
         const sha = github.context.sha;
         const isPublic = await isRepoPublic(repositoryUrl);
+        const commitMessage = await github.getOctokit().rest.repos.getCommit(
+            github.context.repo.owner,
+            github.context.repo.repo,
+            sha
+        ).commit.message;
         const defaultCardFooter = await readFile(new URL('resources/default_card_footer.md', import.meta.url));
         const client = createClient(fetch);
+
+        let didFileChange = () => true;
+
+        if (inputs.github) {
+            logger.warn(c.yellow('Since the "github" option was not set, we are unable to determine which Markdown files have changed. All cards will be updated.'));
+        }
+        else if(commitMessage.includes('[guru update]')) {
+            logger.info('Since [guru update] was included in the commit, all cards will be updated.');
+        }
+        else {
+            const changedFiles = getChangedFiles(inputs.github);
+            didFileChange = (filePath) => changedFiles.include(filePath);
+        }
 
         await action({
             ...inputs,

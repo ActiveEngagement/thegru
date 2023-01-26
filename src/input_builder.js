@@ -37,7 +37,7 @@ export default function(name, value) {
         });
     }
 
-    function boolean(options = {}) {
+    function boolean() {
         return this.use(() => {
             switch (value) {
             case 'true':
@@ -45,27 +45,38 @@ export default function(name, value) {
             case 'false':
                 return result(false);
             default:
-                if(!options.allowOthers) {
-                    return invalid(`"${name}" must be "true" or "false"!`);
-                }
+                return invalid(`"${name}" must be "true" or "false"!`);
             }
         });
     }
 
     function json(options = {}) {
         return this.use(() => {
-            if(value === null && !options.allowInvalid) {
+            if(value === null) {
                 return invalid(`"${name}" must not be null!`);
             }
 
+            let parsed = null;
+
             try {
-                return result(JSON.parse(value));
+                parsed = JSON.parse(value);
             }
             catch {
-                if(!options.allowInvalid) {
-                    return invalid(`"${name}" must be valid JSON!`);
+                return invalid(`"${name}" must be valid JSON!`);
+            }
+
+            if(Array.isArray(parsed)) {
+                if(options.type === 'object') {
+                    return invalid(`"${name}" must be a valid JSON object, not an array!`);
                 }
             }
+            else {
+                if(options.type === 'array') {
+                    return invalid(`"${name}" must be a valid JSON array, not an object!`);
+                }
+            }
+
+            return result(parsed);
         });
     }
 
@@ -83,6 +94,29 @@ export default function(name, value) {
                 return invalid(`"${name}" must be one of [${values.join(', ')}]`);
             }
         });
+    }
+
+    function ifPresent(callback) {
+        if(value === null) {
+            return this;
+        }
+        else {
+            return callback(this);
+        }
+    }
+
+    function attempt(callback) {
+        try {
+            return callback(this);
+        }
+        catch (e) {
+            if(e instanceof InvalidInputsError) {
+                return this;
+            }
+            else {
+                throw e;
+            }
+        }
     }
 
     function use(callback) {
@@ -107,5 +141,5 @@ export default function(name, value) {
         value = null;
     }
 
-    return { get, required, fallback, boolean, json, of, use };
+    return { get, required, fallback, boolean, json, of, ifPresent, attempt, use };
 };

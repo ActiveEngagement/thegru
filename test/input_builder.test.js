@@ -45,18 +45,11 @@ describe('boolean builder', () => {
         expect(input('test_value', 'false').boolean().get()).toBe(false);
     });
 
-    describe('with invalid value', () => {
-        it('throws error', () => {
-            const f = () => input('test_value', 'bad').boolean();
+    it('throws error with invalid value', () => {
+        const f = () => input('test_value', 'bad').boolean();
 
-            expect(f).toThrow(InvalidInputsError);
-            expect(f).toThrow('"test_value" must be "true" or "false"!');
-        });
-
-        it('does nothing with allowOthers', () => {
-            const actual = input('test_value', 'bad').boolean({ allowOthers: true }).get();
-            expect(actual).toBe('bad');
-        });
+        expect(f).toThrow(InvalidInputsError);
+        expect(f).toThrow('"test_value" must be "true" or "false"!');
     });
 });
 
@@ -69,22 +62,17 @@ describe('json builder', () => {
         expect(input('test', json).json().get()).toStrictEqual({ one: [1,2,3], two: {abc: 'value'}});
     });
 
-    describe.each([
-        [null, '"test_value" must not be null!'],
-        ['invalid', '"test_value" must be valid JSON!'],
-        ['{ one: 123 }', '"test_value" must be valid JSON!']
-    ])('with invalid json', (value, message) => {
-        it('throws error', () => {
-            const f = () => input('test_value', value).json();
+    test.each([
+        [null, {}, '"test_value" must not be null!'],
+        ['invalid', {}, '"test_value" must be valid JSON!'],
+        ['{ one: 123 }', {}, '"test_value" must be valid JSON!'],
+        ['{ "one": 123 }', { type: 'array' }, '"test_value" must be a valid JSON array, not an object!'],
+        ['[ "one", "two" ]', { type: 'object' }, '"test_value" must be a valid JSON object, not an array!']
+    ])('with invalid json it throws error', (value, options, message) => {
+        const f = () => input('test_value', value).json(options);
 
-            expect(f).toThrow(InvalidInputsError);
-            expect(f).toThrow(message);
-        });
-
-        it('does nothing with allowInvalid', () => {
-            const actual = input('test_value', value).json({ allowInvalid: true }).get();
-            expect(actual).toBe(value);
-        });
+        expect(f).toThrow(InvalidInputsError);
+        expect(f).toThrow(message);
     });
 });
 
@@ -110,6 +98,45 @@ describe('array builder', () => {
 
     it('finds value with different case', () => {
         expect(input('test', 'VaLid').of('one', 'two', 'valiD').get()).toBe('valiD');
+    });
+});
+
+describe('ifPresent', () => {
+    describe.each('when input is present', () => {
+        it('uses the callback', () => {
+            expect(input('test', 'true').required().ifPresent(i => i.boolean()).get()).toBe(true);
+        });
+        describe('when callback throws an error', () => {
+            it('throws it', () => {
+                const f = () => input('test', 'invalid').required().ifPresent(i => i.boolean());
+                expect(f).toThrow(InvalidInputsError);
+                expect(f).toThrow('"test" must be either true or false!');
+            });
+        });
+    });
+
+    describe('when input is not present', () => {
+        it('does not use the callback', () => {
+            expect(input('test', '').ifPresent(i => i.boolean()).get()).toBe(null);
+        });
+    });
+});
+
+describe('attempt', () => {
+    test('when callback succeeds', () => {
+        expect(input('test', 'true').required().attempt(i => i.boolean()).get()).toBe(true);
+    });
+
+    test('when callback throws InvalidInputError', () => {
+        expect(input('test', 'invalid').required().attempt(i => i.boolean()).get()).toBe('invalid');
+    });
+
+    test('when callback throws other error', () => {
+        const callback = () => {
+            throw 'Hi!';
+        };
+        const f = () => input('test', 'example').required().attempt(callback);
+        expect(f).toThrow('Hi!');
     });
 });
 

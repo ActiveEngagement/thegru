@@ -8,6 +8,7 @@ const inputs = {
     collection_id: '123',
     board_id: '123',
     board_section_id: '123',
+    github: JSON.stringify({ }),
     card_footer: 'Footer!',
     cards_file: 'something.json',
     image_handler: 'auto',
@@ -26,6 +27,7 @@ test('returns object', () => {
         collectionId: '123',
         boardId: '123',
         boardSectionId: '123',
+        github: {},
         cardFooter: 'Footer!',
         cardsFile: 'something.json',
         imageHandler: 'auto',
@@ -53,7 +55,7 @@ test.each([
     ['', '"cards" is a required input!'],
     [null, '"cards" is a required input!'],
     ['invalid', '"cards" must be valid JSON!'],
-    ['[]', '"cards" must be a valid JSON object with document paths as keys and card titles as values!'] 
+    ['[]', '"cards" must be a valid JSON object, not an array!'] 
 ])('cards throws error if missing or invalid json', (value, message) => {
     const f = () => {
         getInputs(name => name === 'cards' ? value : getInput(name));
@@ -131,5 +133,25 @@ describe('imageHandler', () => {
         const f = () => getInputs(name => name === 'image_handler' ? 'invalid' : getInput(name));
         expect(f).toThrow(InvalidInputsError);
         expect(f).toThrow('"image_handler" must be one of [auto, github_urls, upload]');
+    });
+});
+
+describe('github', () => {
+    test('is not required', () => {
+        const actual = getInputs(name => name === 'github' ? '' : getInput(name)).github;
+        expect(actual).toBe(null);
+    });
+
+    test('with valid json parses', () => {
+        const input = '{ "prop": true }';
+        const actual = getInputs(name => name === 'github' ? input : getInput(name)).github;
+        expect(actual).toStrictEqual({ prop: true });
+    });
+
+    test('with invalid json throws error', () => {
+        const input = '{ prop: true }';
+        const f = () => getInputs(name => name === 'github' ? input : getInput(name)).github;
+        expect(f).toThrow(InvalidInputsError);
+        expect(f).toThrow('"github" must be valid JSON!');
     });
 });

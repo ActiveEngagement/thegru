@@ -1,10 +1,9 @@
 import exec from '@actions/exec';
-import github from '@actions/github';
 
-export async function getChangedFiles() {
+export default async function getChangedFiles(github) {
     let output = '';
 
-    await exec.exec(`git diff --name-only ${github.context.payload.event.before} ${github.context.payload.event.after}`, {
+    await exec.exec(`git diff --name-only ${github.event.before} ${github.event.after}`, {
         listeners: {
             stdout: (data) => {
                 output += data.toString();
@@ -13,10 +12,4 @@ export async function getChangedFiles() {
     });
 
     return output.split('\n');
-}
-
-let changedFiles = getChangedFiles();
-
-export async function didFileChange(filePath) {
-    return changedFiles.includes(filePath);
 }
