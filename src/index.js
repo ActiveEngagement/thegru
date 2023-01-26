@@ -73,7 +73,7 @@ async function main() {
             const commitMessage = inputs.github.event.head_commit?.message;
             if (commitMessage) {
                 if(commitMessage.includes('[guru update]')) {
-                    logger.info('Since [guru update] was included in the commit, all cards will be updated.');
+                    logger.info(c.blue('Since [guru update] was included in the commit, all cards will be updated.'));
                 }
                 else {
                     const changedFiles = await getChangedFiles({ github: inputs.github, logger });
