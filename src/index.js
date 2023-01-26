@@ -29,6 +29,10 @@ async function main() {
                 core.info(message);
             },
 
+            warning(message) {
+                core.warning(message);
+            },
+
             startGroup(name) {
                 core.startGroup(name);
             },
@@ -80,7 +84,7 @@ async function main() {
             }
         }
         else {
-            logger.warn(c.yellow('Since the "github" option was not set, we are unable to determine which Markdown files have changed. All cards will be updated.'));
+            logger.warning(c.yellow('Since the "github" option was not set, we are unable to determine which Markdown files have changed. All cards will be updated.'));
         }
 
         await action({
