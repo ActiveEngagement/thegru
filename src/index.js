@@ -76,7 +76,7 @@ async function main() {
                     logger.info('Since [guru update] was included in the commit, all cards will be updated.');
                 }
                 else {
-                    const changedFiles = getChangedFiles(inputs.github);
+                    const changedFiles = getChangedFiles(pick(options, 'github', 'logger'));
                     if(changedFiles === null) {
                         logger.warning('We were unable to determine which Markdown files have changed due to a Git error. Most likely, you forgot to include `fetch-depth: 0` in your checkout action. \nAll cards will be updated.')
                     } else {
