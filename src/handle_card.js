@@ -30,6 +30,10 @@ export default async function(options) {
         logger.info(`Updating previously uploaded card ${cardId}`);
         await api.updateCard(existingCard.id, {
             ...existingCard,
+            title: options.cardTitle,
+            collectionId: options.collectionId,
+            boardId: options.boardId,
+            sectionId: options.boardSectionId,
             content
         });
 
