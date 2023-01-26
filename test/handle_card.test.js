@@ -21,6 +21,7 @@ async function handleCard(options) {
         options.github.isPublic = false;
     }
     options.imageHandler ||= 'auto';
+    options.didFileChange ||= () => true;
 
     return await runHandleCard(options);
 }
@@ -345,6 +346,38 @@ test.each([
     expect(client.getCalls()[client.getCalls().length - 1].options.body.content).toEqual(
         await resource('test_card_expected_output.html')
     );
+});
+
+describe('with unchanged file', () => {
+    it('with a new card still creates it', async() => {
+        const client = createClient();
+
+        await handleCard({
+            client,
+            filePath: 'test/resources/test_card.md',
+            cardTitle: 'Test Card',
+            collectionId: 'c123',
+            didFileChange: () => false
+        });
+
+        expect(client.getCalls().length).toBe(1);
+        expect(client.getCalls()[0].type).toBe('createCard');
+    });
+
+    it('with an existing card ignores it', async() => {
+        const client = createClient();
+
+        await handleCard({
+            client,
+            filePath: 'test/resources/test_card.md',
+            cardTitle: 'Test Card',
+            collectionId: 'c123',
+            didFileChange: () => false,
+            existingCardIds: { 'test/resources/test_card.md': '123' }
+        });
+
+        expect(client.getCalls().length).toBe(0);
+    });
 });
 
 test('with failed server JSON response throws proper error', async() => {

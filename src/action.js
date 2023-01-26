@@ -31,7 +31,8 @@ export default async function(options) {
                 'cardFooter',
                 'defaultCardFooter',
                 'imageHandler',
-                'github'
+                'github',
+                'didFileChange'
             ),
             existingCardIds: cardIds,
             filePath,
@@ -65,7 +66,7 @@ export default async function(options) {
     const newCardsFileContent = JSON.stringify(newCardIds);
 
     if(newCardsFileContent !== cardsFileContent) {
-        logger.info(`Updating ${options.cardsFile}`);
+        logger.info(`\nUpdating ${options.cardsFile}`);
 
         await writeFile(options.cardsFile, JSON.stringify(newCardIds, null, 4));
 
