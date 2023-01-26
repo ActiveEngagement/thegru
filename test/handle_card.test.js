@@ -40,6 +40,7 @@ function apiCall(type, body) {
 }
 
 function createCardApiCall(options) {
+    options.attachments ||= [];
     return apiCall('createCard', {
         shareStatus: 'TEAM',
         ...options
@@ -47,6 +48,7 @@ function createCardApiCall(options) {
 }
 
 function updateCardApiCall(options) {
+    options.attachments ||= [];
     return apiCall('updateCard', options);
 }
 
@@ -211,37 +213,51 @@ describe.each([
     ['upload', false],
     ['auto', false],
 ])('when imageHandler is upload', (imageHandler, isPublic) => {
-    it.each([
+    describe.each([
         ['test/resources/test_card_with_local_image.md', 'test_card_with_local_image_expected_output.html'],
         ['test/resources/test_card_with_local_root_image.md', 'test_card_with_local_image_expected_output.html']
-    ])('uploads images', async(filePath, expected) => {
-        const client = createClient({
-            attachmentResult: { link: 'https://example.com/attachment.png' }
+    ])('with normal or root image', (filePath, expected) => {
+        let client = null;
+
+        beforeEach(async() => {
+            client = createClient({
+                attachmentResult: { link: 'https://example.com/attachment.png', someProp: true }
+            });
+
+            await handleCard({
+                client,
+                filePath,
+                cardTitle: 'Local Image',
+                collectionId: 'c123',
+                imageHandler,
+                github: { isPublic }
+            });
         });
 
-        await handleCard({
-            client,
-            filePath,
-            cardTitle: 'Local Image',
-            collectionId: 'c123',
-            imageHandler,
-            github: { isPublic }
-        });
-
-        expect(client.getCalls()[0]).toMatchObject({
-            type: 'uploadAttachment',
-            fileName: 'empty.png',
-            options: {
-                headers: {
-                    accept: 'application/json',
-                    authorization: 'Basic dW5kZWZpbmVkOnVuZGVmaW5lZA=='
+        it('uploads images', () => {
+            expect(client.getCalls()[0]).toMatchObject({
+                type: 'uploadAttachment',
+                fileName: 'empty.png',
+                options: {
+                    headers: {
+                        accept: 'application/json',
+                        authorization: 'Basic dW5kZWZpbmVkOnVuZGVmaW5lZA=='
+                    }
                 }
-            }
+            });
         });
 
-        expect(client.getCalls()[1].options.body.content).toEqual(
-            await resource(expected)
-        );
+        it('includes the attachment in the card', () => {
+            expect(client.getCalls()[1].options.body.attachments).toStrictEqual([
+                { link: 'https://example.com/attachment.png', someProp: true }
+            ]);
+        })
+
+        it('renders the content correctly', async() => {
+            expect(client.getCalls()[1].options.body.content).toEqual(
+                await resource(expected)
+            );
+        })
     });
 });
 
