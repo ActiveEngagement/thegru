@@ -29,7 +29,7 @@ export default async function(options) {
             logger.warning('We were unable to determine which Markdown files have changed due to a Git error. Most likely, you forgot to include `fetch-depth: 0` in your checkout action. All cards will be updated.');
         }
         else {
-            options.didFileChange = (filePath) => changedFiles.includes(filePath);
+            didFileChange = (filePath) => changedFiles.includes(filePath);
         }
     }
 
