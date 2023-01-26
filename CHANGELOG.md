@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Added
+- Added the ability to only update cards that have changed.
+
 ### Fixed
 - Fixed a bug where cards' titles were not getting updated.
 
