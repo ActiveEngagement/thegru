@@ -21,13 +21,14 @@ export default async function getChangedFiles(options) {
     logger.debug(`stderr:\n${stderr}`);
     logger.debug(`exit code:\n${exitCode}`);
     
-    if (exitCode === 0) {
+    if(exitCode === 0) {
         return stdout.split('\n');
     }
     else {
-        if (stderr.includes('bad object')) {
+        if(stderr.includes('bad object')) {
             return null;
-        } else {
+        }
+        else {
             throw new TheGuruError('The git command used to determine which files have changed reported an error!');
         }
     }

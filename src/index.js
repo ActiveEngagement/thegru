@@ -69,21 +69,23 @@ async function main() {
 
         let didFileChange = () => true;
 
-        if (inputs.github) {
+        if(inputs.github) {
             const commitMessage = inputs.github.event.head_commit?.message;
-            if (commitMessage) {
+            if(commitMessage) {
                 if(commitMessage.includes('[guru update]')) {
                     logger.info(c.blue('Since [guru update] was included in the commit, all cards will be updated.'));
                 }
                 else {
                     const changedFiles = await getChangedFiles({ github: inputs.github, logger });
                     if(changedFiles === null) {
-                        logger.warning('We were unable to determine which Markdown files have changed due to a Git error. Most likely, you forgot to include `fetch-depth: 0` in your checkout action. All cards will be updated.')
-                    } else {
+                        logger.warning('We were unable to determine which Markdown files have changed due to a Git error. Most likely, you forgot to include `fetch-depth: 0` in your checkout action. All cards will be updated.');
+                    }
+                    else {
                         didFileChange = (filePath) => changedFiles.includes(filePath);
                     }
                 }
-            } else {
+            }
+            else {
                 logger.warning('We were unable to read the latest commit message. Any commit flags will be ignored.');
             }
         }
