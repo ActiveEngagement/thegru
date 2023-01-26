@@ -5,7 +5,10 @@ export default async function getChangedFiles(github) {
     const { exitCode, stdout, stderr } = await exec.getExecOutput(
         `git diff --name-only ${github.event.before} ${github.event.after}`,
         undefined,
-        { ignoreReturnCode: true }
+        {
+            ignoreReturnCode: true,
+            silent: true
+        }
     );
     
     if (exitCode === 0) {
