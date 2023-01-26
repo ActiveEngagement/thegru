@@ -91,6 +91,8 @@ async function main() {
             logger.warning('Since the "github" option was not set, we are unable to determine which Markdown files have changed. All cards will be updated.');
         }
 
+        logger.info('');
+
         await action({
             ...inputs,
             defaultCardFooter,
@@ -107,7 +109,7 @@ async function main() {
         });
 
         const elapsed = ((performance.now() - start) / 1000).toFixed(2);
-        logger.info(`All done in ${c.green(`${elapsed} seconds`)}!`);
+        logger.info(`\nAll done in ${c.green(`${elapsed} seconds`)}!`);
     }
     catch (error) {
         core.info('A fatal exception ocurred!');
