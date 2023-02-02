@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 
 export async function readFile(filePath) {
     return await fs.promises.readFile(filePath, { encoding: 'utf8' });
@@ -13,7 +14,7 @@ export async function writeFile(filePath, content) {
  */
 
 export function srcUrl(filePath) {
-    // `import.meta.url` is the path of the current script, which is what we want, since `fs_util.js` is in the `src`
-    // directory.
-    return new URL(filePath, import.meta.url);
+    // `import.meta.url` is the directory of the current script. Since `fs_util.js` is under `src/core`, one directory
+    // up from the current one will be the src directory.
+    return new URL(filePath, path.dirname(import.meta.url));
 }

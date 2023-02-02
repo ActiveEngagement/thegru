@@ -1,5 +1,5 @@
-import { InvalidInputsError } from '../src/error.js';
-import getInputs from '../src/inputs.js';
+import { InvalidInputsError } from '../src/core/error.js';
+import getInputs from '../src/core/inputs.js';
 
 const inputs = {
     user_email: 'test@example.com',

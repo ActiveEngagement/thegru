@@ -1,6 +1,6 @@
-import runHandleCard from '../src/handle_card.js';
-import createApi from '../src/api.js';
-import { FetchError } from '../src/error.js';
+import runHandleCard from '../src/core/handle_card.js';
+import createApi from '../src/core/api.js';
+import { FetchError } from '../src/core/error.js';
 import createClient from './support/api_client.js';
 import { resource } from './support/util.js';
 import nullLogger from './support/null_logger.js';
