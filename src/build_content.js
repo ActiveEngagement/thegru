@@ -18,7 +18,7 @@ import { readFile } from './fs_util.js';
  *   4. All headers will receive an `id` attribute so that internal links function properly.
  */
 
-export default async function(content, options = {}) {
+export default async function(filePath, content, options = {}) {
     const { logger, api, github, footer: footerTemplate, imageHandler } = options;
 
     if(footerTemplate && typeof footerTemplate === 'string') {
@@ -46,7 +46,7 @@ export default async function(content, options = {}) {
 
     function getGithubImageUrl(url) {
         logger.info(`Rewriting local image ${url}`);
-        return 'https://raw.githubusercontent.com/' + path.join(repositoryName, sha, resolveUrl(url));
+        return 'https://raw.githubusercontent.com/' + path.join(github.repo.name, github.commit.sha, resolveUrl(url));
     }
 
     async function getImageUrl(url) {

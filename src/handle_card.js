@@ -33,7 +33,7 @@ export default async function(filePath, cardTitle, options) {
     }
 
     // Build the card content.
-    const builtContent = await buildContent(content, {
+    const builtContent = await buildContent(filePath, content, {
         logger,
         api,
         github,

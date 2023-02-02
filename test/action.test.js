@@ -5,6 +5,8 @@ import fs from 'fs';
 import { readFile, writeFile } from '../src/fs_util.js';
 import arrayLogger from './support/array_logger.js';
 import nullLogger from './support/null_logger.js';
+import nullColorizer from './support/null_colorizer.js';
+import { InvalidGitObjectError } from '../src/error.js';
 
 beforeEach(async() => {
     if(fs.existsSync('test/env')) {
@@ -20,20 +22,24 @@ async function initCardsFile(data) {
 
 async function action(options) {
     options.logger ||= nullLogger();
-    options.cardsFile ||= 'test/env/uploaded-cards.json';
-    options.defaultCardFooter ||= '<{{repository_url}}>';
+    options.colors ||= nullColorizer();
+    options.inputs ||= {};
+    options.inputs.cardsFile ||= 'test/env/uploaded-cards.json';
+    options.inputs.imageHandler ||= 'auto';
+    options.defaultFooter ||= '<{{repository_url}}>';
     options.github ||= {};
-    options.github.repositoryUrl ||= 'https://example.com';
-    options.github.repositoryName ||= 'ActiveEngagement/test';
-    options.github.sha ||= '1234567890';
-    if(options.github.commitMessage === undefined) {
-        options.github.commitMessage = ' ';
+    options.github.repo ||= {};
+    options.github.repo.url ||= 'https://example.com';
+    options.github.repo.name ||= 'ActiveEngagement/test';
+    options.github.commit ||= {};
+    options.github.commit.sha ||= '1234567890';
+    if(options.github.commit.message === undefined) {
+        options.github.commit.message = ' ';
     }
-    if(options.github.isPublic === undefined) {
-        options.github.isPublic = false;
+    if(options.github.repo.isPublic === undefined) {
+        options.github.repo.isPublic = false;
     }
-    options.imageHandler ||= 'auto';
-    options.commitCardsFile ||= () => { };
+    options.commitCardsFile ||= () => {};
     options.getChangedFiles ||= () => [];
 
     return await runAction(options);
@@ -63,16 +69,18 @@ describe('in a typical scenario', () => {
         expectedContent = await resource('test_card_with_footer_expected_output.html');
 
         await action({
+            logger,
             client,
             commitCardsFile: options => gitCall = options,
-            collectionId: 'c123',
-            cards: {
-                'test/resources/test_card.md': 'Test 123',
-                'test/resources/test_card_unchanged.md': 'unchanged123',
-                'test/resources/test_card_3.md': 'Test 789',
-                'test/resources/test_card_2.md': 'Test 456',
+            inputs: {
+                collectionId: 'c123',
+                cards: {
+                    'test/resources/test_card.md': 'Test 123',
+                    'test/resources/test_card_unchanged.md': 'unchanged123',
+                    'test/resources/test_card_3.md': 'Test 789',
+                    'test/resources/test_card_2.md': 'Test 456',
+                },
             },
-            logger,
             getChangedFiles: () => [
                 'test/resources/test_card.md',
                 'test/resources/test_card_2.md',
@@ -147,11 +155,13 @@ describe('with nonexistent cards file', () => {
             client: createClient({
                 createCardResult: { id: '123' }
             }),
-            collectionId: 'c123',
-            cards: {
-                'test/resources/test_card.md': 'Test 123',
-                'test/resources/test_card_3.md': 'Test 789',
-                'test/resources/test_card_2.md': 'Test 456',
+            inputs: {
+                collectionId: 'c123',
+                cards: {
+                    'test/resources/test_card.md': 'Test 123',
+                    'test/resources/test_card_3.md': 'Test 789',
+                    'test/resources/test_card_2.md': 'Test 456',
+                }
             }
         });
     });
@@ -169,6 +179,7 @@ describe('with update_all', () => {
     let client = null;
     let expectedContent = null;
     let logger = null;
+    let gitCall = null;
 
     beforeEach(async() => {
         await initCardsFile({ 'test/resources/test_card_unchanged.md': 'unchanged123' });
@@ -182,12 +193,14 @@ describe('with update_all', () => {
         expectedContent = await resource('test_card_with_footer_expected_output.html');
 
         await action({
+            logger,
             client,
             commitCardsFile: options => gitCall = options,
-            collectionId: 'c123',
-            cards: { 'test/resources/test_card_unchanged.md': 'unchanged123' },
-            logger,
-            updateAll: true
+            inputs: {
+                collectionId: 'c123',
+                cards: { 'test/resources/test_card_unchanged.md': 'unchanged123' },
+                updateAll: true
+            }
         });
     });
 
@@ -220,13 +233,16 @@ describe('with no commit message', () => {
         logger = arrayLogger();
 
         await action({
-            client,
-            commitCardsFile: options => gitCall = options,
-            collectionId: 'c123',
-            cards: { 'test/resources/test_card_unchanged.md': 'unchanged123' },
             logger,
+            client,
             github: {
-                commitMessage: null
+                commit: {
+                    message: null
+                }
+            },
+            inputs: {
+                collectionId: 'c123',
+                cards: { 'test/resources/test_card_unchanged.md': 'unchanged123' },
             }
         });
     });
@@ -262,13 +278,16 @@ describe('with [guru update] flag', () => {
         expectedContent = await resource('test_card_with_footer_expected_output.html');
 
         await action({
-            client,
-            commitCardsFile: options => gitCall = options,
-            collectionId: 'c123',
-            cards: { 'test/resources/test_card_unchanged.md': 'unchanged123' },
             logger,
+            client,
             github: {
-                commitMessage: 'A Test Commit [guru update]\n\nSome more description.'
+                commit: {
+                    message: 'A Test Commit [guru update]\n\nSome more description.'
+                }
+            },
+            inputs: {
+                collectionId: 'c123',
+                cards: { 'test/resources/test_card_unchanged.md': 'unchanged123' },
             }
         });
     });
@@ -283,7 +302,7 @@ describe('with [guru update] flag', () => {
     });
 
     it('emits a log notice', () => {
-        const actual = logger.getMessages().some(msg => msg.includes('Since [guru update] was included in the commit, all cards will be updated.'));
+        const actual = logger.getMessages().some(msg => msg.includes('[guru update] flag detected. All cards will be updated.'));
         expect(actual).toBe(true);
     });
 });
@@ -305,12 +324,13 @@ describe('with git object error', () => {
         expectedContent = await resource('test_card_with_footer_expected_output.html');
 
         await action({
-            client,
-            commitCardsFile: options => gitCall = options,
-            collectionId: 'c123',
-            cards: { 'test/resources/test_card_unchanged.md': 'unchanged123' },
             logger,
-            getChangedFiles: () => null
+            client,
+            getChangedFiles: () => { throw new InvalidGitObjectError() },
+            inputs: {
+                collectionId: 'c123',
+                cards: { 'test/resources/test_card_unchanged.md': 'unchanged123' },
+            }
         });
     });
 
@@ -324,7 +344,7 @@ describe('with git object error', () => {
     });
 
     it('emits a log notice', () => {
-        const actual = logger.getMessages().some(msg => msg === 'We were unable to determine which Markdown files have changed due to a Git error. Most likely, you forgot to include `fetch-depth: 0` in your checkout action. All cards will be updated.');
+        const actual = logger.getMessages().some(msg => msg === 'The Git command used to determine which files have changed reported an invalid object error. Most likely, you forgot to include `fetch-depth` in your checkout action.');
         expect(actual).toBe(true);
     });
 });

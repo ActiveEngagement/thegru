@@ -9,7 +9,7 @@ import createFetch from './fetch.js';
 import version from './version.cjs';
 import { isRepoPublic } from './util.js';
 import commitCardsFile from './commit_cards_file.js';
-import getChangedFiles from './file_changes.js';
+import getChangedFilesBase from './file_changes.js';
 import action from './action.js';
 
 /**
@@ -41,6 +41,9 @@ async function main() {
         // Set up an API client that delegates to node-fetch.
         const client = createClient(createFetch({ logger }));
 
+        // Set up a file changes callback that delegates to file_changes.js.
+        const getChangedFiles = () => getChangedFilesBase({ logger, github })
+
         // Acquire information about the run from the given GitHub context.
         const ghContext = inputs.github;
         const github = {
@@ -56,6 +59,9 @@ async function main() {
         github.event.before = ghContext.event.before;
         github.event.after = ghContext.event.after;
 
+        // Retrieve the default card footer from disk.
+        const defaultFooter = await readFile(srcUrl('resources/default_card_footer.md'));
+
         // Run the action with the appropriate dependencies.
         await action({
             client,
@@ -63,6 +69,7 @@ async function main() {
             colors,
             inputs,
             github,
+            defaultFooter,
             commitCardsFile,
             getChangedFiles
         });

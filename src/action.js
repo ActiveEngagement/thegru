@@ -18,6 +18,7 @@ export default async function(options) {
         colors,
         inputs,
         github,
+        defaultFooter,
         commitCardsFile,
         getChangedFiles
     } = options;
@@ -29,7 +30,6 @@ export default async function(options) {
     }
 
     // Determine the card footer.
-    const defaultFooter = await readFile(srcUrl('resources/default_card_footer.md'));
     let footer = inputs.footer;
     if(footer === undefined || footer === null || footer === true) {
         logger.info('Using default card footer...');
@@ -53,24 +53,22 @@ export default async function(options) {
                 updateAll = true;
             }
         })
-        .execute(message, { logger });
+        .execute(github?.commit?.message, { logger });
 
-    let didFileChange;
+    // If all files should be updated, all files will be treated as changed.
+    let didFileChange = () => true;
     
-    if (updateAll) {
-        // If all files should be updated, all files will be treated as changed.
-        didFileChange = () => true;
-    }
-    else {
+    if (!updateAll) {
         // Otherwise, try to get a list of changed files.
         await attempt()
             .to(async () => {
-                const changedFiles = await getChangedFiles({ logger });
+                const changedFiles = await getChangedFiles();
                 didFileChange = (filePath) => changedFiles.includes(filePath);
             })
             .catch(InvalidGitObjectError, () => {
                 logger.warning('The Git command used to determine which files have changed reported an invalid object error. Most likely, you forgot to include `fetch-depth` in your checkout action.');
-            });
+            })
+            .do();
     }
 
     // Set up the API with the given client.
@@ -85,7 +83,7 @@ export default async function(options) {
 
     // Read the cards file if it exists.
     if (fs.existsSync(inputs.cardsFile)) {
-        cardsFileContent = await readFile(inputs.cardFile);
+        cardsFileContent = await readFile(inputs.cardsFile);
     }
 
     const cardIds = JSON.parse(cardsFileContent);

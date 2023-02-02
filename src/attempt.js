@@ -10,18 +10,22 @@ export default function() {
 
     function to(callback) {
         toCallback = callback;
+
+        return this;
     }
 
     function catchFunc(klass, callback) {
-        catchers.push({ class: klass, callback });
+        catchers.push({ klass, callback });
+
+        return this;
     }
 
     async function doFunc() {
         try {
             return await toCallback();
         } catch (e) {
-            for (const catcher in catchers) {
-                if (e instanceof catcher.class) {
+            for (const catcher of catchers) {
+                if (e instanceof catcher.klass) {
                     return await catcher.callback(e);
                 }
             }
