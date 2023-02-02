@@ -326,7 +326,9 @@ describe('with git object error', () => {
         await action({
             logger,
             client,
-            getChangedFiles: () => { throw new InvalidGitObjectError() },
+            getChangedFiles: () => {
+                throw new InvalidGitObjectError(); 
+            },
             inputs: {
                 collectionId: 'c123',
                 cards: { 'test/resources/test_card_unchanged.md': 'unchanged123' },

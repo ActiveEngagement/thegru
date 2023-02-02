@@ -15,13 +15,14 @@ export default function() {
 
         if(message) {
             flags.forEach((flag) => {
-                if (message.includes(flag.name)) {
+                if(message.includes(flag.name)) {
                     flag.callback();
                 }
             });
 
             return true;
-        } else {
+        }
+        else {
             logger.warning('We were unable to read the latest commit message. Any commit flags will be ignored.');
 
             return false;

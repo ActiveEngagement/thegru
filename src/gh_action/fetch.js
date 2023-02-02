@@ -17,7 +17,7 @@ export default function(container) {
         logger.debug(`Received response from ${url}: ${await response.text()}`);
 
         return response;
-    }
+    };
 }
 
 /**

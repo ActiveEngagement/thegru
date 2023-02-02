@@ -23,9 +23,10 @@ export default function() {
     async function doFunc() {
         try {
             return await toCallback();
-        } catch (e) {
-            for (const catcher of catchers) {
-                if (e instanceof catcher.klass) {
+        }
+        catch (e) {
+            for(const catcher of catchers) {
+                if(e instanceof catcher.klass) {
                     return await catcher.callback(e);
                 }
             }

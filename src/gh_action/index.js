@@ -42,7 +42,7 @@ async function main() {
         const client = createClient(createFetch({ logger }));
 
         // Set up a file changes callback that delegates to file_changes.js.
-        const getChangedFiles = () => getChangedFilesBase({ logger, github })
+        const getChangedFiles = () => getChangedFilesBase({ logger, github });
 
         // Acquire information about the run from the given GitHub context.
         const ghContext = inputs.github;

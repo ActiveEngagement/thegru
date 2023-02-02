@@ -21,7 +21,7 @@ export default function() {
         // Delegate each of these to GitHub actions.
         instance[name] = function(message) {
             core[name](message);
-        }
+        };
     });
 
     return instance;

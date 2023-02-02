@@ -48,7 +48,7 @@ export default async function(options) {
 
     commitFlags()
         .flag('guru update', () => {
-            if (!updateAll) {
+            if(!updateAll) {
                 logger.info(colors.blue('[guru update] flag detected. All cards will be updated.'));
                 updateAll = true;
             }
@@ -58,10 +58,10 @@ export default async function(options) {
     // If all files should be updated, all files will be treated as changed.
     let didFileChange = () => true;
     
-    if (!updateAll) {
+    if(!updateAll) {
         // Otherwise, try to get a list of changed files.
         await attempt()
-            .to(async () => {
+            .to(async() => {
                 const changedFiles = await getChangedFiles();
                 didFileChange = (filePath) => changedFiles.includes(filePath);
             })
@@ -82,7 +82,7 @@ export default async function(options) {
     let cardsFileContent = '{}';
 
     // Read the cards file if it exists.
-    if (fs.existsSync(inputs.cardsFile)) {
+    if(fs.existsSync(inputs.cardsFile)) {
         cardsFileContent = await readFile(inputs.cardsFile);
     }
 
