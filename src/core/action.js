@@ -61,14 +61,13 @@ export default async function(options) {
     if(!updateAll) {
         // Otherwise, try to get a list of changed files.
         await attempt()
-            .to(async() => {
-                const changedFiles = await getChangedFiles();
-                didFileChange = (filePath) => changedFiles.includes(filePath);
-            })
             .catch(InvalidGitObjectError, () => {
                 logger.warning('The Git command used to determine which files have changed reported an invalid object error. Most likely, you forgot to include `fetch-depth` in your checkout action.');
             })
-            .do();
+            .do(async() => {
+                const changedFiles = await getChangedFiles();
+                didFileChange = (filePath) => changedFiles.includes(filePath);
+            });
     }
 
     // Set up the API with the given client.

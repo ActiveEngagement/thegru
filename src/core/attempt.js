@@ -5,14 +5,7 @@
  */
 
 export default function() {
-    let toCallback = () => {};
     const catchers = [];
-
-    function to(callback) {
-        toCallback = callback;
-
-        return this;
-    }
 
     function catchFunc(klass, callback) {
         catchers.push({ klass, callback });
@@ -20,13 +13,17 @@ export default function() {
         return this;
     }
 
-    async function doFunc() {
+    function catchAll(callback) {
+        return this.catch(null, callback);
+    }
+
+    async function doFunc(callback) {
         try {
-            return await toCallback();
+            return await callback();
         }
         catch (e) {
             for(const catcher of catchers) {
-                if(e instanceof catcher.klass) {
+                if(catcher.klass === null || e instanceof catcher.klass) {
                     return await catcher.callback(e);
                 }
             }
@@ -35,5 +32,20 @@ export default function() {
         }
     }
 
-    return { to, catch: catchFunc, do: doFunc };
+    function doSync(callback) {
+        try {
+            return callback();
+        }
+        catch (e) {
+            for(const catcher of catchers) {
+                if(catcher.klass === null || e instanceof catcher.klass) {
+                    return catcher.callback(e);
+                }
+            }
+
+            throw e;
+        }
+    }
+
+    return { catch: catchFunc, catchAll, do: doFunc, doSync };
 }

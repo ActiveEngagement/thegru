@@ -4,6 +4,7 @@ import { FetchError } from '../src/core/error.js';
 import createClient from './support/api_client.js';
 import { resource } from './support/util.js';
 import nullLogger from './support/null_logger.js';
+import attempt from '../src/core/attempt.js';
 
 async function handleCard(options) {
     options.logger ||= nullLogger();
@@ -357,25 +358,19 @@ test('with failed server JSON response throws proper error', async() => {
     let error = null;
     let response = null;
 
-    try {
-        response = await handleCard({
-            client,
-            filePath: 'test/resources/test_card.md',
-            cardTitle: 'Test Card',
-            existingCardIds: { 'test/resources/test_card.md': 'card123' },
-            inputs: {
-                collectionId: 'c123'
-            }
+    await attempt()
+        .catch(FetchError, e => error = e)
+        .do(async() => {
+            response = await handleCard({
+                client,
+                filePath: 'test/resources/test_card.md',
+                cardTitle: 'Test Card',
+                existingCardIds: { 'test/resources/test_card.md': 'card123' },
+                inputs: {
+                    collectionId: 'c123'
+                }
+            });
         });
-    }
-    catch (e) {
-        if(e instanceof FetchError) {
-            error = e;
-        }
-        else {
-            throw e;
-        }
-    }
 
     expect(response).toBe(null);
     expect(error.toString()).toBe('FetchError: Server responded with a 400 status code: Custom error message!');
@@ -404,25 +399,19 @@ test('with failed server text response throws proper error', async() => {
     let error = null;
     let response = null;
 
-    try {
-        response = await handleCard({
-            client,
-            filePath: 'test/resources/test_card.md',
-            cardTitle: 'Test Card',
-            existingCardIds: { 'test/resources/test_card.md': 'card123', },
-            inputs: {
-                collectionId: 'c123',
-            }
+    await attempt()
+        .catch(FetchError, e => error = e)
+        .do(async() => {
+            response = await handleCard({
+                client,
+                filePath: 'test/resources/test_card.md',
+                cardTitle: 'Test Card',
+                existingCardIds: { 'test/resources/test_card.md': 'card123', },
+                inputs: {
+                    collectionId: 'c123',
+                }
+            });
         });
-    }
-    catch (e) {
-        if(e instanceof FetchError) {
-            error = e;
-        }
-        else {
-            throw e;
-        }
-    }
 
     expect(response).toBe(null);
     expect(error.toString()).toBe('FetchError: Server responded with a 403 status code');

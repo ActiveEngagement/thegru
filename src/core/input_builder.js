@@ -1,4 +1,5 @@
 import { InvalidInputsError } from './error.js';
+import attemptThrowable from './attempt.js';
 
 export function valid() {
     return { valid: true };
@@ -106,17 +107,9 @@ export default function(name, value) {
     }
 
     function attempt(callback) {
-        try {
-            return callback(this);
-        }
-        catch (e) {
-            if(e instanceof InvalidInputsError) {
-                return this;
-            }
-            else {
-                throw e;
-            }
-        }
+        return attemptThrowable()
+            .catch(InvalidInputsError, () => this)
+            .doSync(() => callback(this));
     }
 
     function use(callback) {
