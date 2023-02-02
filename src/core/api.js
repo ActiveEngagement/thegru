@@ -143,10 +143,10 @@ export default function(client, options) {
         return await validate(response);
     }
 
-    async function uploadAttachment(fileName, blob) {
+    async function uploadAttachment(fileName, filePath) {
         logger.debug(`Uploading attachment with name ${fileName}`);
 
-        const response = await client.uploadAttachment(fileName, blob, {
+        const response = await client.uploadAttachment(fileName, filePath, {
             headers: headers({ 'content-type': false })
         });
 

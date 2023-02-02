@@ -2,7 +2,7 @@ import runHandleCard from '../src/core/handle_card.js';
 import createApi from '../src/core/api.js';
 import { FetchError } from '../src/core/error.js';
 import createClient from './support/api_client.js';
-import { resource } from './support/util.js';
+import { resource, createCardApiCall, updateCardApiCall } from './support/util.js';
 import nullLogger from './support/null_logger.js';
 import attempt from '../src/core/attempt.js';
 
@@ -27,31 +27,6 @@ async function handleCard(options) {
     options.didFileChange ||= () => true;
 
     return await runHandleCard(options.filePath, options.cardTitle, options);
-}
-
-function apiCall(type, body) {
-    return {
-        type,
-        options: {
-            body,
-            headers: {
-                accept: 'application/json',
-                authorization: 'Basic dW5kZWZpbmVkOnVuZGVmaW5lZA==',
-                'content-type': 'application/json'
-            }
-        }
-    };
-}
-
-function createCardApiCall(options) {
-    return apiCall('createCard', {
-        shareStatus: 'TEAM',
-        ...options
-    });
-}
-
-function updateCardApiCall(options) {
-    return apiCall('updateCard', options);
 }
 
 describe.each([

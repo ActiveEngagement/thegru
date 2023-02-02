@@ -7,10 +7,10 @@ import ghLogger from './gh_logger.js';
 import createClient from './api_client.js';
 import createFetch from './fetch.js';
 import version from './version.cjs.js';
-import { isRepoPublic } from './util.js.js';
+import isRepoPublic from './gh_repo_public.js';
 import commitCardsFile from './commit_cards_file.js';
 import getChangedFilesBase from './file_changes.js';
-import action from './core/action.js.js';
+import action from '../core/action.js.js';
 
 /**
  * This is the main entry point for the GitHub action. It's SOLE purpose should be to set up dependencies for

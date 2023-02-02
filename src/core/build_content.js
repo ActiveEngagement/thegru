@@ -5,8 +5,6 @@ import remarkRehype from 'remark-rehype';
 import rehypeStringify from 'rehype-stringify';
 import rehypeSlug from 'rehype-slug';
 import { analyzeTree } from './hast_util.js';
-import { blobFromSync } from 'node-fetch';
-import { readFile } from './fs_util.js';
 
 /**
  * Builds the content for a Markdown card file. The process looks like this:
@@ -39,7 +37,7 @@ export default async function(filePath, content, options = {}) {
     async function uploadImage(url) {
         logger.info(`Uploading and rewriting local image ${url}`);
 
-        const { link } = await api.uploadAttachment(path.basename(url), blobFromSync(resolveUrl(url)));
+        const { link } = await api.uploadAttachment(path.basename(url), resolveUrl(url));
 
         return link;
     }
