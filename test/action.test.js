@@ -350,3 +350,62 @@ describe('with git object error', () => {
         expect(actual).toBe(true);
     });
 });
+
+describe('with auto image handler', () => {
+    describe('with public repo', () => {
+        let client = null;
+
+        beforeEach(async() => {
+            client = createClient({
+                createCardResult: { id: '123' }
+            });
+
+            await action({
+                client,
+                inputs: {
+                    collectionId: 'c123',
+                    cards: {
+                        'test/resources/test_card_with_local_image.md': 'Test 123',
+                    },
+                    footer: false
+                },
+                github: { repo: { isPublic: true } },
+            });
+        });
+
+        it('rewrites the URLs to GitHub', async() => {
+            expect(client.getCalls()[0].options.body.content).toBe(
+                await resource('test_card_with_github_urls_image_expected_output.html')
+            );
+        });
+    });
+
+    describe('with private repo', () => {
+        let client = null;
+
+        beforeEach(async() => {
+            client = createClient({
+                createCardResult: { id: '123' },
+                attachmentResult: { link: 'image-link' }
+            });
+
+            await action({
+                client,
+                inputs: {
+                    collectionId: 'c123',
+                    cards: {
+                        'test/resources/test_card_with_local_image.md': 'Test 123',
+                    },
+                    footer: false
+                },
+                github: { repo: { isPublic: false } },
+            });
+        });
+
+        it('rewrites the URLs to GitHub', async() => {
+            expect(client.getCalls()[1].options.body.content).toBe(
+                await resource('test_card_with_upload_image_expected_output.html')
+            );
+        });
+    });
+});
