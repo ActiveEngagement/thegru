@@ -1,7 +1,12 @@
 import { FormData } from 'node-fetch';
 
+/**
+ * An API client implementation that wraps a fetch function.
+ */
+
 export default function(fetch, options = {}) {
-    const baseEndpoint = options.endpoint || 'https://api.getguru.com/api/v1/';
+    const { endpoint: endpointOption } = options;
+    const baseEndpoint = endpointOption || 'https://api.getguru.com/api/v1/';
 
     function endpoint(path = null) {
         if(!path) return baseEndpoint;
@@ -26,6 +31,7 @@ export default function(fetch, options = {}) {
     }
 
     async function uploadAttachment(fileName, blob, options) {
+        // Hydrate a FormData instance with the blob.
         const formData = new FormData();
         formData.append('file', blob, fileName);
 

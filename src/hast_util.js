@@ -1,5 +1,10 @@
 import { visit, CONTINUE as UNIST_CONTINUE } from 'unist-util-visit';
 
+/**
+ * Recursively visits a HAST tree and aggregates the given elements. Elements that match a given test will be returned
+ * under the correspnding name.
+ */
+
 export function analyzeTree(tree, tags) {
     const analysis = {};
 

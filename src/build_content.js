@@ -1,24 +1,28 @@
 import path from 'path';
-import process from 'process';
+import { remark } from 'remark';
+import remarkParse from 'remark-parse';
+import remarkRehype from 'remark-rehype';
+import rehypeStringify from 'rehype-stringify';
+import rehypeSlug from 'rehype-slug';
+import { analyzeTree } from './hast_util.js';
 import { blobFromSync } from 'node-fetch';
-import { wrapGuruMarkdown } from './api_util.js';
 import { readFile } from './fs_util.js';
-import prepare from './prepare.js';
 
-export default async function(filePath, options = {}) {
-    let { footer, defaultFooter, imageHandler, api, logger, github: { repositoryUrl, repositoryName, sha } } = options;
+/**
+ * Builds the content for a Markdown card file. The process looks like this:
+ *   1. If given, the footer template will be built and appended to the content.
+ *   2. The Markdown will be rendered to HTML.
+ *   3. All local images will be rewritten based on the given image handler, either:
+ *      * to point to public GitHub URLs, or
+ *      * to point to a Guru attachment that will be created.
+ *   4. All headers will receive an `id` attribute so that internal links function properly.
+ */
 
-    logger.info(`Reading ${filePath}`);
+export default async function(content, options = {}) {
+    const { logger, api, github, footer: footerTemplate, imageHandler } = options;
 
-    let content = await readFile(filePath);
-
-    if(footer === undefined || footer === null || footer === true) {
-        logger.info('Using default card footer...');
-        footer = defaultFooter;
-    }
-
-    if(footer && typeof footer === 'string') {
-        footer = footer.replaceAll('{{repository_url}}', repositoryUrl);
+    if(footerTemplate && typeof footerTemplate === 'string') {
+        const footer = footerTemplate.replaceAll('{{repository_url}}', github.repo.url);
         content += '\n\n' + footer;
     }
     else {
@@ -54,7 +58,42 @@ export default async function(filePath, options = {}) {
         }
     }
 
-    content = wrapGuruMarkdown(await prepare(content, { getImageUrl }));
+    function isLocalImage(node) {
+        return !node.properties.src.startsWith('http');
+    }
 
-    return content;
+    async function rewriteLocalImage(node) {
+        node.properties.src = await getImageUrl(node.properties.src);
+    }
+
+    function fixImageWidth(node) {
+        node.properties.style = 'width: auto;';
+    }
+
+    async function transform(tree) {
+        // This is necessary because the unist-util-visit visit method does not support asynchronous visitors.
+        const analysis = analyzeTree(tree, { image: /img/ });
+
+        for(const node of analysis.image) {
+            if(isLocalImage(node)) {
+                await rewriteLocalImage(node);
+            }
+            fixImageWidth(node);
+        }
+    }
+
+    const output = await remark()
+        // Parse the Markdown.
+        .use(remarkParse)
+        // Convert it to an HTML syntax tree.
+        .use(remarkRehype)
+        // Transform the syntax tree.
+        .use(() => transform)
+        // Make headings "navigable".
+        .use(rehypeSlug)
+        // Convert the syntax tree to an HTML string.
+        .use(rehypeStringify)
+        .process(content);
+    
+    return String(output);
 }

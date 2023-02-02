@@ -4,36 +4,43 @@ import remarkRehype from 'remark-rehype';
 import buildContent from './build_content.js';
 import { readFile } from './fs_util.js';
 import { analyzeTree } from './hast_util.js';
-import { pick } from './util.js';
+import guruMdBlock from './guru_md_block.js';
 
-export default async function(options) {
-    const { api, logger } = options;
+export default async function(filePath, cardTitle, options) {
+    const { logger, api, github, inputs, imageHandler, footer, existingCardIds, didFileChange } = options;
 
-    if(options.imageHandler === 'auto') {
-        options.imageHandler = options.github.isPublic ? 'github_urls' : 'upload';
-    }
+    logger.info(`Reading ${filePath}`);
+    const content = await readFile(filePath);
 
-    const cardId = options.existingCardIds[options.filePath];
+    // Extract the paths of referenced images from the Markdown file so that we can check whether they have changed.
+    const mdastTree = unified()
+        .use(remarkParse)
+        .parse(content);
+    const hastTree = await unified()
+        .use(remarkRehype)
+        .run(mdastTree);
+    const imagePaths = analyzeTree(hastTree, { image: /img/ }).image
+        .map(node => node.properties.src);
+
+    // Check whether the Markdown file or any of its images have changed.
+    const changed = [filePath, ...imagePaths].some(file => didFileChange(file));
     
-    const initialTree = unified().use(remarkParse).parse(await readFile(options.filePath));
-    const tree = await unified().use(remarkRehype).run(initialTree);
-    const imagePaths = analyzeTree(tree, { image: /img/ }).image.map(node => node.properties.src);
-    
-    if(cardId && ![options.filePath, ...imagePaths].some(file => options.didFileChange(file))) {
+    const cardId = existingCardIds[filePath];
+    if(cardId && !changed) {
+        // If there is an existing card, and it has not changed (to our knowledge), then we'll skip it.
         logger.info(`Skipping card ${cardId} because it has not changed.`);
         return cardId;
     }
 
-    const content = await buildContent(options.filePath, {
-        ...pick(options,
-            { footer: 'cardFooter' },
-            { defaultFooter: 'defaultCardFooter' },
-            'logger',
-            'imageHandler',
-            'github'
-        ),
-        api
+    // Build the card content.
+    const builtContent = await buildContent(content, {
+        logger,
+        api,
+        github,
+        footer,
+        imageHandler
     });
+    const wrappedContent = guruMdBlock(builtContent);
 
     let existingCard = null;
 
@@ -45,8 +52,8 @@ export default async function(options) {
         logger.info(`Updating previously uploaded card ${cardId}`);
         await api.updateCard(existingCard.id, {
             ...existingCard,
-            title: options.cardTitle,
-            content
+            title: cardTitle,
+            content: wrappedContent
         });
 
         return cardId;
@@ -60,11 +67,11 @@ export default async function(options) {
         }
 
         const { id } = await api.createCard({
-            title: options.cardTitle,
-            collectionId: options.collectionId,
-            boardId: options.boardId,
-            sectionId: options.boardSectionId,
-            content
+            title: cardTitle,
+            collectionId: inputs.collectionId,
+            boardId: inputs.boardId,
+            sectionId: inputs.boardSectionId,
+            content: wrappedContent
         });
 
         logger.info(`Card ${id} created.`);

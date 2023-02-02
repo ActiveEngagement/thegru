@@ -1,7 +1,16 @@
 import { FetchError, fetchErrorForResponse } from './error.js';
+import { base64 } from './util.js';
+
+/**
+ * Wraps an API client to make it a bit nicer to work with.
+ */
 
 export default function(client, options) {
-    const logger = options.logger;
+    const { logger, userEmail, userToken } = options;
+
+    function auth() {
+        return base64(`${userEmail}:${userToken}`);
+    }
 
     function baseHeaders() {
         return {
@@ -11,13 +20,9 @@ export default function(client, options) {
         };
     };
 
-    function base64(input) {
-        return Buffer.from(input, 'utf8').toString('base64');
-    }
-
-    function auth() {
-        return base64(`${options.userEmail}:${options.userToken}`);
-    }
+    /**
+     * Merges the given headers with the defaults. A default header may be avoided by setting it to `false`.
+     */
 
     function headers(headers = {}) {
         const result = baseHeaders();
@@ -42,6 +47,11 @@ export default function(client, options) {
             return input;
         }
     }
+
+    /**
+     * Analyzes an API response. If the response succeeded, then it's content (or null) is returned. If it failed,
+     * an appropriate exception is thrown.
+     */
 
     async function validate(response) {
         const text = await response.text();
