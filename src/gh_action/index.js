@@ -79,7 +79,7 @@ async function main() {
         logger.info(`All done in ${colors.green(`${elapsed} seconds`)}!`);
     }
     catch (error) {
-        core.info(colors.red('A fatal exception ocurred!'));
+        core.info('A fatal exception ocurred!');
 
         core.debug('Error:');
         core.debug(error);
