@@ -4,6 +4,7 @@ import c from 'ansi-colors';
 
 import getInputs from '../core/inputs.js';
 import action from '../core/action.js';
+import { readFile } from '../core/fs_util.js';
 import ghLogger from './gh_logger.js';
 import createClient from './api_client.js';
 import createFetch from './fetch.js';
