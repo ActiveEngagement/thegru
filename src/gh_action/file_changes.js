@@ -8,7 +8,7 @@ import { InvalidGitObjectError, TheGuruError } from '../core/error.js';
 export default async function getChangedFiles(options) {
     const { github, logger } = options;
 
-    const { exitCode, stdout, stderr } = exec(`git diff --name-only ${github.event.before} ${github.event.after}`, { logger });
+    const { exitCode, stdout, stderr } = await exec(`git diff --name-only ${github.event.before} ${github.event.after}`, { logger });
     
     if(exitCode === 0) {
         return stdout.split('\n');
