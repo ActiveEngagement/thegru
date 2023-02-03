@@ -19,8 +19,8 @@ export default async function(cmd, options) {
     );
 
     logger.debug(`${cmd} exited with code ${result.exitCode}`);
-    logger.debug(`== stdout ==\n${stdout}`);
-    logger.debug(`== stderr ==\n${stderr}`);
+    logger.debug(`== stdout ==\n${result.stdout}`);
+    logger.debug(`== stderr ==\n${result.stderr}`);
 
     return result;
 }
