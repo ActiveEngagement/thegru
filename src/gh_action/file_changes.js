@@ -1,5 +1,5 @@
 import exec from './exec.js';
-import { InvalidGitObjectError, TheGuruError } from './error.js';
+import { InvalidGitObjectError, TheGuruError } from '../core/error.js';
 
 /**
  * Runs a `git diff` to determine which files have changed in this push.
