@@ -2,7 +2,7 @@ import { performance } from 'perf_hooks';
 import core from '@actions/core';
 import c from 'ansi-colors';
 
-import getInputs from './inputs.js';
+import getInputs from './core/inputs.js';
 import ghLogger from './gh_logger.js';
 import createClient from './api_client.js';
 import createFetch from './fetch.js';
