@@ -1,5 +1,5 @@
-import { InvalidInputsError } from '../src/error';
-import input, { invalid, result, valid } from '../src/input_builder.js';
+import { InvalidInputsError } from '../src/core/error.js';
+import input, { invalid, result, valid } from '../src/core/input_builder.js';
 
 const noValueCases = [
     [null],

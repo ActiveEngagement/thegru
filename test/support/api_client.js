@@ -93,15 +93,15 @@ export default function(clientOptions = {}) {
         }
     }
 
-    function uploadAttachment(fileName, blob, options) {
+    function uploadAttachment(fileName, filePath, options) {
         calls.push({
             type: 'uploadAttachment',
             fileName,
-            blob,
+            filePath,
             options
         });
 
-        return response(call(clientOptions.attachmentResult, fileName, blob, options));
+        return response(call(clientOptions.attachmentResult, fileName, filePath, options));
     }
 
     return {

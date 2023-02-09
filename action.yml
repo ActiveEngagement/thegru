@@ -26,4 +26,4 @@ inputs:
 # TODO
 runs:
   using: 'node16'
-  main: 'src/index.js'
+  main: 'src/gh_action/index.js'

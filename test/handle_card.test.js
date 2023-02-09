@@ -1,54 +1,32 @@
-import runHandleCard from '../src/handle_card.js';
-import createApi from '../src/api.js';
-import { FetchError } from '../src/error.js';
+import runHandleCard from '../src/core/handle_card.js';
+import createApi from '../src/core/api.js';
+import { FetchError } from '../src/core/error.js';
 import createClient from './support/api_client.js';
-import { resource } from './support/util.js';
-import { pick } from '../src/util.js';
+import { resource, createCardApiCall, updateCardApiCall } from './support/util.js';
 import nullLogger from './support/null_logger.js';
+import attempt from '../src/core/attempt.js';
 
 async function handleCard(options) {
     options.logger ||= nullLogger();
     if(options.client) {
-        options.api = createApi(options.client, pick(options, 'logger'));
+        options.api = createApi(options.client, { logger: options.logger });
         delete options.client;
     }
-    options.existingCardIds ||= [];
     options.github ||= {};
-    options.github.repositoryUrl ||= 'https://example.com';
-    options.github.repositoryName ||= 'ActiveEngagement/test';
-    options.github.sha ||= '1234567890';
-    if(options.github.isPublic === undefined) {
-        options.github.isPublic = false;
+    options.github.repo ||= {};
+    options.github.repo.url ||= 'https://example.com';
+    options.github.repo.name ||= 'ActiveEngagement/test';
+    options.github.commit ||= {};
+    options.github.commit.sha ||= '1234567890';
+    if(options.github.repo.isPublic === undefined) {
+        options.github.repo.isPublic = false;
     }
+    options.inputs ||= {};
     options.imageHandler ||= 'auto';
+    options.existingCardIds ||= [];
     options.didFileChange ||= () => true;
 
-    return await runHandleCard(options);
-}
-
-function apiCall(type, body) {
-    return {
-        type,
-        options: {
-            body,
-            headers: {
-                accept: 'application/json',
-                authorization: 'Basic dW5kZWZpbmVkOnVuZGVmaW5lZA==',
-                'content-type': 'application/json'
-            }
-        }
-    };
-}
-
-function createCardApiCall(options) {
-    return apiCall('createCard', {
-        shareStatus: 'TEAM',
-        ...options
-    });
-}
-
-function updateCardApiCall(options) {
-    return apiCall('updateCard', options);
+    return await runHandleCard(options.filePath, options.cardTitle, options);
 }
 
 describe.each([
@@ -82,10 +60,12 @@ describe.each([
                 client,
                 filePath: 'test/resources/test_card.md',
                 cardTitle: 'Test Card',
-                collectionId: 'c123',
-                boardId,
-                boardSectionId,
-                existingCardIds
+                existingCardIds,
+                inputs: {
+                    collectionId: 'c123',
+                    boardId,
+                    boardSectionId,
+                }
             });
         });
 
@@ -117,10 +97,12 @@ describe.each([
             client,
             filePath: 'test/resources/test_card.md',
             cardTitle: 'Final',
-            collectionId,
-            boardId,
-            boardSectionId,
-            existingCardIds: { 'test/resources/test_card.md': 'existing123' }
+            existingCardIds: { 'test/resources/test_card.md': 'existing123' },
+            inputs: {
+                collectionId,
+                boardId,
+                boardSectionId,
+            }
         });
     });
 
@@ -161,11 +143,11 @@ describe.each([
             client,
             filePath: 'test/resources/test_card.md',
             cardTitle: 'Test Card',
-            collectionId: 'c123',
-            boardId,
-            boardSectionId,
-            existingCardIds: {
-                'test/resources/test_card.md': '234982093483'
+            existingCardIds: { 'test/resources/test_card.md': '234982093483' },
+            inputs: {
+                collectionId: 'c123',
+                boardId,
+                boardSectionId,
             }
         });
     });
@@ -193,8 +175,10 @@ describe('when an archived card id is present', () => {
             client,
             filePath: 'test/resources/test_card.md',
             cardTitle: 'Test Card',
-            collectionId: 'c123',
-            existingCardIds: { 'test/resources/test_card.md': 'card123' }
+            existingCardIds: { 'test/resources/test_card.md': 'card123' },
+            inputs: {
+                collectionId: 'c123',
+            }
         });
     });
 
@@ -211,7 +195,6 @@ describe('when an archived card id is present', () => {
 describe.each([
     ['upload', true],
     ['upload', false],
-    ['auto', false],
 ])('when imageHandler is upload', (imageHandler, isPublic) => {
     it.each([
         ['test/resources/test_card_with_local_image.md', 'test_card_with_local_image_expected_output.html'],
@@ -225,9 +208,11 @@ describe.each([
             client,
             filePath,
             cardTitle: 'Local Image',
-            collectionId: 'c123',
             imageHandler,
-            github: { isPublic }
+            github: { repo: { isPublic } },
+            inputs: {
+                collectionId: 'c123',
+            }
         });
 
         expect(client.getCalls()[0]).toMatchObject({
@@ -249,8 +234,7 @@ describe.each([
 
 describe.each([
     ['github_urls', true],
-    ['github_urls', false],
-    ['auto', true],
+    ['github_urls', false]
 ])('when imageHandler is github_urls', (imageHandler, isPublic) => {
     it.each([
         ['test/resources/test_card_with_local_image.md', 'test_card_with_github_urls_image_expected_output.html'],
@@ -262,9 +246,11 @@ describe.each([
             client,
             filePath,
             cardTitle: 'Local Image',
-            collectionId: 'c123',
             imageHandler,
-            github: { isPublic }
+            github: { repo: { isPublic } },
+            inputs: {
+                collectionId: 'c123'
+            }
         });
 
         expect(client.getCalls()[0].options.body.content).toEqual(
@@ -280,71 +266,14 @@ test('with string card footer appends it', async() => {
         client,
         filePath: 'test/resources/test_card.md',
         cardTitle: 'Test Card',
-        collectionId: 'c123',
-        cardFooter: '<{{repository_url}}>'
+        footer: '<{{repository_url}}>',
+        inputs: {
+            collectionId: 'c123',
+        }
     });
 
     expect(client.getCalls()[0].options.body.content).toEqual(
         await resource('test_card_with_footer_expected_output.html')
-    );
-});
-
-test.each([
-    [true],
-    [undefined],
-    [null]
-])('with true or undefined or null card footer appends default', async(cardFooter) => {
-    const client = createClient();
-
-    await handleCard({
-        client,
-        filePath: 'test/resources/test_card.md',
-        cardTitle: 'Test Card',
-        collectionId: 'c123',
-        cardFooter,
-        defaultCardFooter: '<{{repository_url}}>'
-    });
-
-    expect(client.getCalls()[client.getCalls().length - 1].options.body.content).toEqual(
-        await resource('test_card_with_footer_expected_output.html')
-    );
-});
-
-test('with no card footer given appends default', async() => {
-    const client = createClient();
-
-    await handleCard({
-        client,
-        filePath: 'test/resources/test_card.md',
-        cardTitle: 'Test Card',
-        collectionId: 'c123',
-        defaultCardFooter: '<{{repository_url}}>'
-    });
-
-    expect(client.getCalls()[client.getCalls().length - 1].options.body.content).toEqual(
-        await resource('test_card_with_footer_expected_output.html')
-    );
-});
-
-test.each([
-    [''],
-    [false],
-    [123],
-    [123.45]
-])('with any other non-string card footer does not append it', async(cardFooter) => {
-    const client = createClient();
-
-    await handleCard({
-        client,
-        filePath: 'test/resources/test_card.md',
-        cardTitle: 'Test Card',
-        collectionId: 'c123',
-        cardFooter,
-        defaultCardFooter: '<{{repository_url}}>'
-    });
-
-    expect(client.getCalls()[client.getCalls().length - 1].options.body.content).toEqual(
-        await resource('test_card_expected_output.html')
     );
 });
 
@@ -356,8 +285,10 @@ describe('with unchanged file', () => {
             client,
             filePath: 'test/resources/test_card.md',
             cardTitle: 'Test Card',
-            collectionId: 'c123',
-            didFileChange: () => false
+            didFileChange: () => false,
+            inputs: {
+                collectionId: 'c123'
+            }
         });
 
         expect(client.getCalls().length).toBe(1);
@@ -402,23 +333,19 @@ test('with failed server JSON response throws proper error', async() => {
     let error = null;
     let response = null;
 
-    try {
-        response = await handleCard({
-            client,
-            filePath: 'test/resources/test_card.md',
-            cardTitle: 'Test Card',
-            collectionId: 'c123',
-            existingCardIds: { 'test/resources/test_card.md': 'card123', }
+    await attempt()
+        .catch(FetchError, e => error = e)
+        .do(async() => {
+            response = await handleCard({
+                client,
+                filePath: 'test/resources/test_card.md',
+                cardTitle: 'Test Card',
+                existingCardIds: { 'test/resources/test_card.md': 'card123' },
+                inputs: {
+                    collectionId: 'c123'
+                }
+            });
         });
-    }
-    catch (e) {
-        if(e instanceof FetchError) {
-            error = e;
-        }
-        else {
-            throw e;
-        }
-    }
 
     expect(response).toBe(null);
     expect(error.toString()).toBe('FetchError: Server responded with a 400 status code: Custom error message!');
@@ -447,23 +374,19 @@ test('with failed server text response throws proper error', async() => {
     let error = null;
     let response = null;
 
-    try {
-        response = await handleCard({
-            client,
-            filePath: 'test/resources/test_card.md',
-            cardTitle: 'Test Card',
-            collectionId: 'c123',
-            existingCardIds: { 'test/resources/test_card.md': 'card123', }
+    await attempt()
+        .catch(FetchError, e => error = e)
+        .do(async() => {
+            response = await handleCard({
+                client,
+                filePath: 'test/resources/test_card.md',
+                cardTitle: 'Test Card',
+                existingCardIds: { 'test/resources/test_card.md': 'card123', },
+                inputs: {
+                    collectionId: 'c123',
+                }
+            });
         });
-    }
-    catch (e) {
-        if(e instanceof FetchError) {
-            error = e;
-        }
-        else {
-            throw e;
-        }
-    }
 
     expect(response).toBe(null);
     expect(error.toString()).toBe('FetchError: Server responded with a 403 status code');
@@ -498,8 +421,10 @@ test('with non-JSON server response throws proper error', async() => {
             client,
             filePath: 'test/resources/test_card.md',
             cardTitle: 'Test Card',
-            collectionId: 'c123',
-            existingCardIds: { 'test/resources/test_card.md': 'card123', }
+            existingCardIds: { 'test/resources/test_card.md': 'card123', },
+            inputs: {
+                collectionId: 'c123',
+            }
         });
     }
     catch (e) {

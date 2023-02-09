@@ -1,3 +1,6 @@
+/**
+ * The base class for all custom exceptions thrown by this action.
+ */
 export class TheGuruError extends Error {
     constructor(message) {
         super(message);
@@ -5,6 +8,19 @@ export class TheGuruError extends Error {
     }
 }
 
+/**
+ * Thrown when a Git command reports an invalid Git object (e.g. a nonexistent commit).
+ */
+export class InvalidGitObjectError extends TheGuruError {
+    constructor(message) {
+        super(message);
+        this.name = this.constructor.name;
+    }
+}
+
+/**
+ * Thrown when the action receives invalid inputs.
+ */
 export class InvalidInputsError extends TheGuruError {
     constructor(message) {
         super(message);
@@ -20,6 +36,10 @@ export function fetchErrorForResponse(response, json) {
 
     return error;
 }
+
+/**
+ * Thrown when an API call returns a bad response.
+ */
 export class FetchError extends TheGuruError {
     constructor(message, response) {
         super(message);
