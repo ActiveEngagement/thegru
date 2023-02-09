@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 10
       - uses: ActiveEngagement/theguru@v0.5
         with:
           user_email: ${{ secrets.GURU_USER_EMAIL }}
