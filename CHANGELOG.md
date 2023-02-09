@@ -6,8 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## Added
+## v0.5.0 - 2023-02-09
+
+### Added
 - Added the ability to only update cards that have changed.
+- Added the `ansi` option to control ANSI escape code output.
+
+### Removed
+- Removed the `debug_logging` input, because it did not do what it seemed to and was pretty useless.
 
 ### Fixed
 - Fixed a bug where cards' titles were not getting updated.
@@ -71,4 +77,4 @@ This version featured some drastic changes:
 ### Added
 - Initial documented version.
 
-[Unreleased]: https://github.com/ActiveEngagement/theguru/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/ActiveEngagement/theguru/compare/v0.5.0...HEAD
