@@ -31,9 +31,12 @@ describe('build_content.js', () => {
         const content = `# Hello, world!
 
 Hi!`;
-        const expected = `<h1 id="hello-world">Hello, world!</h1>
-<p>Hi!</p>
-<p><a href="https://example.com">https://example.com</a></p>`;
+        const expected = `# Hello, world!
+
+Hi!
+
+<https://example.com>
+`;
 
         const output = await build(null, content);
         expect(output).toBe(expected);
@@ -49,11 +52,17 @@ Hi!
 Hi again!
 
 ### &$Some,Crazy Crazy HEADING---`;
-        const expected = `<h1 id="hello-world">Hello, world!</h1>
-<p>Hi!</p>
-<h2 id="sub-heading">Sub Heading</h2>
-<p>Hi again!</p>
-<h3 id="somecrazy-crazy-heading---">&#x26;$Some,Crazy Crazy HEADING---</h3>`;
+
+        const expected = `# Hello, world!
+
+Hi!
+
+## Sub Heading
+
+Hi again!
+
+### &$Some,Crazy Crazy HEADING---
+`;
 
         const output = await build(null, content, {
             footer: false
@@ -69,8 +78,10 @@ Hi again!
         const content = `# Hello, world!
 
 Hi!`;
-        const expected = `<h1 id="hello-world">Hello, world!</h1>
-<p>Hi!</p>`;
+        const expected = `# Hello, world!
+
+Hi!
+`;
         let logger = null;
         let output = null;
 
@@ -99,11 +110,16 @@ Hi!
 ![local root image](/some/path/image.png)
 
 ![local relative image](some/path/image.png)`;
-            const expected = `<h1 id="hello-world">Hello, world!</h1>
-<p>Hi!</p>
-<p><img src="https://jlockard.com/image.png" alt="remote image" style="width: auto;"></p>
-<p><img src="https://raw.githubusercontent.com/ActiveEngagement/test/123/some/path/image.png" alt="local root image" style="width: auto;"></p>
-<p><img src="https://raw.githubusercontent.com/ActiveEngagement/test/123/path/to/root/some/path/image.png" alt="local relative image" style="width: auto;"></p>`;
+            const expected = `# Hello, world!
+
+Hi!
+
+![remote image](https://jlockard.com/image.png)
+
+![local root image](https://raw.githubusercontent.com/ActiveEngagement/test/123/some/path/image.png)
+
+![local relative image](https://raw.githubusercontent.com/ActiveEngagement/test/123/path/to/root/some/path/image.png)
+`;
             const output = await build('path/to/root/card.md', content, {
                 footer: false,
                 imageHandler: 'github_urls'
@@ -121,11 +137,16 @@ Hi!
 ![local root image](/some/path/image1.png)
 
 ![local relative image](some/path/image2.png)`;
-            const expected = `<h1 id="hello-world">Hello, world!</h1>
-<p>Hi!</p>
-<p><img src="https://jlockard.com/image.png" alt="remote image" style="width: auto;"></p>
-<p><img src="some-image-link" alt="local root image" style="width: auto;"></p>
-<p><img src="some-image-link" alt="local relative image" style="width: auto;"></p>`;
+            const expected = `# Hello, world!
+
+Hi!
+
+![remote image](https://jlockard.com/image.png)
+
+![local root image](some-image-link)
+
+![local relative image](some-image-link)
+`;
             let client = null;
             let output = null;
 

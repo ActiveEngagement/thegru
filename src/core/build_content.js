@@ -1,23 +1,8 @@
 import path from 'path';
-import { remark } from 'remark';
-import remarkParse from 'remark-parse';
-import remarkRehype from 'remark-rehype';
-import rehypeStringify from 'rehype-stringify';
-import rehypeSlug from 'rehype-slug';
 import remarkStringify from 'remark-stringify';
 import { analyzeTree } from './mdast_util.js';
 import { unified } from 'unified';
 import { resolveLocalPath } from './util.js';
-
-/**
- * Builds the content for a Markdown card file. The process looks like this:
- *   1. If given, the footer template will be built and appended to the content.
- *   2. The Markdown will be rendered to HTML.
- *   3. All local images will be rewritten based on the given image handler, either:
- *      * to point to public GitHub URLs, or
- *      * to point to a Guru attachment that will be created.
- *   4. All headings will receive an `id` attribute so that internal links function properly.
- */
 
 export default async function(filePath, contentTree, options = {}) {
     const { logger, api, github, imageHandler } = options;
@@ -59,9 +44,6 @@ export default async function(filePath, contentTree, options = {}) {
         node.url = await getImageUrl(node.url);
     }
 
-    function fixImageWidth(node) {
-        //node.properties.style = 'width: auto;';
-    }
 
     async function transform(tree) {
         // This is necessary because the unist-util-visit visit method does not support asynchronous visitors.
@@ -71,7 +53,6 @@ export default async function(filePath, contentTree, options = {}) {
             if(isLocalImage(node)) {
                 await rewriteLocalImage(node);
             }
-            fixImageWidth(node);
         }
     }
 
