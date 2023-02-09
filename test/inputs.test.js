@@ -12,6 +12,7 @@ const inputs = {
     card_footer: 'Footer!',
     cards_file: 'something.json',
     image_handler: 'auto',
+    updateAll: 'true',
     ansi: 'false',
     debug_logging: 'false'
 };
@@ -32,6 +33,7 @@ test('returns object', () => {
         cardFooter: 'Footer!',
         cardsFile: 'something.json',
         imageHandler: 'auto',
+        updateAll: true,
         ansi: false,
         debugLogging: false
     });
