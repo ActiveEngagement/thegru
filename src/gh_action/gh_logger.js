@@ -4,7 +4,9 @@ import core from '@actions/core';
  * Creates a logger implementation that delegates to the GitHub Actions Core toolkit.
  */
 
-export default function() {
+export default function(options) {
+    const { inputs } = options;
+
     function isDebug() {
         return core.isDebug() || inputs.debugLogging;
     }
