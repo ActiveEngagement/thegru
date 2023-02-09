@@ -16,6 +16,8 @@ export default function(getCoreInput) {
         cardFooter: input('card_footer').attempt(i => i.boolean()).get(),
         cardsFile: input('cards_file').fallback('uploaded-guru-cards.json').get(),
         imageHandler: input('image_handler').fallback('auto').of('auto', 'github_urls', 'upload').get(),
+        updateAll: input('update_all').fallback('false').boolean().get(),
+        ansi: input('ansi').fallback('true').boolean().get(),
         debugLogging: input('debug_logging').fallback('false').boolean().get()
     };
 }

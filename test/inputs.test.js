@@ -12,6 +12,7 @@ const inputs = {
     card_footer: 'Footer!',
     cards_file: 'something.json',
     image_handler: 'auto',
+    ansi: 'false',
     debug_logging: 'false'
 };
 
@@ -31,6 +32,7 @@ test('returns object', () => {
         cardFooter: 'Footer!',
         cardsFile: 'something.json',
         imageHandler: 'auto',
+        ansi: false,
         debugLogging: false
     });
 });
@@ -110,6 +112,28 @@ describe('debugLogging', () => {
 
     test('with something else throws error', () => {
         const f = () => getInputs(name => name === 'debug_logging' ? 'invalid' : getInput(name)).debugLogging;
+        expect(f).toThrow(InvalidInputsError);
+    });
+});
+
+describe('ansi', () => {
+    test('is not required and has default', () => {
+        const actual = getInputs(name => name === 'ansi' ? '' : getInput(name)).ansi;
+        expect(actual).toBe(true);
+    });
+
+    test('with true', () => {
+        const actual = getInputs(name => name === 'ansi' ? 'true' : getInput(name)).ansi;
+        expect(actual).toBe(true);
+    });
+
+    test('with false', () => {
+        const actual = getInputs(name => name === 'ansi' ? 'false' : getInput(name)).ansi;
+        expect(actual).toBe(false);
+    });
+
+    test('with something else throws error', () => {
+        const f = () => getInputs(name => name === 'ansi' ? 'invalid' : getInput(name)).ansi;
         expect(f).toThrow(InvalidInputsError);
     });
 });

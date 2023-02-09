@@ -5,6 +5,8 @@ inputs:
     required: true
   user_token:
     required: true
+  github:
+    required: false
   cards:
     required: true
   collection_id:
@@ -13,15 +15,15 @@ inputs:
     required: false
   board_section_id:
     required: false
-  github:
-    required: false
   card_footer:
     required: false
   cards_file:
     required: false
   image_handler:
     required: false
-  debug_logging:
+  update_all:
+    required: false
+  ansi:
     required: false
 # TODO
 runs:

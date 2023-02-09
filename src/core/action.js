@@ -73,7 +73,6 @@ export default async function(options) {
     // Set up the API with the given client.
     const api = createApi(client, {
         logger,
-        guruEndpoint: inputs.endpoint,
         userEmail: inputs.userEmail,
         userToken: inputs.userToken
     });
