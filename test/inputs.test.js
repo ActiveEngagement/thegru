@@ -12,7 +12,7 @@ const inputs = {
     card_footer: 'Footer!',
     cards_file: 'something.json',
     image_handler: 'auto',
-    updateAll: 'true',
+    update_all: 'true',
     ansi: 'false',
     debug_logging: 'false'
 };
