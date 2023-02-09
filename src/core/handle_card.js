@@ -2,8 +2,7 @@ import path from 'path';
 import buildContentTree from './build_content_tree.js';
 import buildContent from './build_content.js';
 import { readFile } from './fs_util.js';
-import { analyzeTree } from './hast_util.js';
-import guruMdBlock from './guru_md_block.js';
+import { analyzeTree } from './mdast_util.js';
 import { resolveLocalPath } from './util.js';
 
 export default async function(filePath, cardTitle, options) {
@@ -15,7 +14,7 @@ export default async function(filePath, cardTitle, options) {
 
     // Extract the paths of referenced images from the Markdown file so that we can check whether they have changed.
     const imagePaths = analyzeTree(contentTree, { image: /img/ }).image
-        .filter(node => !node.properties.src.startsWith('http'))
+        .filter(node => !node.url.startsWith('http'))
         .map(node => resolveLocalPath(node.properties.src, path.dirname(filePath)));
     
     const watchedFiles = [filePath, ...imagePaths];
@@ -41,7 +40,7 @@ export default async function(filePath, cardTitle, options) {
         footer,
         imageHandler
     });
-    const wrappedContent = guruMdBlock(builtContent);
+    const wrappedContent = builtContent;
 
     // It is necessary to transform the attachments slightly because of Guru craziness.
     // For whatever reason, the schema that a card's `attachments` have is subtly different than the schema of the

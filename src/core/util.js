@@ -9,7 +9,7 @@ export function resolveLocalPath(url, parent) {
         return url.substring(1);
     }
     if(url.startsWith('./')) {
-        return resolveLocalPath(url.substring(2));
+        return resolveLocalPath(url.substring(2), parent);
     }
     if(url.startsWith('../')) {
         return resolveLocalPath(url.substring(3), path.dirname((parent)));

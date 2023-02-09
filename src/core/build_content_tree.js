@@ -1,6 +1,5 @@
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
-import remarkRehype from 'remark-rehype';
 
 export default async function(content, options = {}) {
     const { logger, github, footer: footerTemplate } = options;
@@ -13,10 +12,7 @@ export default async function(content, options = {}) {
         logger.info('Skipping card footer...');
     }
 
-    const mdastTree = unified()
+    return unified()
         .use(remarkParse)
         .parse(content);
-    return await unified()
-        .use(remarkRehype)
-        .run(mdastTree);
 }
