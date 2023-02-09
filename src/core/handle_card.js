@@ -16,9 +16,14 @@ export default async function(filePath, cardTitle, options) {
     // Extract the paths of referenced images from the Markdown file so that we can check whether they have changed.
     const imagePaths = analyzeTree(contentTree, { image: /img/ }).image
         .map(node => resolveLocalPath(node.properties.src, path.dirname(filePath)));
+    
+    const watchedFiles = [filePath, ...imagePaths];
+
+    logger.debug('Checking whether any of the following files have changed:');
+    watchedFiles.forEach((file) => logger.debug(`\t- ${file}`));
 
     // Check whether the Markdown file or any of its images have changed.
-    const changed = [filePath, ...imagePaths].some(file => didFileChange(file));
+    const changed = watchedFiles.some(file => didFileChange(file));
     
     const cardId = existingCardIds[filePath];
     if(cardId && !changed) {
