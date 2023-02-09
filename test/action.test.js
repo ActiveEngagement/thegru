@@ -367,7 +367,7 @@ describe('with auto image handler', () => {
                     cards: {
                         'test/resources/test_card_with_local_image.md': 'Test 123',
                     },
-                    footer: false
+                    cardFooter: false
                 },
                 github: { repo: { isPublic: true } },
             });
@@ -396,7 +396,7 @@ describe('with auto image handler', () => {
                     cards: {
                         'test/resources/test_card_with_local_image.md': 'Test 123',
                     },
-                    footer: false
+                    cardFooter: false
                 },
                 github: { repo: { isPublic: false } },
             });
