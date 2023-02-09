@@ -62,7 +62,7 @@ export default async function(options) {
         // Otherwise, try to get a list of changed files.
         await attempt()
             .catch(InvalidGitObjectError, () => {
-                logger.warning('The Git command used to determine which files have changed reported an invalid object error. Most likely, you forgot to include `fetch-depth` in your checkout action.');
+                logger.warning('The Git command used to determine which files have changed reported an invalid object error. Most likely, you forgot to include `fetch-depth` in your checkout action. All cards will be updated.');
             })
             .do(async() => {
                 const changedFiles = await getChangedFiles();

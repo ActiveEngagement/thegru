@@ -346,7 +346,7 @@ describe('with git object error', () => {
     });
 
     it('emits a log notice', () => {
-        const actual = logger.getMessages().some(msg => msg === 'The Git command used to determine which files have changed reported an invalid object error. Most likely, you forgot to include `fetch-depth` in your checkout action.');
+        const actual = logger.getMessages().some(msg => msg === 'The Git command used to determine which files have changed reported an invalid object error. Most likely, you forgot to include `fetch-depth` in your checkout action. All cards will be updated.');
         expect(actual).toBe(true);
     });
 });
