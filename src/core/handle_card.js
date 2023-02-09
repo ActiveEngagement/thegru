@@ -2,7 +2,7 @@ import path from 'path';
 import buildContentTree from './build_content_tree.js';
 import buildContent from './build_content.js';
 import { readFile } from './fs_util.js';
-import { analyzeTree } from './hast_util.js';
+import { analyzeTree } from './mdast_util.js';
 import { resolveLocalPath } from './util.js';
 
 export default async function(filePath, cardTitle, options) {
