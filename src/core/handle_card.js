@@ -33,7 +33,7 @@ export default async function(filePath, cardTitle, options) {
     }
 
     // Build the card content.
-    const builtContent = await buildContent(filePath, contentTree, {
+    const { content: builtContent, attachments } = await buildContent(filePath, contentTree, {
         logger,
         api,
         github,
@@ -41,6 +41,18 @@ export default async function(filePath, cardTitle, options) {
         imageHandler
     });
     const wrappedContent = guruMdBlock(builtContent);
+
+    // It is necessary to transform the attachments slightly because of Guru craziness.
+    // For whatever reason, the schema that a card's `attachments` have is subtly different than the schema of the
+    // attachment returned by the upload endpoint.
+    const cardAttachments = attachments.map((attachment) => ({
+        extension: path.extname(attachment.filename).substring(1),
+        filename: attachment.filename,
+        id: attachment.attachmentId,
+        link: attachment.link,
+        mimetype: attachment.mimeType,
+        size: attachment.size
+    }));
 
     let existingCard = null;
 
@@ -53,7 +65,8 @@ export default async function(filePath, cardTitle, options) {
         await api.updateCard(existingCard.id, {
             ...existingCard,
             title: cardTitle,
-            content: wrappedContent
+            content: wrappedContent,
+            attachments: cardAttachments
         });
 
         return cardId;
@@ -71,7 +84,8 @@ export default async function(filePath, cardTitle, options) {
             collectionId: inputs.collectionId,
             boardId: inputs.boardId,
             sectionId: inputs.boardSectionId,
-            content: wrappedContent
+            content: wrappedContent,
+            attachments: cardAttachments
         });
 
         logger.info(`Card ${id} created.`);

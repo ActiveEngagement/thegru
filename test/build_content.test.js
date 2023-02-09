@@ -23,7 +23,7 @@ async function build(filePath, content, options = {}) {
     }
 
     const tree = await buildContentTree(content, options);
-    return await buildContent(filePath, tree, options);
+    return (await buildContent(filePath, tree, options)).content;
 }
 
 describe('build_content.js', () => {

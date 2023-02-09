@@ -16,7 +16,6 @@ export default async function(content, options = {}) {
     const mdastTree = unified()
         .use(remarkParse)
         .parse(content);
-
     return await unified()
         .use(remarkRehype)
         .run(mdastTree);
