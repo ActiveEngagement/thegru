@@ -386,7 +386,10 @@ describe('with auto image handler', () => {
         beforeEach(async() => {
             client = createClient({
                 createCardResult: { id: '123' },
-                attachmentResult: { link: 'image-link' }
+                attachmentResult: {
+                    link: 'image-link',
+                    filename: 'somefile.png'
+                }
             });
 
             await action({

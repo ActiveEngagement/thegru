@@ -40,10 +40,10 @@ export default async function(filePath, cardTitle, options) {
         footer,
         imageHandler
     });
-    const wrappedContent = builtContent;
+    const wrappedContent = guruMdBlock(builtContent);
 
     const cardAttachments = attachments.map((attachment) => ({
-        extension: path.extname(attachment.filename),
+        extension: path.extname(attachment.filename).substring(1),
         filename: attachment.filename,
         id: attachment.attachmentId,
         link: attachment.link,

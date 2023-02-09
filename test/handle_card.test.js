@@ -204,7 +204,13 @@ describe.each([
 
         beforeEach(async() => {
             client = createClient({
-                attachmentResult: { link: 'https://example.com/attachment.png', someProp: true }
+                attachmentResult: {
+                    filename: 'attachment.png',
+                    attachmentId: '123',
+                    link: 'https://example.com/attachment.png',
+                    mimeType: 'image/png',
+                    size: 1023
+                }
             });
 
             await handleCard({
@@ -234,7 +240,14 @@ describe.each([
 
         it('includes the attachment in the card', () => {
             expect(client.getCalls()[1].options.body.attachments).toStrictEqual([
-                { link: 'https://example.com/attachment.png', someProp: true }
+                {
+                    extension: 'png',
+                    filename: 'attachment.png',
+                    id: '123',
+                    link: 'https://example.com/attachment.png',
+                    mimetype: 'image/png',
+                    size: 1023
+                }
             ]);
         });
 
