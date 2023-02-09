@@ -15,7 +15,7 @@ This GitHub action will automatically sync one or more Markdown files with [Guru
 
 Get the [ids or slugs](#identifiers) of the Guru collection, board, and/or board section in which the cards should be created. The easiest way to get these is by navigating to the collection, board, or section in the Guru app and copying them from the URL.
 
-Next, in order for us to accurately detect file changes, you **must** include the `fetch-depth` option in your checkout action. It should look something like this:
+Next, in order for us to accurately [detect file changes](#when-we-update), you **must** include the `fetch-depth` option in your checkout action. It should look something like this:
 
 ```yaml
       - uses: actions/checkout@v3
