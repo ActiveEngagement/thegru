@@ -13,10 +13,7 @@ export default async function(content, options = {}) {
         logger.info('Skipping card footer...');
     }
 
-    const mdastTree = unified()
+    return unified()
         .use(remarkParse)
         .parse(content);
-    return await unified()
-        .use(remarkRehype)
-        .run(mdastTree);
 }

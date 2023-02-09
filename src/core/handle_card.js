@@ -3,7 +3,6 @@ import buildContentTree from './build_content_tree.js';
 import buildContent from './build_content.js';
 import { readFile } from './fs_util.js';
 import { analyzeTree } from './hast_util.js';
-import guruMdBlock from './guru_md_block.js';
 import { resolveLocalPath } from './util.js';
 
 export default async function(filePath, cardTitle, options) {
@@ -15,7 +14,7 @@ export default async function(filePath, cardTitle, options) {
 
     // Extract the paths of referenced images from the Markdown file so that we can check whether they have changed.
     const imagePaths = analyzeTree(contentTree, { image: /img/ }).image
-        .filter(node => !node.properties.src.startsWith('http'))
+        .filter(node => !node.url.startsWith('http'))
         .map(node => resolveLocalPath(node.properties.src, path.dirname(filePath)));
     
     const watchedFiles = [filePath, ...imagePaths];

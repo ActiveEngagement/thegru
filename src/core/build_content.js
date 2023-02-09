@@ -4,7 +4,8 @@ import remarkParse from 'remark-parse';
 import remarkRehype from 'remark-rehype';
 import rehypeStringify from 'rehype-stringify';
 import rehypeSlug from 'rehype-slug';
-import { analyzeTree } from './hast_util.js';
+import remarkStringify from 'remark-stringify';
+import { analyzeTree } from './mdast_util.js';
 import { unified } from 'unified';
 import { resolveLocalPath } from './util.js';
 
@@ -51,20 +52,20 @@ export default async function(filePath, contentTree, options = {}) {
     }
 
     function isLocalImage(node) {
-        return !node.properties.src.startsWith('http');
+        return !node.url.startsWith('http');
     }
 
     async function rewriteLocalImage(node) {
-        node.properties.src = await getImageUrl(node.properties.src);
+        node.url = await getImageUrl(node.url);
     }
 
     function fixImageWidth(node) {
-        node.properties.style = 'width: auto;';
+        //node.properties.style = 'width: auto;';
     }
 
     async function transform(tree) {
         // This is necessary because the unist-util-visit visit method does not support asynchronous visitors.
-        const analysis = analyzeTree(tree, { image: /img/ });
+        const analysis = analyzeTree(tree, { image: /image/ });
 
         for(const node of analysis.image) {
             if(isLocalImage(node)) {
@@ -76,11 +77,10 @@ export default async function(filePath, contentTree, options = {}) {
 
     const transformedTree = await unified()
         .use(() => transform)
-        .use(rehypeSlug)
         .run(contentTree);
     
     const output = unified()
-        .use(rehypeStringify)
+        .use(remarkStringify)
         .stringify(transformedTree);
     
     return { content: String(output), attachments };
