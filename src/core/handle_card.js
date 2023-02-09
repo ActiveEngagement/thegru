@@ -40,7 +40,7 @@ export default async function(filePath, cardTitle, options) {
         footer,
         imageHandler
     });
-    const wrappedContent = guruMdBlock(builtContent);
+    const wrappedContent = builtContent;
 
     // It is necessary to transform the attachments slightly because of Guru craziness.
     // For whatever reason, the schema that a card's `attachments` have is subtly different than the schema of the
