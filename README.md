@@ -15,6 +15,14 @@ This GitHub action will automatically sync one or more Markdown files with [Guru
 
 Get the [ids or slugs](#identifiers) of the Guru collection, board, and/or board section in which the cards should be created. The easiest way to get these is by navigating to the collection, board, or section in the Guru app and copying them from the URL.
 
+Next, in order for us to accurately detect file changes, you **must** include the `fetch-depth` option in your checkout action. It should look something like this:
+
+```yaml
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # For performance, you may adjust this value, but file changes may not always work.
+```
+
 Finally, add the template below to your workflow file (in `.github/workflows`). You may add this to an existing workflow or create a new one solely for Guru. Insert your own [`collection_id`](#collection_id). Optionally insert your own [`board_id`](#board_id) and/or [`board_section_id`](#board_section_id), or remove those lines. Adjust [`cards`](#cards) as desired.
 
 ```yaml
@@ -22,6 +30,7 @@ Finally, add the template below to your workflow file (in `.github/workflows`). 
         with:
           user_email: ${{ secrets.GURU_USER_EMAIL }}
           user_token: ${{ secrets.GURU_USER_TOKEN }}
+          github: ${{ toJson(github) }} # Provides some necessary context.
           collection_id: # UUID or slug
           board_id: # OPTIONAL. UUID or slug
           board_section_id: # OPTIONAL. UUID
@@ -47,6 +56,14 @@ In order to specify the Guru collection, board, and board section, you will need
 Collections and boards in Guru have both a UUID "id" and a "slug." Slugs comprise an alphanumeric identifier like `iqKLBKpT`, optionally suffixed with a URL-safe version of the entity's name, for example `iqKLBKpT/Some-Collection`. In this action, you may use any of the three formats for collection or board ids. Board sections have only a UUID id and should be specified by it.
 
 The easiest way to acquire these identifiers is by navigating to the entities in the Guru app and inspecting their URLs. For a collection or a board, you should see a URL path like `/collections/125ji/Collection-Name` or `/boards/iqKLBKpT/Board-Name`. You can simply use `125ji` or `125ji/Collection-Name` for the collection and `iqKLBKpT` or `iqKLBKpT/Board-Name` for the board. For a board section, you should see a path like `/boards/iqKLBKpT/Board-Name/?boardSectionId=b81c3jc9-89f9-b4ac-0064-2f071126833d`, from which you can use the board section UUID.
+
+### When We Update
+
+It would be inefficient to always update every configured card on every single GitHub push. Therefore, by default, we attempt to only update cards that we believe have changed in this push. We execute a `git diff` command with the "before" and "after" commit SHAs in the GitHub context (if present). Then a card is only updated if its associated Markdown file or any local image files referenced therein have changed. If the command fails for any reason, then we'll fall back to updating all cards.
+
+If you wish to disable this functionality entirely, you may set the [`update_all`](#update-all) input.
+
+If you wish to force an update for all cards on just a single push, you may include a `[guru update]` flag anywhere in the commit message, and all cards will be updated just that time.
 
 ### The Cards File
 
@@ -78,6 +95,7 @@ Additionally, if you change the file paths of any Markdown files (i.e. rename th
           # REQUIRED
           user_email:
           user_token:
+          github:
           collection_id:
           cards:
           # OPTIONAL
@@ -85,7 +103,9 @@ Additionally, if you change the file paths of any Markdown files (i.e. rename th
           board_section_id:
           card_footer:
           cards_file:
-          debug_logging:
+          image_handler:
+          update_all:
+          ansi:
 ```
 
 ### `user_email`
@@ -104,11 +124,38 @@ This token will be included in the HTTP Basic Auth header on all API requests.
 
 Since this is a sensitive value, you should store it in an Actions secret and pass it to theguru.
 
+### `github`
+
+REQUIRED. The GitHub context.
+
+This input must be a JSON object representation of the [GitHub context](https://docs.github.com/en/actions/learn-github-actions/contexts#github-context). The object should have at least the following schema:
+
+```json
+{
+  "repository": "REQUIRED",
+  "server_url": "REQUIRED",
+  "sha": "REQUIRED",
+  "event": {
+    "head_commit": {
+      "message": "OPTIONAL. Enables commit flags."
+    },
+    "before": "OPTIONAL. Enables pushing only changed files.",
+    "after": "OPTIONAL. Enables pushing only changed files."
+  }
+}
+```
+
+Far and away the easiest way to pass this is by passing the entire GitHub context provided by GitHub Actions like so:
+
+```yaml
+          github: ${{ toJson(github) }}
+```
+
 ### `collection_id`
 
 REQUIRED. The UUID or slug of the collection in which to create cards.
 
-If a card does not exist in Guru for one of the synced Markdown files (i.e. it has not yet been created or it has been removed from Guru), then we will automatically create a new card in the collection indicated by this input.
+If a card does not exist in Guru for one of the synced Markdown files (i.e. it has not yet been created or it has been removed from Guru), then we will automatically create a new card in the collection indicated by this input. Do note that we will never update the collection of an existing card. If, therefore, the card is moved after creation, it will retain the new location.
 
 If a `board_id` is not also specified, then the cards will show up under the "Card not on a Board" node in the Guru interface.
 
@@ -146,13 +193,12 @@ The following will **NOT** work:
 
 OPTIONAL. The UUID or slug of the board in which to create cards.
 
-If a card does not exist in Guru for one of the synced Markdown files (i.e. it has not yet been created or it has been removed from Guru), then we will automatically create a new card in the collection indicated by `collection_id` and the board indicated by this input.
-
+If a card does not exist in Guru for one of the synced Markdown files (i.e. it has not yet been created or it has been removed from Guru), then we will automatically create a new card in the collection indicated by `collection_id` and the board indicated by this input. Do note that we will never update the board of an existing card. If, therefore, the card is moved after creation, it will retain the new location.
 ### `board_section_id`
 
 OPTIONAL. The UUID of the board section in which to create cards.
 
-If a card does not exist in Guru for one of the synced Markdown files (i.e. it has not yet been created or it has been removed from Guru), then we will automatically create a new card in the collection indicated by `collection_id`, the board indicated by `board_id`, and the board section indicated by this input.
+If a card does not exist in Guru for one of the synced Markdown files (i.e. it has not yet been created or it has been removed from Guru), then we will automatically create a new card in the collection indicated by `collection_id`, the board indicated by `board_id`, and the board section indicated by this input. Do note that we will never update the board section of an existing card. If, therefore, the card is moved after creation, it will retain the new location.
 
 If `board_id` is not also specified, this input will be ignored.
 
@@ -172,8 +218,26 @@ OPTIONAL. Override the file in which card ids are stored.
 
 You may customize the path to the [cards file](#the-cards-file), in which uploaded card ids are stored, with this input.
 
-### `debug_logging`
+### `image_handler`
 
-OPTIONAL. Enable debug logging.
+OPTIONAL. Override the method used to get images into Guru; one of `"auto"` (default), `"upload"`, or `"github_urls"`.
 
-This input must be either `true` or `false`. If `true`, then Guru will output more verbose logs. This input performs the same function as checking the "Enable Debug Logging" in GitHub Actions does, but only for logs generated by theguru itself. This input is primarily useful for testing.
+GitHub supports references in Markdown files to images stored in the repository, via relative paths like `"images/test.png"`. This action will attempt to rewrite these image URLs using one of two strategies:
+  - **`"upload"`**---images will be uploaded as [Guru attachments](https://app.getguru.com/card/Tjp5Lbxc/Uploading-Files-to-Cards-via-API).
+  - **`"github_urls"`**---image URLs will be rewritten to public GitHub URLs beginning with `"https://raw.githubusercontent.com/"`. This method will fail of course for private repositories.
+
+The default setting, `"auto"`, will use `"upload"` for private repositories and `"github_urls"` for public ones.
+
+### `update_all`
+
+OPTIONAL. Force all cards to be updated, always.
+
+This input must be either `true` or `false` (the default).
+
+By default, the action will only update cards whose Markdown files (or referenced image files) have changed during this push. When this input is `true`, *all* cards in the config file always be updated, and the action will skip the changed files check.
+
+### `ansi`
+
+OPTIONAL. Whether ANSI escape codes should be emitted, `true` by default.
+
+This input must be either `true` or `false`. When true, ANSI escape codes will be utilized for nice colored output. When `false`, they will be omitted.

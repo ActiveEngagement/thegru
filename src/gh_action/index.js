@@ -5,6 +5,7 @@ import c from 'ansi-colors';
 import getInputs from '../core/inputs.js';
 import action from '../core/action.js';
 import { readFile, srcUrl } from '../core/fs_util.js';
+import nullColorizer from './null_colorizer.js';
 import ghLogger from './gh_logger.js';
 import createClient from './api_client.js';
 import createFetch from './fetch.js';
@@ -32,8 +33,8 @@ async function main() {
         // Set up the logger to delegate to the GitHub Actions Core toolkit.
         const logger = ghLogger();
 
-        // Set up the colorizer to use ansi-colors.
-        const colors = c;
+        // Set up the colorizer to use ansi-colors if ANSI is allowed or a dummy otherwise.
+        const colors = inputs.ansi ? c : nullColorizer();
 
         // Greet the user.
         logger.info(`Here we go! ${colors.yellow(`theguru v${version}`)} is ready for takeoff!`);
