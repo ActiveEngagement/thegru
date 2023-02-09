@@ -109,6 +109,10 @@ Hi!
 
 ![local root image](/some/path/image.png)
 
+![local dotslash image](./some/path/image.png)
+
+![local parent image](../some/path/image.png)
+
 ![local relative image](some/path/image.png)`;
             const expected = `# Hello, world!
 
@@ -117,6 +121,10 @@ Hi!
 ![remote image](https://jlockard.com/image.png)
 
 ![local root image](https://raw.githubusercontent.com/ActiveEngagement/test/123/some/path/image.png)
+
+![local dotslash image](https://raw.githubusercontent.com/ActiveEngagement/test/123/path/to/root/some/path/image.png)
+
+![local parent image](https://raw.githubusercontent.com/ActiveEngagement/test/123/path/to/some/path/image.png)
 
 ![local relative image](https://raw.githubusercontent.com/ActiveEngagement/test/123/path/to/root/some/path/image.png)
 `;
@@ -136,6 +144,10 @@ Hi!
 
 ![local root image](/some/path/image1.png)
 
+![local dotslash image](./some/path/image.png)
+
+![local parent image](../some/path/image.png)
+
 ![local relative image](some/path/image2.png)`;
             const expected = `# Hello, world!
 
@@ -144,6 +156,10 @@ Hi!
 ![remote image](https://jlockard.com/image.png)
 
 ![local root image](some-image-link)
+
+![local dotslash image](some-image-link)
+
+![local parent image](some-image-link)
 
 ![local relative image](some-image-link)
 `;
@@ -171,8 +187,24 @@ Hi!
                 });
             });
 
-            it('correctly uploads the relative attachment', async() => {
+            it('correctly uploads the dotslash attachment', async() => {
                 expect(client.getCalls()[1]).toMatchObject({
+                    type: 'uploadAttachment',
+                    fileName: 'image.png',
+                    filePath: 'path/to/root/some/path/image.png'
+                });
+            });
+
+            it('correctly uploads the parent attachment', async() => {
+                expect(client.getCalls()[2]).toMatchObject({
+                    type: 'uploadAttachment',
+                    fileName: 'image.png',
+                    filePath: 'path/to/some/path/image.png'
+                });
+            });
+
+            it('correctly uploads the relative attachment', async() => {
+                expect(client.getCalls()[3]).toMatchObject({
                     type: 'uploadAttachment',
                     fileName: 'image2.png',
                     filePath: 'path/to/root/some/path/image2.png'
