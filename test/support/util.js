@@ -20,6 +20,7 @@ export function apiCall(type, body) {
 }
 
 export function createCardApiCall(options) {
+    options.attachments ||= [];
     return apiCall('createCard', {
         shareStatus: 'TEAM',
         ...options
@@ -27,5 +28,6 @@ export function createCardApiCall(options) {
 }
 
 export function updateCardApiCall(options) {
+    options.attachments ||= [];
     return apiCall('updateCard', options);
 }

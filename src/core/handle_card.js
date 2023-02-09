@@ -33,7 +33,7 @@ export default async function(filePath, cardTitle, options) {
     }
 
     // Build the card content.
-    const builtContent = await buildContent(filePath, contentTree, {
+    const { content: builtContent, attachments } = await buildContent(filePath, contentTree, {
         logger,
         api,
         github,
@@ -53,7 +53,8 @@ export default async function(filePath, cardTitle, options) {
         await api.updateCard(existingCard.id, {
             ...existingCard,
             title: cardTitle,
-            content: wrappedContent
+            content: wrappedContent,
+            attachments
         });
 
         return cardId;
@@ -71,7 +72,8 @@ export default async function(filePath, cardTitle, options) {
             collectionId: inputs.collectionId,
             boardId: inputs.boardId,
             sectionId: inputs.boardSectionId,
-            content: wrappedContent
+            content: wrappedContent,
+            attachments
         });
 
         logger.info(`Card ${id} created.`);

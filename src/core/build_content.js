@@ -21,6 +21,8 @@ import { resolveLocalPath } from './util.js';
 export default async function(filePath, contentTree, options = {}) {
     const { logger, api, github, imageHandler } = options;
 
+    const attachments = [];
+
     function resolveUrl(url) {
         return resolveLocalPath(url, path.dirname(filePath));
     }
@@ -28,9 +30,10 @@ export default async function(filePath, contentTree, options = {}) {
     async function uploadImage(url) {
         logger.info(`Uploading and rewriting local image ${url}`);
 
-        const { link } = await api.uploadAttachment(path.basename(url), resolveUrl(url));
+        const attachment = await api.uploadAttachment(path.basename(url), resolveUrl(url));
+        attachments.push(attachment);
 
-        return link;
+        return attachment.link;
     }
 
     function getGithubImageUrl(url) {
@@ -80,5 +83,5 @@ export default async function(filePath, contentTree, options = {}) {
         .use(rehypeStringify)
         .stringify(transformedTree);
     
-    return String(output);
+    return { content: String(output), attachments };
 }
