@@ -13,7 +13,7 @@ import { analyzeTree } from './hast_util.js';
  *   3. All local images will be rewritten based on the given image handler, either:
  *      * to point to public GitHub URLs, or
  *      * to point to a Guru attachment that will be created.
- *   4. All headers will receive an `id` attribute so that internal links function properly.
+ *   4. All headings will receive an `id` attribute so that internal links function properly.
  */
 
 export default async function(filePath, content, options = {}) {
