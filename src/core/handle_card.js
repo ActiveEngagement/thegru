@@ -42,6 +42,9 @@ export default async function(filePath, cardTitle, options) {
     });
     const wrappedContent = guruMdBlock(builtContent);
 
+    // It is necessary to transform the attachments slightly because of Guru craziness.
+    // For whatever reason, the schema that a card's `attachments` have is subtly different than the schema of the
+    // attachment returned by the upload endpoint.
     const cardAttachments = attachments.map((attachment) => ({
         extension: path.extname(attachment.filename).substring(1),
         filename: attachment.filename,
