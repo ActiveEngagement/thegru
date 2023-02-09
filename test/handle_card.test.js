@@ -309,6 +309,27 @@ describe('with unchanged file', () => {
 
         expect(client.getCalls().length).toBe(0);
     });
+
+    test.each([
+        ['test_card_with_local_image.md'],
+        ['test_card_with_local_parent_image.md'],
+        ['test_card_with_local_root_image.md'],
+    ])('with changed referenced image', async(card) => {
+        const client = createClient();
+
+        await handleCard({
+            client,
+            filePath: 'test/resources/' + card,
+            cardTitle: 'Test Card',
+            didFileChange: (file) => file === 'test/resources/empty.png',
+            inputs: {
+                collectionId: 'c123'
+            }
+        });
+
+        expect(client.getCalls().length).toBe(1);
+        expect(client.getCalls()[0].type).toBe('createCard');
+    });
 });
 
 test('with failed server JSON response throws proper error', async() => {

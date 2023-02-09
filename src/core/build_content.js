@@ -5,6 +5,8 @@ import remarkRehype from 'remark-rehype';
 import rehypeStringify from 'rehype-stringify';
 import rehypeSlug from 'rehype-slug';
 import { analyzeTree } from './hast_util.js';
+import { unified } from 'unified';
+import { resolveLocalPath } from './util.js';
 
 /**
  * Builds the content for a Markdown card file. The process looks like this:
@@ -16,22 +18,11 @@ import { analyzeTree } from './hast_util.js';
  *   4. All headings will receive an `id` attribute so that internal links function properly.
  */
 
-export default async function(filePath, content, options = {}) {
-    const { logger, api, github, footer: footerTemplate, imageHandler } = options;
-
-    if(footerTemplate && typeof footerTemplate === 'string') {
-        const footer = footerTemplate.replaceAll('{{repository_url}}', github.repo.url);
-        content += '\n\n' + footer;
-    }
-    else {
-        logger.info('Skipping card footer...');
-    }
+export default async function(filePath, contentTree, options = {}) {
+    const { logger, api, github, imageHandler } = options;
 
     function resolveUrl(url) {
-        if(url.startsWith('/')) {
-            return url.substring(1);
-        }
-        return path.join(path.dirname(filePath), url);
+        return resolveLocalPath(url, path.dirname(filePath));
     }
 
     async function uploadImage(url) {
@@ -80,18 +71,14 @@ export default async function(filePath, content, options = {}) {
         }
     }
 
-    const output = await remark()
-        // Parse the Markdown.
-        .use(remarkParse)
-        // Convert it to an HTML syntax tree.
-        .use(remarkRehype)
-        // Transform the syntax tree.
+    const transformedTree = await unified()
         .use(() => transform)
-        // Make headings "navigable".
         .use(rehypeSlug)
-        // Convert the syntax tree to an HTML string.
+        .run(contentTree);
+    
+    const output = unified()
         .use(rehypeStringify)
-        .process(content);
+        .stringify(transformedTree);
     
     return String(output);
 }
