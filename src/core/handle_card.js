@@ -1,26 +1,21 @@
-import { unified } from 'unified';
-import remarkParse from 'remark-parse';
-import remarkRehype from 'remark-rehype';
+import path from 'path';
+import buildContentTree from './build_content_tree.js';
 import buildContent from './build_content.js';
 import { readFile } from './fs_util.js';
 import { analyzeTree } from './hast_util.js';
 import guruMdBlock from './guru_md_block.js';
+import { resolveLocalPath } from './util.js';
 
 export default async function(filePath, cardTitle, options) {
     const { logger, api, github, inputs, imageHandler, footer, existingCardIds, didFileChange } = options;
 
     logger.info(`Reading ${filePath}`);
     const content = await readFile(filePath);
+    const contentTree = await buildContentTree(content, { logger, github, footer });
 
     // Extract the paths of referenced images from the Markdown file so that we can check whether they have changed.
-    const mdastTree = unified()
-        .use(remarkParse)
-        .parse(content);
-    const hastTree = await unified()
-        .use(remarkRehype)
-        .run(mdastTree);
-    const imagePaths = analyzeTree(hastTree, { image: /img/ }).image
-        .map(node => node.properties.src);
+    const imagePaths = analyzeTree(contentTree, { image: /img/ }).image
+        .map(node => resolveLocalPath(node.properties.src, path.dirname(filePath)));
 
     // Check whether the Markdown file or any of its images have changed.
     const changed = [filePath, ...imagePaths].some(file => didFileChange(file));
@@ -33,7 +28,7 @@ export default async function(filePath, cardTitle, options) {
     }
 
     // Build the card content.
-    const builtContent = await buildContent(filePath, content, {
+    const builtContent = await buildContent(filePath, contentTree, {
         logger,
         api,
         github,
