@@ -42,6 +42,15 @@ export default async function(filePath, cardTitle, options) {
     });
     const wrappedContent = guruMdBlock(builtContent);
 
+    const cardAttachments = attachments.map((attachment) => ({
+        extension: path.extname(attachment.filename),
+        filename: attachment.filename,
+        id: attachment.attachmentId,
+        link: attachment.link,
+        mimetype: attachment.mimeType,
+        size: attachment.size
+    }));
+
     let existingCard = null;
 
     if(cardId) {
@@ -54,7 +63,7 @@ export default async function(filePath, cardTitle, options) {
             ...existingCard,
             title: cardTitle,
             content: wrappedContent,
-            attachments
+            attachments: cardAttachments
         });
 
         return cardId;
@@ -73,7 +82,7 @@ export default async function(filePath, cardTitle, options) {
             boardId: inputs.boardId,
             sectionId: inputs.boardSectionId,
             content: wrappedContent,
-            attachments
+            attachments: cardAttachments
         });
 
         logger.info(`Card ${id} created.`);
