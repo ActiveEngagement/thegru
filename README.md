@@ -61,6 +61,16 @@ The easiest way to acquire these identifiers is by navigating to the entities in
 
 It would be inefficient to always update every configured card on every single GitHub push. Therefore, by default, we attempt to only update cards that we believe have changed in this push. We execute a `git diff` command with the "before" and "after" commit SHAs in the GitHub context (if present). Then a card is only updated if its associated Markdown file or any local image files referenced therein have changed. If the command fails for any reason, then we'll fall back to updating all cards.
 
+Note that in order for this to work, the Git commits must be present in the local filesystem for us to diff. However, by default, the `@actions/checkout` action performs a [*shallow* clone](https://git-scm.com/docs/shallow). Thus you must include the [`fetch-depth`](https://github.com/actions/checkout#usage) option like so:
+
+```yaml
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Adjust as appropriate.
+```
+
+`fetch-depth` is the number of commits that should be fetched. When set to `0`, the entire history will be cloned. You will probably wish to avoid this. In general, it should be set to a high enough value that it will typically encompass the entirety of a single push, but not so high that it degrades performance significantly. We would recommend `20` or so.
+
 If you wish to disable this functionality entirely, you may set the [`update_all`](#update-all) input.
 
 If you wish to force an update for all cards on just a single push, you may include a `[guru update]` flag anywhere in the commit message, and all cards will be updated just that time.
