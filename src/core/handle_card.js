@@ -15,6 +15,7 @@ export default async function(filePath, cardTitle, options) {
 
     // Extract the paths of referenced images from the Markdown file so that we can check whether they have changed.
     const imagePaths = analyzeTree(contentTree, { image: /img/ }).image
+        .filter(node => !node.properties.src.startsWith('http'))
         .map(node => resolveLocalPath(node.properties.src, path.dirname(filePath)));
     
     const watchedFiles = [filePath, ...imagePaths];
