@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## v0.5.2 - 2023-02-09
+
+### Changed
+- Stopped wrapping Markdown in a Guru Markdown block. This changes the rendering slightly, mostly for the better. It does, however, preclude the internal hyperlink functionality.
+
+### Fixed
+- Fixed an issue where images uploaded as attachments were only accessible by the original uploader.
+- Fixed a few issues image path resolution.
+- Fixed a bug where the `card_footer` input was not being respected.
+- Fixed a bug where images referenced in a certain way were not being watched.
+
 ## v0.5.1 - 2023-02-09
 
 ### Fixed
@@ -82,4 +93,4 @@ This version featured some drastic changes:
 ### Added
 - Initial documented version.
 
-[Unreleased]: https://github.com/ActiveEngagement/theguru/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/ActiveEngagement/theguru/compare/v0.5.2...HEAD
