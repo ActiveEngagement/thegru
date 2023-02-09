@@ -31,7 +31,7 @@ async function main() {
         const inputs = getInputs(core.getInput);
 
         // Set up the logger to delegate to the GitHub Actions Core toolkit.
-        const logger = ghLogger();
+        const logger = ghLogger({ inputs });
 
         // Set up the colorizer to use ansi-colors if ANSI is allowed or a dummy otherwise.
         const colors = inputs.ansi ? c : nullColorizer();
