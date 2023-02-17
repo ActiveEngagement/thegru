@@ -1,23 +1,23 @@
-import createInputBuilder, { valid, invalid } from './input_builder.js';
+import { factory } from 'input_builder';
 
 export default function(getCoreInput) {
-    function input(name) {
-        return createInputBuilder(name, getCoreInput(name));
-    }
+    const inputs = factory()
+        .defaults()
+        .getInputWith(getCoreInput);
 
     return {
-        userEmail: input('user_email').required().get(),
-        userToken: input('user_token').required().get(),
-        cards: input('cards').required().json({ type: 'object' }).get(),
-        collectionId: input('collection_id').required().get(),
-        boardId: input('board_id').get(),
-        boardSectionId: input('board_section_id').get(),
-        github: input('github').required().json({ type: 'object' }).get(),
-        cardFooter: input('card_footer').attempt(i => i.boolean()).get(),
-        cardsFile: input('cards_file').fallback('uploaded-guru-cards.json').get(),
-        imageHandler: input('image_handler').fallback('auto').of('auto', 'github_urls', 'upload').get(),
-        updateAll: input('update_all').fallback('false').boolean().get(),
-        ansi: input('ansi').fallback('true').boolean().get(),
-        debugLogging: input('debug_logging').fallback('false').boolean().get()
+        userEmail: inputs.make('user_email').required().get(),
+        userToken: inputs.make('user_token').required().get(),
+        cards: inputs.make('cards').required().json({ type: 'object' }).get(),
+        collectionId: inputs.make('collection_id').required().get(),
+        boardId: inputs.make('board_id').get(),
+        boardSectionId: inputs.make('board_section_id').get(),
+        github: inputs.make('github').required().json({ type: 'object' }).get(),
+        cardFooter: inputs.make('card_footer').try(i => i.boolean()).get(),
+        cardsFile: inputs.make('cards_file').fallback('uploaded-guru-cards.json').get(),
+        imageHandler: inputs.make('image_handler').fallback('auto').options('auto', 'github_urls', 'upload').get(),
+        updateAll: inputs.make('update_all').fallback('false').boolean().get(),
+        ansi: inputs.make('ansi').fallback('true').boolean().get(),
+        debugLogging: inputs.make('debug_logging').fallback('false').boolean().get()
     };
 }
