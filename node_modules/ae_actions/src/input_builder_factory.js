@@ -1,4 +1,4 @@
-import { InputBuilderError } from './error.js';
+import { AeActionsError } from './error.js';
 import fallback from './builders/fallback.js';
 import createInputBuilder from './input_builder.js';
 import required from './builders/required.js';
@@ -47,7 +47,7 @@ export default function() {
 
     function make(name) {
         if(!inputCallback) {
-            throw new InputBuilderError('A getInputWith callback is required in order to instantiate an input builder!');
+            throw new AeActionsError('A getInputWith callback is required in order to instantiate an input builder!');
         }
 
         return this.makeFromCallback(name, inputCallback);

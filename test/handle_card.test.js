@@ -356,7 +356,6 @@ describe('with unchanged file', () => {
 
         expect(client.getCalls().length).toBe(1);
         expect(client.getCalls()[0].type).toBe('createCard');
-        console.log(client.getCalls()[0]);
     });
 });
 

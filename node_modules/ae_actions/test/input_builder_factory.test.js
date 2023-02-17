@@ -1,4 +1,4 @@
-import { InputBuilderError } from '../src/error.js';
+import { AeActionsError } from '../src/error.js';
 import createFactory from '../src/input_builder_factory.js';
 import { result } from '../src/result.js';
 
@@ -25,7 +25,7 @@ describe('input_builder_factory.js', () => {
         it('throws appropriate error', () => {
             const f = () => createFactory().make();
 
-            expect(f).toThrow(InputBuilderError);
+            expect(f).toThrow(AeActionsError);
             expect(f).toThrow('A getInputWith callback is required in order to instantiate an input builder!');
         });
     });

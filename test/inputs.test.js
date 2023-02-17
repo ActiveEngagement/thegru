@@ -1,4 +1,4 @@
-import { InvalidInputsError } from 'input_builder';
+import { InvalidInputsError } from 'ae_actions';
 import getInputs from '../src/core/inputs.js';
 
 const inputs = {

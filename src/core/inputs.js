@@ -1,7 +1,7 @@
-import { factory } from 'input_builder';
+import { createInputFactory } from 'ae_actions';
 
 export default function(getCoreInput) {
-    const inputs = factory()
+    const inputs = createInputFactory()
         .defaults()
         .getInputWith(getCoreInput);
 

@@ -6,7 +6,7 @@ inputs:
   user_token:
     required: true
   github:
-    required: false
+    required: true
   cards:
     required: true
   collection_id:
