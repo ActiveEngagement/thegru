@@ -1,4 +1,4 @@
-import { InvalidInputsError } from '../src/core/error.js';
+import { InvalidInputsError } from 'input_builder';
 import getInputs from '../src/core/inputs.js';
 
 const inputs = {
