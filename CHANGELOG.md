@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fixed an issue where images uploaded as attachments were only accessible by the original uploader.
-- Fixed a few issues image path resolution.
+- Fixed a few issues with image path resolution.
 - Fixed a bug where the `card_footer` input was not being respected.
 - Fixed a bug where images referenced in a certain way were not being watched.
 
