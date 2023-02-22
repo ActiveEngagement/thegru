@@ -1,12 +1,12 @@
-import runAction from '../../src/core/standard/action.js';
-import createClient from '../support/api_client.js';
-import { resource } from '../support/util.js';
-import nullColorizer from '../../src/gh_action/null_colorizer.js';
+import runAction from '../src/core/action.js';
+import createClientBase from './support/api_client.js';
+import { resource } from './support/util.js';
+import nullColorizer from '../src/gh_action/null_colorizer.js';
 import fs from 'fs';
-import { readFile, writeFile } from '../../src/core/fs_util.js';
-import arrayLogger from '../support/array_logger.js';
-import nullLogger from '../support/null_logger.js';
-import { InvalidGitObjectError } from '../../src/core/error.js';
+import { readFile, writeFile } from '../src/core/fs_util.js';
+import arrayLogger from './support/array_logger.js';
+import nullLogger from './support/null_logger.js';
+import { InvalidGitObjectError } from '../src/core/error.js';
 
 beforeEach(async() => {
     if(fs.existsSync('test/env')) {
@@ -20,12 +20,19 @@ async function initCardsFile(data) {
     await writeFile('test/env/uploaded-cards.json', JSON.stringify(data));
 }
 
+function createClient(options) {
+    options.getCollectionResult ||= { type: 'STANDARD' };
+
+    return createClientBase(options);
+}
+
 async function action(options) {
     options.logger ||= nullLogger();
     options.colors ||= nullColorizer();
     options.inputs ||= {};
     options.inputs.cardsFile ||= 'test/env/uploaded-cards.json';
     options.inputs.imageHandler ||= 'auto';
+    options.inputs.collectionType ||= 'standard';
     options.defaultFooter ||= '<{{repository_url}}>';
     options.github ||= {};
     options.github.repo ||= {};
@@ -374,7 +381,7 @@ describe('with auto image handler', () => {
         });
 
         it('rewrites the URLs to GitHub', async() => {
-            expect(client.getCalls()[0].options.body.content).toBe(
+            expect(client.getCalls()[1].options.body.content).toBe(
                 await resource('test_card_with_github_urls_image_expected_output.html')
             );
         });
@@ -406,7 +413,7 @@ describe('with auto image handler', () => {
         });
 
         it('rewrites the URLs to GitHub', async() => {
-            expect(client.getCalls()[1].options.body.content).toBe(
+            expect(client.getCalls()[2].options.body.content).toBe(
                 await resource('test_card_with_upload_image_expected_output.html')
             );
         });

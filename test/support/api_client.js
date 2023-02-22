@@ -92,6 +92,21 @@ export default function(clientOptions = {}) {
             return response(result);
         }
     }
+    
+    function getCollection(id, options) {
+        calls.push({
+            type: 'getCollection',
+            id,
+            options
+        });
+        const result = call(clientOptions.getCollectionResult, id);
+
+        if (result === 'not_found') {
+            return notFoundResponse();
+        } else {
+            return response(result);
+        }
+    }
 
     function uploadAttachment(fileName, filePath, options) {
         calls.push({
@@ -110,6 +125,7 @@ export default function(clientOptions = {}) {
         updateCard,
         destroyCard,
         getCard,
+        getCollection,
         uploadAttachment
     };
 }

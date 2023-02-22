@@ -30,6 +30,10 @@ export default function(fetch, options = {}) {
         return await fetch('GET', endpoint(`cards/${id}`), options);
     }
 
+    async function getCollection(id, options) {
+        return await fetch('GET', endpoint(`collections/${id}`), options);
+    }
+
     async function uploadAttachment(fileName, filePath, options) {
         // Hydrate a FormData instance with the blob.
         const formData = new FormData();
@@ -45,6 +49,7 @@ export default function(fetch, options = {}) {
         updateCard,
         destroyCard,
         getCard,
+        getCollection,
         uploadAttachment
     };
 }

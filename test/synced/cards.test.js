@@ -1,8 +1,8 @@
 import fs from 'fs';
-import cardsBase from '../src/core/synced/cards.js';
-import nullLogger from './support/null_logger.js';
-import arrayLogger from './support/array_logger.js';
-import env from './support/env.js';
+import cardsBase from '../../src/core/synced/cards.js';
+import nullLogger from '../support/null_logger.js';
+import arrayLogger from '../support/array_logger.js';
+import env from '../support/env.js';
 
 function cards(rules, options = {}) {
     options.logger ||= nullLogger();

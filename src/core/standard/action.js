@@ -2,23 +2,17 @@ import fs from 'fs';
 import { readFile, srcUrl, writeFile } from '../fs_util.js';
 import attempt from '../attempt.js';
 import commitFlags from '../commit_flags.js';
-import createApi from '../api.js';
 import handleCard from './handle_card.js';
 import { InvalidGitObjectError } from '../error.js';
 
-/**
- * This is the entrypoint for most of the action logic. It is intentionally abstracted away from GitHub Actions and
- * should be executable even in a test environment.
- */
-
 export default async function(options) {
     const {
-        client,
+        api,
         logger,
         colors,
         inputs,
         github,
-        defaultFooter,
+        footer,
         commitCardsFile,
         getChangedFiles
     } = options;
@@ -27,13 +21,6 @@ export default async function(options) {
     let imageHandler = inputs.imageHandler;
     if(imageHandler === 'auto') {
         imageHandler = github.repo.isPublic ? 'github_urls' : 'upload';
-    }
-
-    // Determine the card footer.
-    let footer = inputs.cardFooter;
-    if(footer === undefined || footer === null || footer === true) {
-        logger.info('Using default card footer...');
-        footer = defaultFooter;
     }
 
     // Determine whether all cards should be updated and notify the user accordingly. All cards should be updated if:
@@ -69,13 +56,6 @@ export default async function(options) {
                 didFileChange = (filePath) => changedFiles.includes(filePath);
             });
     }
-
-    // Set up the API with the given client.
-    const api = createApi(client, {
-        logger,
-        userEmail: inputs.userEmail,
-        userToken: inputs.userToken
-    });
 
     let cardsFileContent = '{}';
 
