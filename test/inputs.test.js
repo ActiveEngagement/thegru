@@ -34,6 +34,7 @@ function typicalInputs(collectionType) {
             collection_id: '123',
             github: JSON.stringify({ }),
             card_footer: 'Footer!',
+            prefer_sections: 'false',
             ansi: 'false',
             debug_logging: 'false'
         };
@@ -275,6 +276,28 @@ describe('inputs.js', () => {
                     glob: 'value'
                 }
             ]);
+        });
+
+        describe('prefer_sections', () => {
+            test('is not required and has default', () => {
+                const actual = getInputs(name => name === 'prefer_sections' ? '' : getInput(name)).preferSections;
+                expect(actual).toBe(false);
+            });
+
+            test('with true', () => {
+                const actual = getInputs(name => name === 'prefer_sections' ? 'true' : getInput(name)).preferSections;
+                expect(actual).toBe(true);
+            });
+
+            test('with false', () => {
+                const actual = getInputs(name => name === 'prefer_sections' ? 'false' : getInput(name)).preferSections;
+                expect(actual).toBe(false);
+            });
+
+            test('with something else throws error', () => {
+                const f = () => getInputs(name => name === 'prefer_sections' ? 'invalid' : getInput(name)).preferSections;
+                expect(f).toThrow(InvalidInputsError);
+            });
         });
     });
 });

@@ -1,4 +1,4 @@
-import { createInputFactory, invalid } from 'ae_actions';
+import { createInputFactory } from 'ae_actions';
 import validateCards from './synced/validate_cards.js';
 
 export default function(getCoreInput, options) {
@@ -33,6 +33,7 @@ export default function(getCoreInput, options) {
                 logger.info('theguru is in "synced" collection mode.');
 
                 input('cards', b => b.required().json({ type: 'array'}).use(validateCards));
+                input('prefer_sections', b => b.fallback('false').boolean());
             }
         });
 }
