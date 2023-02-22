@@ -1,8 +1,8 @@
 import path from 'path';
 import remarkStringify from 'remark-stringify';
-import { analyzeTree } from './mdast_util.js';
+import { analyzeTree } from '../mdast_util.js';
 import { unified } from 'unified';
-import { resolveLocalPath } from './util.js';
+import { resolveLocalPath } from '../util.js';
 
 export default async function(filePath, contentTree, options = {}) {
     const { logger, api, github, imageHandler } = options;

@@ -1,9 +1,9 @@
-import buildContentTree from '../src/core/build_content_tree.js';
-import buildContent from '../src/core/build_content.js';
-import createApi from '../src/core/api.js';
-import nullLogger from './support/null_logger.js';
-import arrayLogger from './support/array_logger.js';
-import createClient from './support/api_client.js';
+import buildContentTree from '../../src/core/standard/build_content_tree.js';
+import buildContent from '../../src/core/standard/build_content.js';
+import createApi from '../../src/core/api.js';
+import nullLogger from '../support/null_logger.js';
+import arrayLogger from '../support/array_logger.js';
+import createClient from '../support/api_client.js';
 
 async function build(filePath, content, options = {}) {
     options.logger ||= nullLogger();

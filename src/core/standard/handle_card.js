@@ -1,9 +1,9 @@
 import path from 'path';
 import buildContentTree from './build_content_tree.js';
 import buildContent from './build_content.js';
-import { readFile } from './fs_util.js';
-import { analyzeTree } from './mdast_util.js';
-import { resolveLocalPath } from './util.js';
+import { readFile } from '../fs_util.js';
+import { analyzeTree } from '../mdast_util.js';
+import { resolveLocalPath } from '../util.js';
 
 export default async function(filePath, cardTitle, options) {
     const { logger, api, github, inputs, imageHandler, footer, existingCardIds, didFileChange } = options;
@@ -50,7 +50,7 @@ export default async function(filePath, cardTitle, options) {
         filename: attachment.filename,
         id: attachment.attachmentId,
         link: attachment.link,
-        mimetype: attachment.mimeType,
+        mimetype: attachment.mimeType, // Nope, this is NOT a typo.
         size: attachment.size
     }));
 

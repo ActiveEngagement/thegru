@@ -1,10 +1,10 @@
 import fs from 'fs';
-import { readFile, srcUrl, writeFile } from './fs_util.js';
-import attempt from './attempt.js';
-import commitFlags from './commit_flags.js';
-import createApi from './api.js';
+import { readFile, srcUrl, writeFile } from '../fs_util.js';
+import attempt from '../attempt.js';
+import commitFlags from '../commit_flags.js';
+import createApi from '../api.js';
 import handleCard from './handle_card.js';
-import { InvalidGitObjectError } from './error.js';
+import { InvalidGitObjectError } from '../error.js';
 
 /**
  * This is the entrypoint for most of the action logic. It is intentionally abstracted away from GitHub Actions and

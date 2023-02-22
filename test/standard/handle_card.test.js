@@ -1,10 +1,10 @@
-import runHandleCard from '../src/core/handle_card.js';
-import createApi from '../src/core/api.js';
-import { FetchError } from '../src/core/error.js';
-import createClient from './support/api_client.js';
-import { resource, createCardApiCall, updateCardApiCall } from './support/util.js';
-import nullLogger from './support/null_logger.js';
-import attempt from '../src/core/attempt.js';
+import runHandleCard from '../../src/core/standard/handle_card.js';
+import createApi from '../../src/core/api.js';
+import { FetchError } from '../../src/core/error.js';
+import createClient from '../support/api_client.js';
+import { resource, createCardApiCall, updateCardApiCall } from '../support/util.js';
+import nullLogger from '../support/null_logger.js';
+import attempt from '../../src/core/attempt.js';
 
 async function handleCard(options) {
     options.logger ||= nullLogger();
