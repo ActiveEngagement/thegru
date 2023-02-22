@@ -11,7 +11,7 @@ function cards(rules, options = {}) {
 }
 
 describe('cards.js', () => {
-    beforeEach(async () => {
+    beforeEach(async() => {
         await env();
 
         process.chdir('test/env');
@@ -153,7 +153,7 @@ describe('cards.js', () => {
                 title: null
             }
         ]);
-    })
+    });
 
     test('with inferred board path and simple root dir', () => {
         const actual = cards([
@@ -186,7 +186,7 @@ describe('cards.js', () => {
                 title: null
             }
         ]);
-    })
+    });
 
     test('with glob root dir', () => {
         const actual = cards([
@@ -218,7 +218,7 @@ describe('cards.js', () => {
                 title: null
             },
         ]);
-    })
+    });
 
     test('with glob root dir without trailing slash', () => {
         const logger = arrayLogger();
@@ -300,5 +300,5 @@ describe('cards.js', () => {
                 title: null
             }
         ]);
-    })
+    });
 });

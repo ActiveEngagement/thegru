@@ -7,7 +7,7 @@ function getInputs(callback) {
 }
 
 function typicalInputs(collectionType) {
-    if (collectionType === 'standard') {
+    if(collectionType === 'standard') {
         return {
             user_email: 'test@example.com',
             user_token: 'test123',
@@ -24,7 +24,8 @@ function typicalInputs(collectionType) {
             ansi: 'false',
             debug_logging: 'false'
         };
-    } else if (collectionType === 'synced') {
+    }
+    else if(collectionType === 'synced') {
         return {
             user_email: 'test@example.com',
             user_token: 'test123',
@@ -44,7 +45,7 @@ describe('inputs.js', () => {
         it('is required', () => {
             const f = () => getInputs(name => name === 'collection_type' ? '' : typicalInputs('synced')[name]).collectionType;
             expect(f).toThrow(InvalidInputsError);
-            expect(f).toThrow(`"collection_type" is a required input!`);
+            expect(f).toThrow('"collection_type" is a required input!');
         });
 
         test.each([

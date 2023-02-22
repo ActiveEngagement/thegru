@@ -2,11 +2,11 @@ import path from 'path';
 import globBase from 'glob';
 
 function glob(pattern, options = {}) {
-    if (options.strict === undefined) {
+    if(options.strict === undefined) {
         options.strict = true;
     }
 
-    if (options.nomount === undefined) {
+    if(options.nomount === undefined) {
         options.nomount = true;
     }
 
@@ -19,10 +19,10 @@ export default function(rules, options) {
     function cardFor(rule, parent, file) {
         let board = rule.board;
 
-        if (!board) {
+        if(!board) {
             const dir = path.dirname(file);
 
-            if (dir === '.') {
+            if(dir === '.') {
                 board = null;
             }
             else {
@@ -43,18 +43,19 @@ export default function(rules, options) {
     }
 
     function parseRule(rule) {
-        if (typeof rule === 'string') {
+        if(typeof rule === 'string') {
             return parseRule({ glob: rule });
         }
 
-        if (rule.rootDir) {
-            if (!rule.rootDir.endsWith('/')) {
+        if(rule.rootDir) {
+            if(!rule.rootDir.endsWith('/')) {
                 logger.warning(`Card rule rootDir "${rule.rootDir}" does not end with a "/". This was probably an accident, so we will append one.`);
                 rule.rootDir += '/';
             }
 
             return glob(rule.rootDir).flatMap(parent => cardsUnder(rule, parent));
-        } else {
+        }
+        else {
             return cardsUnder(rule, '');
         }
     }
