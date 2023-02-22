@@ -1,5 +1,11 @@
 import { InvalidInputsError } from 'ae_actions';
-import getInputs from '../src/core/inputs.js';
+import getInputsBase from '../src/core/inputs.js';
+import nullLogger from './support/null_logger.js';
+
+function getInputs(callback) {
+    const overridenCallback = (name) => name === 'collection_type' ? 'standard' : callback(name);
+    return getInputsBase(overridenCallback, { logger: nullLogger() });
+}
 
 const inputs = {
     user_email: 'test@example.com',
