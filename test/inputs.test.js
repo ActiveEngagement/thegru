@@ -278,25 +278,25 @@ describe('inputs.js', () => {
             ]);
         });
 
-        describe('prefer_sections', () => {
+        describe('preferred_container', () => {
             test('is not required and has default', () => {
-                const actual = getInputs(name => name === 'prefer_sections' ? '' : getInput(name)).preferSections;
-                expect(actual).toBe(false);
+                const actual = getInputs(name => name === 'preferred_container' ? '' : getInput(name)).preferredContainer;
+                expect(actual).toBe('board_group');
             });
 
-            test('with true', () => {
-                const actual = getInputs(name => name === 'prefer_sections' ? 'true' : getInput(name)).preferSections;
-                expect(actual).toBe(true);
+            test.each([
+                ['board_group'],
+                ['board'],
+                ['board_section']
+            ])('with a valid option', (input) => {
+                const actual = getInputs(name => name === 'preferred_container' ? input : getInput(name)).preferredContainer;
+                expect(actual).toBe(input);
             });
 
-            test('with false', () => {
-                const actual = getInputs(name => name === 'prefer_sections' ? 'false' : getInput(name)).preferSections;
-                expect(actual).toBe(false);
-            });
-
-            test('with something else throws error', () => {
-                const f = () => getInputs(name => name === 'prefer_sections' ? 'invalid' : getInput(name)).preferSections;
+            test('with invalid option throws error', () => {
+                const f = () => getInputs(name => name === 'preferred_container' ? 'invalid' : getInput(name));
                 expect(f).toThrow(InvalidInputsError);
+                expect(f).toThrow('"preferred_container" must be one of [board_group, board, board_section]');
             });
         });
     });

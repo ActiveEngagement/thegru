@@ -119,6 +119,18 @@ export default function(clientOptions = {}) {
         return response(call(clientOptions.attachmentResult, fileName, filePath, options));
     }
 
+    function uploadZip(collectionId, fileName, filePath, options) {
+        calls.push({
+            type: 'uploadAttachment',
+            collectionId,
+            fileName,
+            filePath,
+            options
+        });
+
+        return response(call(clientOptions.uploadZipResult, fileName, filePath, options));
+    }
+
     return {
         getCalls,
         createCard,
@@ -126,6 +138,7 @@ export default function(clientOptions = {}) {
         destroyCard,
         getCard,
         getCollection,
-        uploadAttachment
+        uploadAttachment,
+        uploadZip
     };
 }

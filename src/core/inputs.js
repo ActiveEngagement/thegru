@@ -1,8 +1,17 @@
-import { createInputFactory } from 'ae_actions';
-import validateCards from './synced/validate_cards.js';
+import { createInputFactory, invalid } from 'ae_actions';
 
 export default function(getCoreInput, options) {
     const { logger } = options;
+
+    function validateCards(cards, name) {
+        let i = 1;
+        for(const card of cards) {
+            if(typeof card !== 'string' && !card.glob) {
+                return invalid(`"${name}" element ${i} has no glob!`);
+            }
+            i++;
+        }
+    }
 
     return createInputFactory()
         .defaults()
@@ -33,7 +42,8 @@ export default function(getCoreInput, options) {
                 logger.info('theguru is in "synced" collection mode.');
 
                 input('cards', b => b.required().json({ type: 'array'}).use(validateCards));
-                input('prefer_sections', b => b.fallback('false').boolean());
+                input('containers', b => b.fallback('{ }').json({ type: 'object'}));
+                input('preferred_container', b => b.fallback('board_group').options('board_group', 'board', 'board_section'));
             }
         });
 }

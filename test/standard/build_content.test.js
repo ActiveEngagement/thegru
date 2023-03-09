@@ -1,4 +1,4 @@
-import buildContentTree from '../../src/core/standard/build_content_tree.js';
+import buildContentTree from '../../src/core/build_content_tree.js';
 import buildContent from '../../src/core/standard/build_content.js';
 import createApi from '../../src/core/api.js';
 import nullLogger from '../support/null_logger.js';

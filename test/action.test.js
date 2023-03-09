@@ -7,12 +7,10 @@ import { readFile, writeFile } from '../src/core/fs_util.js';
 import arrayLogger from './support/array_logger.js';
 import nullLogger from './support/null_logger.js';
 import { InvalidGitObjectError } from '../src/core/error.js';
+import env from './support/env.js';
 
 beforeEach(async() => {
-    if(fs.existsSync('test/env')) {
-        await fs.promises.rm('test/env', { recursive: true });
-    }
-    await fs.promises.mkdir('test/env');
+    await env();
 });
 
 async function initCardsFile(data) {

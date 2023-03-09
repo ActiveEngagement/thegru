@@ -47,3 +47,13 @@ export class FetchError extends TheGuruError {
         this.response = response;
     }
 }
+
+/**
+ * Thrown whenever the container structure configured for a synced collection is impossible to create.
+ */
+export class InvalidContainerConfigurationError extends TheGuruError {
+    constructor(message) {
+        super(message);
+        this.name = this.constructor.name;
+    }
+}

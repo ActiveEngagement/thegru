@@ -167,12 +167,23 @@ export default function(client, options) {
         return await validate(response);
     }
 
+    async function uploadZip(collectionId, fileName, filePath) {
+        logger.debug(`Uploading zip with name ${fileName} at ${filePath} to collection ${collectionId}`);
+
+        const response = await client.uploadZip(collectionId, fileName, filePath, {
+            headers: headers({ 'content-type': false })
+        });
+
+        return await validate(response);
+    }
+
     return {
         createCard,
         updateCard,
         destroyCard,
         getCard,
         getCollection,
-        uploadAttachment
+        uploadAttachment,
+        uploadZip
     };
 }
