@@ -4,6 +4,7 @@ import { readFileSync, stripExtension } from '../fs_util';
 import matter from 'gray-matter';
 import { attach, card, ensureContainerPath, root, traversePath } from './tree_util';
 import { glob } from '../util';
+import yaml from 'js-yaml';
 
 export default function(rules, options) {
     const { logger } = options;
@@ -16,7 +17,7 @@ export default function(rules, options) {
         const info = {};
 
         const name = stripExtension(filePath);
-        const infoPath = [name + '.yaml', name + 'yml'].find(p => fs.existsSync(p));
+        const infoPath = [name + '.yaml', name + '.yml'].find(p => fs.existsSync(p));
 
         if (infoPath) {
             Object.assign(info, yaml.load(readFileSync(infoPath)));
@@ -31,7 +32,7 @@ export default function(rules, options) {
         }
 
         if (rule.externalUrl) {
-            info.title = rule.externalUrl;
+            info.externalUrl = rule.externalUrl;
         }
 
         return { info, content };

@@ -29,12 +29,14 @@ describe('build_tree.js', () => {
                 },
                 two: {
                     'test3.md': '# Test\n',
+                    'test3.yaml': '\ntitle: File Title\n'
                 }
             },
             unrelated: { do: { not: { touch: {
-                'test4.md': '# Test \n'
+                'test4.md': '# Test\n'
             } } } },
-            'test5.md': '# Test\n'
+            'test5.md': '# Test\n',
+            'test5.yml': '\ntitle: File Title\nexternalUrl: File Url\n'
         });
 
         process.chdir('test/env');
@@ -61,7 +63,8 @@ describe('build_tree.js', () => {
             },
             {
                 glob: 'test5.md',
-                container: null
+                container: null,
+                externalUrl: 'https://example.com'
             }
         ]);
 
@@ -74,10 +77,17 @@ describe('build_tree.js', () => {
                 child: container({
                     'test.md': card({ file: 'dir/one/test.md' }),
                     'test2.md': card({ file: 'dir/one/test2.md' }),
-                    'test3.md': card({ file: 'dir/two/test3.md' })
+                    'test3.md': card({
+                        file: 'dir/two/test3.md',
+                        title: 'File Title'
+                    })
                 })
             }),
-            'test5.md': card({ file: 'test5.md' })
+            'test5.md': card({
+                file: 'test5.md',
+                title: 'File Title',
+                externalUrl: 'https://example.com'
+            })
         }));
     });
 
@@ -102,10 +112,17 @@ describe('build_tree.js', () => {
                     'test2.md': card({ file: 'dir/one/test2.md' })
                 }),
                 two: container({
-                    'test3.md': card({ file: 'dir/two/test3.md' })
+                    'test3.md': card({
+                        file: 'dir/two/test3.md',
+                        title: 'File Title'
+                    })
                 })
             }),
-            'test5.md': card({ file: 'test5.md' })
+            'test5.md': card({
+                file: 'test5.md',
+                externalUrl: 'File Url',
+                title: 'File Title'
+            })
         }));
     });
 
@@ -132,7 +149,10 @@ describe('build_tree.js', () => {
                             'test2.md': card({ file: 'dir/one/test2.md' })
                         }),
                         two: container({
-                            'test3.md': card({ file: 'dir/two/test3.md' })
+                            'test3.md': card({
+                                file: 'dir/two/test3.md',
+                                title: 'File Title'
+                            })
                         })
                     })
                 })
@@ -160,7 +180,10 @@ describe('build_tree.js', () => {
                 'test2.md': card({ file: 'dir/one/test2.md' })
             }),
             two: container({
-                'test3.md': card({ file: 'dir/two/test3.md' })
+                'test3.md': card({
+                    file: 'dir/two/test3.md',
+                    title: 'File Title'
+                })
             })
         }));
     });
@@ -179,7 +202,10 @@ describe('build_tree.js', () => {
                 'test2.md': card({ file: 'dir/one/test2.md' })
             }),
             two: container({
-                'test3.md': card({ file: 'dir/two/test3.md' })
+                'test3.md': card({
+                    file: 'dir/two/test3.md',
+                    title: 'File Title'
+                })
             }),
             direct: container({
                 'card.md': card({ file: 'some/direct/card.md' })
@@ -209,7 +235,10 @@ describe('build_tree.js', () => {
                     'test2.md': card({ file: 'dir/one/test2.md' })
                 }),
                 two: container({
-                    'test3.md': card({ file: 'dir/two/test3.md' })
+                    'test3.md': card({
+                        file: 'dir/two/test3.md',
+                        title: 'File Title'
+                    })
                 }),
                 direct: container({
                     'card.md': card({ file: 'some/direct/card.md' })
@@ -242,7 +271,8 @@ describe('build_tree.js', () => {
         expect(actual).toStrictEqual(root({
             'test5.md': card({
                 title: 'README',
-                file: 'test5.md'
+                file: 'test5.md',
+                externalUrl: 'File Url'
             }),
             top: container({
                 one: container({
@@ -250,7 +280,10 @@ describe('build_tree.js', () => {
                     'test2.md': card({ file: 'dir/one/test2.md' })
                 }),
                 two: container({
-                    'test3.md': card({ file: 'dir/two/test3.md' })
+                    'test3.md': card({
+                        file: 'dir/two/test3.md',
+                        title: 'File Title'
+                    })
                 }),
                 direct: container({
                     'card.md': card({ file: 'some/direct/card.md'})
