@@ -51,7 +51,7 @@ export function traversePath(node, pathString) {
     }
 
     function setDelimiter(newDelimiter) {
-        if (newDelimiter) {
+        if(newDelimiter) {
             delimiter = newDelimiter;
         }
 
@@ -71,7 +71,7 @@ export function traversePath(node, pathString) {
         let currentPath = '';
         let currentDepth = 0;
 
-        for (const part of pathString.split(delimiter)) {
+        for(const part of pathString.split(delimiter)) {
             currentPath = path.join(currentPath, part);
             currentDepth++;
 
@@ -80,18 +80,19 @@ export function traversePath(node, pathString) {
                 depth: currentDepth
             };
 
-            if (!currentNode.children) {
+            if(!currentNode.children) {
                 throw new TheGuruError('Cannot traverse a non-container node!');
             }
 
             let nextNode = currentNode.children.get(part);
 
-            if (!nextNode) {
-                if (makeParents) {
+            if(!nextNode) {
+                if(makeParents) {
                     nextNode = container();
                     attach(currentNode, part, nextNode);
                     onCreate(nextNode, ctx);
-                } else {
+                }
+                else {
                     throw new TheGuruError(`Encountered nonexistent part "${part}" while traversing path "${path}"!`);
                 }
             }
@@ -122,9 +123,9 @@ export function ensureContainerPath(node, containerPath, readInfo = false, paren
     return traversePath(node, containerPath)
         .makeParents()
         .onCreate((node, ctx) => {
-            if (readInfo) {
+            if(readInfo) {
                 const infoPath = path.join(parentDir, ctx.path, '.info.yml');
-                if (fs.existsSync(infoPath)) {
+                if(fs.existsSync(infoPath)) {
                     Object.assign(node.info, yaml.load(readFileSync(infoPath)));
                 }
             }
@@ -133,25 +134,25 @@ export function ensureContainerPath(node, containerPath, readInfo = false, paren
 }
     
 function _traverse(nodes, callback, initialState) {
-    for (const [name, node] of nodes) {
+    for(const [name, node] of nodes) {
         const state = { ...initialState };
 
-        if (state.path !== undefined) {
+        if(state.path !== undefined) {
             state.path = path.join(state.path, name);
         }
 
-        if (state.depth !== undefined) {
+        if(state.depth !== undefined) {
             state.depth += 1;
         }
 
         const result = callback(node, name, state);
 
-        if (result === false) {
+        if(result === false) {
             return false;
         }
 
-        if (node.children) {
-            if (_traverse(node.children, callback, state) === false) {
+        if(node.children) {
+            if(_traverse(node.children, callback, state) === false) {
                 return false;
             }
         }

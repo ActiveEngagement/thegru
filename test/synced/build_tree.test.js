@@ -226,7 +226,7 @@ describe('build_tree.js', () => {
                     glob: '*/*.md'
                 }
             ], { logger });
-        })
+        });
 
         it('builds the proper tree', () => {
             expect(actual).toStrictEqual(root({
@@ -250,7 +250,7 @@ describe('build_tree.js', () => {
             expect(logger.getMessages()).toStrictEqual([
                 'Card rule rootDir "*" does not end with a "/". This was probably an accident, so we will append one.'
             ]);
-        })
+        });
     });
 
 

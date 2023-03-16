@@ -60,7 +60,7 @@ export default function(fetch, options = {}) {
         formData.append('file', blobFromSync(filePath), fileName);
         options.body ||= formData;
 
-        return await fetch('POST', appEndpoint('contentsyncupload') + '?collectionId=' + collectionId, options)
+        return await fetch('POST', appEndpoint('contentsyncupload') + '?collectionId=' + collectionId, options);
     }
 
     return {

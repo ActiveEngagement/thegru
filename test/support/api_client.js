@@ -101,9 +101,10 @@ export default function(clientOptions = {}) {
         });
         const result = call(clientOptions.getCollectionResult, id);
 
-        if (result === 'not_found') {
+        if(result === 'not_found') {
             return notFoundResponse();
-        } else {
+        }
+        else {
             return response(result);
         }
     }

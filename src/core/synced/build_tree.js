@@ -19,19 +19,19 @@ export default function(rules, options) {
         const name = stripExtension(filePath);
         const infoPath = [name + '.yaml', name + '.yml'].find(p => fs.existsSync(p));
 
-        if (infoPath) {
+        if(infoPath) {
             Object.assign(info, yaml.load(readFileSync(infoPath)));
         }
 
-        if (data) {
+        if(data) {
             Object.assign(info, data);
         }
 
-        if (rule.title) {
+        if(rule.title) {
             info.title = rule.title;
         }
 
-        if (rule.externalUrl) {
+        if(rule.externalUrl) {
             info.externalUrl = rule.externalUrl;
         }
 
@@ -62,7 +62,7 @@ export default function(rules, options) {
             nodir: true
         });
 
-        for (const file of files) {
+        for(const file of files) {
             const fullPath = path.join(parentDir, file);
             const container = getContainerForFile(rule, file, parentDir) || tree;
             const { info, content } = processFile(fullPath, rule);

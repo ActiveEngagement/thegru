@@ -37,7 +37,7 @@ export default async function(options) {
     // Query Guru for the given collection id so we can validate its type.
     const collection = api.getCollection(inputs.collectionId);
 
-    if (!collection) {
+    if(!collection) {
         throw new TheGuruError(`Collection with id ${inputs.collectionId} not found!`);
     }
 
@@ -56,7 +56,8 @@ export default async function(options) {
             commitCardsFile,
             getChangedFiles
         });
-    } else {
+    }
+    else {
         if(collection.collectionType !== 'EXTERNAL') {
             throw new TheGuruError(`We expected a Synced Collection but the provided collection ${inputs.collectionId} is a Standard Collection!`);
         }

@@ -15,7 +15,7 @@ export default async function(options) {
 
     const tree = cardTree(inputs.cards, { logger });
 
-    for (const [container, info] of Object.entries(inputs.containers)) {
+    for(const [container, info] of Object.entries(inputs.containers)) {
         traversePath(tree, container)
             .makeParents()
             .onCreate(node => {
@@ -29,7 +29,7 @@ export default async function(options) {
     const collection = flatten(tree, topType);
     const resources = [];
 
-    for (const card of collection.cards) {
+    for(const card of collection.cards) {
         const contentTree = buildTree(card.content, { logger, github, footer });
         const { tree: resultTree, attachments } = await transformContent(card.file, contentTree, {
             logger,

@@ -11,12 +11,13 @@ export default async function(structure = {}) {
     await fs.promises.mkdir('test/env');
 
     async function traverse(structure, basePath) {
-        for (const [key, value] of Object.entries(structure)) {
+        for(const [key, value] of Object.entries(structure)) {
             const currentPath = path.join(basePath, key);
 
-            if (typeof value === 'string') {
+            if(typeof value === 'string') {
                 await writeFile(currentPath, value);
-            } else {
+            }
+            else {
                 await fs.promises.mkdir(currentPath);
                 await traverse(value, currentPath);
             }

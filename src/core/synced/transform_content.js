@@ -54,11 +54,12 @@ export default async function(filePath, contentTree, options = {}) {
         }
 
         for(const node of analysis.link) {
-            if (isLocal(node.url)) {
+            if(isLocal(node.url)) {
                 const card = cards.find(c => path.dirname(c.file) === resolveUrl(node.url));
                 if(card) {
                     node.url = await getCardLink(card);
-                } else {
+                }
+                else {
                     node.url = await rewriteAttachment(node.url, 'link');
                 }
             }

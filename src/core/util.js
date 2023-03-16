@@ -34,8 +34,8 @@ export function glob(pattern, options = {}) {
 export function joinNames(...names) {
     let result = '';
 
-    for (const name of names) {
-        if (name !== '') {
+    for(const name of names) {
+        if(name !== '') {
             result += result === '' ? name : '__' + name;
         }
     }
