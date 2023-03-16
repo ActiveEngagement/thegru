@@ -1,7 +1,8 @@
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
+import remarkStringify from 'remark-stringify';
 
-export default async function(content, options = {}) {
+export function buildTree(content, options = {}) {
     const { logger, github, footer: footerTemplate } = options;
 
     if(footerTemplate && typeof footerTemplate === 'string') {
@@ -15,4 +16,18 @@ export default async function(content, options = {}) {
     return unified()
         .use(remarkParse)
         .parse(content);
+}
+
+export async function transformTree(tree, transform) {
+    return await unified()
+        .use(() => transform)
+        .run(tree);
+}
+
+export function renderTree(tree) {
+    const output = unified()
+        .use(remarkStringify)
+        .stringify(tree);
+
+    return String(output);
 }

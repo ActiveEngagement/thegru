@@ -1,5 +1,5 @@
 import cardTree from './build_tree.js';
-import buildContentTree from '../build_content_tree.js';
+import { buildTree, renderTree } from '../content.js';
 import { unified } from 'unified';
 import { analyzeTree } from '../mdast_util.js';
 import { traversePath } from './tree_util.js';
@@ -31,8 +31,8 @@ export default async function(options) {
     const collection = flatten(tree, topType);
 
     for (const card of cards) {
-        const contentTree = await buildContentTree(card.content);
-        card.content = await buildContent(contentTree, card.file, {
+        const contentTree = await buildTree(card.content);
+        card.content = await renderTree(contentTree, card.file, {
 
         });
     }

@@ -1,5 +1,5 @@
-import buildContentTree from '../../src/core/build_content_tree.js';
-import buildContent from '../../src/core/standard/build_content.js';
+import { buildTree, renderTree } from '../../src/core/content.js';
+import transformContent from '../../src/core/standard/transform_content.js';
 import createApi from '../../src/core/api.js';
 import nullLogger from '../support/null_logger.js';
 import arrayLogger from '../support/array_logger.js';
@@ -22,8 +22,9 @@ async function build(filePath, content, options = {}) {
         options.footer = '<{{repository_url}}>';
     }
 
-    const tree = await buildContentTree(content, options);
-    return (await buildContent(filePath, tree, options)).content;
+    const tree = await buildTree(content, options);
+    const result = (await transformContent(filePath, tree, options)).tree;
+    return (await renderTree(result));
 }
 
 describe('build_content.js', () => {

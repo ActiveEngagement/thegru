@@ -1,21 +1,21 @@
 import path from 'path';
-import buildContentTree from '../build_content_tree.js';
-import buildContent from './build_content.js';
+import { buildTree, renderTree } from '../content.js';
+import transformContent from './transform_content.js';
 import { readFile } from '../fs_util.js';
-import { analyzeTree } from '../mdast_util.js';
 import { resolveLocalPath } from '../util.js';
+import { analyzeTree } from '../mdast_util.js';
 
 export default async function(filePath, cardTitle, options) {
     const { logger, api, github, inputs, imageHandler, footer, existingCardIds, didFileChange } = options;
 
     logger.info(`Reading ${filePath}`);
     const content = await readFile(filePath);
-    const contentTree = await buildContentTree(content, { logger, github, footer });
+    const contentTree = await buildTree(content, { logger, github, footer });
 
     // Extract the paths of referenced images from the Markdown file so that we can check whether they have changed.
     const imagePaths = analyzeTree(contentTree, { image: /image/ }).image
         .filter(node => !node.url.startsWith('http'))
-        .map(node => resolveLocalPath(node.properties.src, path.dirname(filePath)));
+        .map(node => resolveLocalPath(node.url, path.dirname(filePath)));
     
     const watchedFiles = [filePath, ...imagePaths];
 
@@ -33,13 +33,14 @@ export default async function(filePath, cardTitle, options) {
     }
 
     // Build the card content.
-    const { content: builtContent, attachments } = await buildContent(filePath, contentTree, {
+    const { tree: resultContentTree, attachments } = await transformContent(filePath, contentTree, {
         logger,
         api,
         github,
         footer,
         imageHandler
     });
+    const builtContent = renderTree(resultContentTree);
     const wrappedContent = builtContent;
 
     // It is necessary to transform the attachments slightly because of Guru craziness.
