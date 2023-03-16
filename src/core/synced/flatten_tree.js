@@ -43,7 +43,8 @@ export default function(tree, topType) {
                 cards.push({
                     name: state.fullName,
                     ...node.info,
-                    content: node.content
+                    content: node.content,
+                    path: state.path
                 });
             } else if (node.type === 'container') {
                 const type = types.from(types.level, types.level(topType) + state.depth - 1);
@@ -53,14 +54,16 @@ export default function(tree, topType) {
                     boardGroups.push({
                         name: state.fullName,
                         ...node.info,
-                        boards: Array.from(node.children.keys()).map(k => joinNames(state.fullName, k))
+                        boards: Array.from(node.children.keys()).map(k => joinNames(state.fullName, k)),
+                        path: state.path
                     });
                     break;
                 case types.BOARD:
                     boards.push({
                         name: state.fullName,
                         ...node.info,
-                        items: boardItems(node, state.path, state.fullName)
+                        items: boardItems(node, state.path, state.fullName),
+                        path: state.path
                     });
                 }
             }

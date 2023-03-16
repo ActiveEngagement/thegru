@@ -6,16 +6,13 @@ export default async function(options) {
     const {
         api,
         logger,
-        colors,
         inputs,
         github,
         footer
     } = options;
 
     const collection = await generate({
-        api,
         logger,
-        colors,
         inputs,
         github,
         footer

@@ -1,16 +1,13 @@
 import cardTree from './build_tree.js';
 import { buildTree, renderTree } from '../content.js';
-import { unified } from 'unified';
-import { analyzeTree } from '../mdast_util.js';
+import transformContent from './transform_content.js';
 import { traversePath } from './tree_util.js';
 import analyze from './analyze_tree.js';
 import flatten from './flatten_tree.js';
 
 export default async function(options) {
     const {
-        api,
         logger,
-        colors,
         inputs,
         github,
         footer
@@ -30,11 +27,15 @@ export default async function(options) {
     const { topType } = analyze(tree, { logger });
     const collection = flatten(tree, topType);
 
-    for (const card of cards) {
-        const contentTree = await buildTree(card.content);
-        card.content = await renderTree(contentTree, card.file, {
-
-        });
+    for (const card of collection.cards) {
+        const contentTree = buildTree(card.content, { logger, github, footer });
+        const resultTree = await transformContent(card.file, contentTree, {
+            logger,
+            github,
+            cards: collection.cards,
+            attachmentHandler: inputs.attachmentHandler
+        })
+        card.content = renderTree(resultTree);
     }
 
     return {
