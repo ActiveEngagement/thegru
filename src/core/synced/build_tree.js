@@ -19,6 +19,8 @@ export default function(rules, options) {
         const name = stripExtension(filePath);
         const infoPath = [name + '.yaml', name + '.yml'].find(p => fs.existsSync(p));
 
+        info.title = path.basename(name);
+
         if(infoPath) {
             Object.assign(info, yaml.load(readFileSync(infoPath)));
         }
@@ -43,14 +45,18 @@ export default function(rules, options) {
             return ensureContainerPath(tree, rule.container);
         }
         else {
-            const containerPath = path.dirname(file);
+            let containerPath = path.dirname(file);
 
             if(containerPath === '.') {
-                return null;
+                containerPath = null;
             }
-            else {
-                const rootContainer = rule.rootContainer ? ensureContainerPath(tree, rule.rootContainer) : tree;
+
+            const rootContainer = rule.rootContainer ? ensureContainerPath(tree, rule.rootContainer) : tree;
+
+            if (containerPath) {
                 return ensureContainerPath(rootContainer, containerPath, true, parentDir);
+            } else {
+                return rootContainer;
             }
 
         }

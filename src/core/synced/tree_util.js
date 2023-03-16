@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
-import { InvalidContainerConfigurationError, TheGuruError } from '../error.js';
+import { TheGuruError } from '../error.js';
+import yaml from 'js-yaml';
+import { readFileSync } from '../fs_util.js';
 
 export function root(children = undefined) {
     return {
@@ -130,7 +132,11 @@ export function ensureContainerPath(node, containerPath, readInfo = false, paren
                 }
             }
         })
-        .do();
+        .do((node, ctx) => {
+            if (!node.info.title) {
+                node.info.title = path.basename(ctx.path);
+            }
+        });
 }
     
 function _traverse(nodes, callback, initialState) {

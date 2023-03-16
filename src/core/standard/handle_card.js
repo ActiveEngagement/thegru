@@ -13,7 +13,7 @@ export default async function(filePath, cardTitle, options) {
     const contentTree = await buildTree(content, { logger, github, footer });
 
     // Extract the paths of referenced images from the Markdown file so that we can check whether they have changed.
-    const imagePaths = analyzeTree(contentTree, { image: /image/ }).image
+    const imagePaths = analyzeTree(contentTree, { image: 'image' }).image
         .filter(node => !node.url.startsWith('http'))
         .map(node => resolveLocalPath(node.url, path.dirname(filePath)));
     

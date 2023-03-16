@@ -14,7 +14,7 @@ export function analyzeTree(tree, tags) {
 
     visit(tree, (node, _index, parent) => {
         for(const [name, test] of Object.entries(tags)) {
-            if(test.test(node.type)) {
+            if(node.type === test) {
                 node.parent = parent;
                 analysis[name].push(node);
             }

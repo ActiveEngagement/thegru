@@ -1,5 +1,6 @@
 import path from 'path';
 import globBase from 'glob';
+import { stripExtension } from './fs_util';
 
 export function base64(input) {
     return Buffer.from(input, 'utf8').toString('base64');
@@ -34,8 +35,9 @@ export function glob(pattern, options = {}) {
 export function joinNames(...names) {
     let result = '';
 
-    for(const name of names) {
+    for(let name of names) {
         if(name !== '') {
+            name = stripExtension(name);
             result += result === '' ? name : '__' + name;
         }
     }

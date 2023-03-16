@@ -45,7 +45,7 @@ export default async function(filePath, contentTree, options = {}) {
 
     const resultTree = await transformTree(contentTree, async(tree) => {
         // This is necessary because the unist-util-visit visit method does not support asynchronous visitors.
-        const analysis = analyzeTree(tree, { image: /image/ });
+        const analysis = analyzeTree(tree, { image: 'image' });
 
         for(const node of analysis.image) {
             if(isLocalImage(node)) {

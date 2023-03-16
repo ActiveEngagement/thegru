@@ -8,14 +8,16 @@ export default async function(options) {
         logger,
         inputs,
         github,
-        footer
+        footer,
+        attachmentHandler
     } = options;
 
     const collection = await generate({
         logger,
         inputs,
         github,
-        footer
+        footer,
+        attachmentHandler
     });
 
     logger.debug('Generated collection:\n');

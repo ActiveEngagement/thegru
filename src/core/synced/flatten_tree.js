@@ -1,12 +1,16 @@
 import path from 'path';
 import { joinNames } from '../util.js';
-import { types } from './container_types.js';
+import * as types from './container_types.js';
 import { traverse } from './tree_util.js';
 
-export default function(tree) {
+export default function(tree, options) {
+    const { logger } = options;
+
     const cards = [];
     const boards = [];
     const boardGroups = [];
+
+    console.log(tree);
     
     function boardItems(board, boardPath, boardFullName) {
         return Array.from(board.children).map(([name, node]) => {
@@ -19,11 +23,11 @@ export default function(tree) {
                     type: 'card'
                 };
             case 'container':
-                if(node.info.description) {
+                if (node.info.description) {
                     logger.warning(`The container "${fullPath}" cannot be given the description "${node.info.description}" because it is a Guru board section, which cannot have a description.`);
                 }
-                if(node.info.externalUrl) {
-                    logger.warning(`The container "${fullPath}" cannot be given the external URL "${$node.info.externalUrl}" because it is a Guru board section, which cannot have an external URL.`);
+                if (node.info.externalUrl) {
+                    logger.warning(`The container "${fullPath}" cannot be given the external URL "${node.info.externalUrl}" because it is a Guru board section, which cannot have an external URL.`);
                 }
                 return {
                     type: 'section',
@@ -39,15 +43,15 @@ export default function(tree) {
         .do((node, name, state) => {
             state.fullName = joinNames(state.fullName, name);
 
-            if(node.type === 'card') {
+            if (node.type === 'card') {
                 cards.push({
                     name: state.fullName,
                     ...node.info,
                     content: node.content,
+                    file: node.file,
                     path: state.path
                 });
-            }
-            else if(node.type === 'container') {
+            } else if (node.type === 'container') {
                 switch (node.containerType) {
                 case types.BOARD_GROUP:
                     boardGroups.push({
@@ -64,6 +68,7 @@ export default function(tree) {
                         items: boardItems(node, state.path, state.fullName),
                         path: state.path
                     });
+                    break;
                 }
             }
         });

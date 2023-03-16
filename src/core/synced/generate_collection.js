@@ -10,7 +10,8 @@ export default async function(options) {
         logger,
         inputs,
         github,
-        footer
+        footer,
+        attachmentHandler
     } = options;
 
     const tree = cardTree(inputs.cards, { logger });
@@ -24,9 +25,12 @@ export default async function(options) {
             .do();
     }
 
-    typify(tree, { logger });
+    typify(tree, {
+        logger,
+        preferredContainer: inputs.preferredContainer
+    });
 
-    const collection = flatten(tree, topType);
+    const collection = flatten(tree, { logger });
     const resources = [];
 
     for(const card of collection.cards) {
@@ -35,7 +39,7 @@ export default async function(options) {
             logger,
             github,
             cards: collection.cards,
-            attachmentHandler: inputs.attachmentHandler
+            attachmentHandler
         });
         card.content = renderTree(resultTree);
         resources.push(...attachments);

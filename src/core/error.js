@@ -18,16 +18,6 @@ export class InvalidGitObjectError extends TheGuruError {
     }
 }
 
-/**
- * Thrown when the action receives invalid inputs.
- */
-export class InvalidInputsError extends TheGuruError {
-    constructor(message) {
-        super(message);
-        this.name = this.constructor.name;
-    }
-}
-
 export function fetchErrorForResponse(response, json) {
     const description = json?.description;
     const message = description ? `Server responded with a ${response.status} status code: ${description}` : `Server responded with a ${response.status} status code`;

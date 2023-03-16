@@ -13,9 +13,11 @@ export default async function(filePath, contentTree, options = {}) {
     }
 
     async function upload(url) {
-
         const resolved = resolveUrl(url);
-        attachments.push({ path: resolved });
+
+        if(!attachments.includes(resolved)) {
+            attachments.push(resolved);
+        }
 
         return path.join('resources', resolved);
     }
@@ -36,16 +38,16 @@ export default async function(filePath, contentTree, options = {}) {
     }
 
     async function getCardLink(card) {
-        return path.join('cards', card.fullName);
+        return path.join('cards', card.name);
     }
 
     function isLocal(url) {
-        return !url.startsWith('http');
+        return !url.startsWith('http') && !url.startsWith('#');
     }
 
     const resultTree = await transformTree(contentTree, async(tree) => {
         // This is necessary because the unist-util-visit visit method does not support asynchronous visitors.
-        const analysis = analyzeTree(tree, { image: /image/, link: /link/ });
+        const analysis = analyzeTree(tree, { image: 'image', link: 'link' });
 
         for(const node of analysis.image) {
             if(isLocal(node.url)) {
@@ -55,7 +57,7 @@ export default async function(filePath, contentTree, options = {}) {
 
         for(const node of analysis.link) {
             if(isLocal(node.url)) {
-                const card = cards.find(c => path.dirname(c.file) === resolveUrl(node.url));
+                const card = cards.find(c => c.file === resolveUrl(node.url));
                 if(card) {
                     node.url = await getCardLink(card);
                 }
