@@ -1,24 +1,19 @@
-export const BOARD_GROUP = 0;
-export const BOARD = 1;
-export const BOARD_SECTION = 2;
+let maxId = -1;
+const _types = {};
 
-const _types = {
-    0: {
-        slug: 'board_group',
-        level: 1
-    },
-    1: {
-        slug: 'board',
-        level: 2
-    },
-    2: {
-        slug: 'board_section',
-        level: 3
-    }
-};
+export const BOARD_GROUP = createType('board_group', 1);
+export const BOARD = createType('board', 2);
+export const BOARD_SECTION = createType('board_section', 3);
 
-export function types() {
-    return Object.keys(types);
+function createType(name, level) {
+    const id = (++maxId).toString();
+    _types[id] = { name, level };
+
+    return id;
+}
+
+export function types(callback = null) {
+    return Object.keys(_types).map(callback || (t => t));
 }
 
 export function level(type) {
@@ -26,11 +21,11 @@ export function level(type) {
 }
 
 export function supportedDepth(type) {
-    return types().length - level(type) - 1;
+    return types().length - level(type);
 }
 
 export function name(type) {
-    return _types[type].slug;
+    return _types[type].name;
 }
 
 export function from(callback, search) {

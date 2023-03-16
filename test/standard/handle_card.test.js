@@ -4,7 +4,7 @@ import { FetchError } from '../../src/core/error.js';
 import createClient from '../support/api_client.js';
 import { resource, createCardApiCall, updateCardApiCall } from '../support/util.js';
 import nullLogger from '../support/null_logger.js';
-import attempt from '../../src/core/attempt.js';
+import { attempt } from '../../src/core/util.js';
 
 async function handleCard(options) {
     options.logger ||= nullLogger();

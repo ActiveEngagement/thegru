@@ -1,4 +1,5 @@
 import { createInputFactory, invalid } from 'ae_actions';
+import * as types from './synced/container_types';
 
 export default function(getCoreInput, options) {
     const { logger } = options;
@@ -43,7 +44,7 @@ export default function(getCoreInput, options) {
 
                 input('cards', b => b.required().json({ type: 'array'}).use(validateCards));
                 input('containers', b => b.fallback('{ }').json({ type: 'object'}));
-                input('preferred_container', b => b.fallback('board_group').options('board_group', 'board', 'board_section'));
+                input('preferred_container', b => b.fallback(types.name(types.BOARD_GROUP)).options(types.types(types.name)));
             }
         });
 }

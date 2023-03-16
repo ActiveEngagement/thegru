@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { readFile, srcUrl, writeFile } from '../fs_util.js';
-import attempt from '../attempt.js';
+import { attempt } from '../util.js';
 import commitFlags from '../commit_flags.js';
 import handleCard from './handle_card.js';
 import { InvalidGitObjectError } from '../error.js';

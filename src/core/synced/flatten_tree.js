@@ -3,7 +3,7 @@ import { joinNames } from '../util.js';
 import { types } from './container_types.js';
 import { traverse } from './tree_util.js';
 
-export default function(tree, topType) {
+export default function(tree) {
     const cards = [];
     const boards = [];
     const boardGroups = [];
@@ -47,9 +47,7 @@ export default function(tree, topType) {
                     path: state.path
                 });
             } else if (node.type === 'container') {
-                const type = types.from(types.level, types.level(topType) + state.depth - 1);
-
-                switch (type) {
+                switch (node.containerType) {
                 case types.BOARD_GROUP:
                     boardGroups.push({
                         name: state.fullName,

@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { TheGuruError } from '../error.js';
+import { InvalidContainerConfigurationError, TheGuruError } from '../error.js';
 
 export function root(children = undefined) {
     return {
@@ -132,8 +132,10 @@ export function ensureContainerPath(node, containerPath, readInfo = false, paren
         .do();
 }
     
-function _traverse(nodes, callback, state) {
+function _traverse(nodes, callback, initialState) {
     for (const [name, node] of nodes) {
+        const state = { ...initialState };
+
         if (state.path !== undefined) {
             state.path = path.join(state.path, name);
         }
@@ -149,7 +151,7 @@ function _traverse(nodes, callback, state) {
         }
 
         if (node.children) {
-            if (_traverse(node.children, callback, { ...state }) === false) {
+            if (_traverse(node.children, callback, state) === false) {
                 return false;
             }
         }
@@ -168,7 +170,7 @@ export function traverse(node) {
     }
 
     function doFunc(callback) {
-        return _traverse(node.children, callback, { ...initialState });
+        return _traverse(node.children, callback, initialState);
     }
 
     addState('path', '');

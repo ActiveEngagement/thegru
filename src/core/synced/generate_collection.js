@@ -2,7 +2,7 @@ import cardTree from './build_tree.js';
 import { buildTree, renderTree } from '../content.js';
 import transformContent from './transform_content.js';
 import { traversePath } from './tree_util.js';
-import analyze from './analyze_tree.js';
+import typify from './typify_tree.js';
 import flatten from './flatten_tree.js';
 
 export default async function(options) {
@@ -24,22 +24,26 @@ export default async function(options) {
             .do();
     }
 
-    const { topType } = analyze(tree, { logger });
+    typify(tree, { logger });
+
     const collection = flatten(tree, topType);
+    const resources = [];
 
     for (const card of collection.cards) {
         const contentTree = buildTree(card.content, { logger, github, footer });
-        const resultTree = await transformContent(card.file, contentTree, {
+        const { tree: resultTree, attachments } = await transformContent(card.file, contentTree, {
             logger,
             github,
             cards: collection.cards,
             attachmentHandler: inputs.attachmentHandler
-        })
+        });
         card.content = renderTree(resultTree);
+        resources.push(...attachments);
     }
 
     return {
         tags: [],
+        resources,
         ...collection
     };
 }

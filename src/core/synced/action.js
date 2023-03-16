@@ -21,9 +21,7 @@ export default async function(options) {
     logger.debug('Generated collection:\n');
     logger.debug(JSON.stringify(collection, undefined, 4));
 
-    const zipPath = await write(collection, {
-
-    });
+    const zipPath = await write(collection, { logger });
     
     const result = await api.uploadZip(inputs.collectionId, path.basename(zipPath), zipPath);
 }
