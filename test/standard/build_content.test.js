@@ -131,7 +131,7 @@ Hi!
 `;
             const output = await build('path/to/root/card.md', content, {
                 footer: false,
-                imageHandler: 'github_urls'
+                attachmentHandler: 'github_urls'
             });
             expect(output).toBe(expected);
         });
@@ -172,7 +172,7 @@ Hi!
                 output = await build('path/to/root/card.md', content, {
                     client,
                     footer: false,
-                    imageHandler: 'upload'
+                    attachmentHandler: 'upload'
                 });
             });
 

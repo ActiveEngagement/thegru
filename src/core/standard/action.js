@@ -14,14 +14,9 @@ export default async function(options) {
         github,
         footer,
         commitCardsFile,
-        getChangedFiles
+        getChangedFiles,
+        attachmentHandler
     } = options;
-
-    // Determine the image handler.
-    let imageHandler = inputs.imageHandler;
-    if(imageHandler === 'auto') {
-        imageHandler = github.repo.isPublic ? 'github_urls' : 'upload';
-    }
 
     // Determine whether all cards should be updated and notify the user accordingly. All cards should be updated if:
     //   the "update_all" input is true, or
@@ -78,7 +73,7 @@ export default async function(options) {
             api,
             github,
             inputs,
-            imageHandler,
+            attachmentHandler,
             footer,
             existingCardIds: cardIds,
             didFileChange

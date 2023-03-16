@@ -6,7 +6,7 @@ import { resolveLocalPath } from '../util.js';
 import { analyzeTree } from '../mdast_util.js';
 
 export default async function(filePath, cardTitle, options) {
-    const { logger, api, github, inputs, imageHandler, footer, existingCardIds, didFileChange } = options;
+    const { logger, api, github, inputs, attachmentHandler, footer, existingCardIds, didFileChange } = options;
 
     logger.info(`Reading ${filePath}`);
     const content = await readFile(filePath);
@@ -38,7 +38,7 @@ export default async function(filePath, cardTitle, options) {
         api,
         github,
         footer,
-        imageHandler
+        attachmentHandler
     });
     const builtContent = renderTree(resultContentTree);
     const wrappedContent = builtContent;

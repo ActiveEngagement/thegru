@@ -22,7 +22,7 @@ async function handleCard(options) {
         options.github.repo.isPublic = false;
     }
     options.inputs ||= {};
-    options.imageHandler ||= 'auto';
+    options.attachmentHandler ||= 'auto';
     options.existingCardIds ||= [];
     options.didFileChange ||= () => true;
 
@@ -196,7 +196,7 @@ describe('handle_card.js', () => {
     describe.each([
         ['upload', true],
         ['upload', false],
-    ])('when imageHandler is upload', (imageHandler, isPublic) => {
+    ])('when attachmentHandler is upload', (attachmentHandler, isPublic) => {
         describe.each([
             ['test/resources/test_card_with_local_image.md', 'test_card_with_local_image_expected_output.html'],
             ['test/resources/test_card_with_local_root_image.md', 'test_card_with_local_image_expected_output.html']
@@ -218,7 +218,7 @@ describe('handle_card.js', () => {
                     client,
                     filePath,
                     cardTitle: 'Local Image',
-                    imageHandler,
+                    attachmentHandler,
                     github: { repo: { isPublic } },
                     inputs: {
                         collectionId: 'c123',
@@ -263,7 +263,7 @@ describe('handle_card.js', () => {
     describe.each([
         ['github_urls', true],
         ['github_urls', false]
-    ])('when imageHandler is github_urls', (imageHandler, isPublic) => {
+    ])('when attachmentHandler is github_urls', (attachmentHandler, isPublic) => {
         it.each([
             ['test/resources/test_card_with_local_image.md', 'test_card_with_github_urls_image_expected_output.html'],
             ['test/resources/test_card_with_local_root_image.md', 'test_card_with_github_urls_image_expected_output.html']
@@ -274,7 +274,7 @@ describe('handle_card.js', () => {
                 client,
                 filePath,
                 cardTitle: 'Local Image',
-                imageHandler,
+                attachmentHandler,
                 github: { repo: { isPublic } },
                 inputs: {
                     collectionId: 'c123'

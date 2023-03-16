@@ -26,6 +26,7 @@ export default function(getCoreInput, options) {
             input('card_footer', b => b.try(b => b.boolean()));
             input('ansi', b => b.fallback('true').boolean());
             input('debug_logging', b => b.fallback('false').boolean());
+            input('attachment_handler', b => b.fallback('auto').options('auto', 'github_urls', 'upload'));
 
             const type = input('collection_type', b => b.required().options('standard', 'synced'));
 
@@ -36,7 +37,6 @@ export default function(getCoreInput, options) {
                 input('board_id');
                 input('board_section_id');
                 input('cards_file', b => b.fallback('uploaded-guru-cards.json'));
-                input('image_handler', b => b.fallback('auto').options('auto', 'github_urls', 'upload'));
                 input('update_all', b => b.fallback('false').boolean());
             }
             else if(type === 'synced') {
@@ -44,7 +44,7 @@ export default function(getCoreInput, options) {
 
                 input('cards', b => b.required().json({ type: 'array'}).use(validateCards));
                 input('containers', b => b.fallback('{ }').json({ type: 'object'}));
-                input('preferred_container', b => b.fallback(types.name(types.BOARD_GROUP)).options(types.types(types.name)));
+                input('preferred_container', b => b.fallback(types.name(types.BOARD_GROUP)).options(...types.types(types.name)));
             }
         });
 }

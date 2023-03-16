@@ -19,7 +19,7 @@ function typicalInputs(collectionType) {
             github: JSON.stringify({ }),
             card_footer: 'Footer!',
             cards_file: 'something.json',
-            image_handler: 'auto',
+            attachment_handler: 'auto',
             update_all: 'true',
             ansi: 'false',
             debug_logging: 'false'
@@ -165,6 +165,28 @@ describe('inputs.js', () => {
                 expect(f).toThrow('"github" must be valid JSON!');
             });
         });
+
+        describe('attachmentHandler', () => {
+            test('is not required and has default', () => {
+                const actual = getInputs(name => name === 'attachment_handler' ? '' : getInput(name)).attachmentHandler;
+                expect(actual).toBe('auto');
+            });
+
+            test.each([
+                ['auto'],
+                ['github_urls'],
+                ['upload']
+            ])('with a valid option', (input) => {
+                const actual = getInputs(name => name === 'attachment_handler' ? input : getInput(name)).attachmentHandler;
+                expect(actual).toBe(input);
+            });
+
+            test('with invalid option throws error', () => {
+                const f = () => getInputs(name => name === 'attachment_handler' ? 'invalid' : getInput(name));
+                expect(f).toThrow(InvalidInputsError);
+                expect(f).toThrow('"attachment_handler" must be one of [auto, github_urls, upload]');
+            });
+        });
     });
 
     describe('with standard collection', () => {
@@ -184,7 +206,7 @@ describe('inputs.js', () => {
                 github: {},
                 cardFooter: 'Footer!',
                 cardsFile: 'something.json',
-                imageHandler: 'auto',
+                attachmentHandler: 'auto',
                 updateAll: true,
                 ansi: false,
                 debugLogging: false
@@ -224,28 +246,6 @@ describe('inputs.js', () => {
         test('cards_file is not required and has default', () => {
             const actual = getInputs(name => name === 'cards_file' ? '' : getInput(name)).cardsFile;
             expect(actual).toBe('uploaded-guru-cards.json');
-        });
-
-        describe('imageHandler', () => {
-            test('is not required and has default', () => {
-                const actual = getInputs(name => name === 'image_handler' ? '' : getInput(name)).imageHandler;
-                expect(actual).toBe('auto');
-            });
-
-            test.each([
-                ['auto'],
-                ['github_urls'],
-                ['upload']
-            ])('with a valid option', (input) => {
-                const actual = getInputs(name => name === 'image_handler' ? input : getInput(name)).imageHandler;
-                expect(actual).toBe(input);
-            });
-
-            test('with invalid option throws error', () => {
-                const f = () => getInputs(name => name === 'image_handler' ? 'invalid' : getInput(name));
-                expect(f).toThrow(InvalidInputsError);
-                expect(f).toThrow('"image_handler" must be one of [auto, github_urls, upload]');
-            });
         });
     });
 

@@ -20,6 +20,12 @@ export default async function(options) {
         getChangedFiles
     } = options;
 
+    // Determine the attachment handler.
+    let attachmentHandler = inputs.attachmentHandler;
+    if(attachmentHandler === 'auto') {
+        attachmentHandler = github.repo.isPublic ? 'github_urls' : 'upload';
+    }
+
     // Determine the card footer.
     let footer = inputs.cardFooter;
     if(footer === undefined || footer === null || footer === true) {
@@ -54,7 +60,8 @@ export default async function(options) {
             github,
             footer,
             commitCardsFile,
-            getChangedFiles
+            getChangedFiles,
+            attachmentHandler
         });
     }
     else {
@@ -68,7 +75,8 @@ export default async function(options) {
             colors,
             inputs,
             github,
-            footer
+            footer,
+            attachmentHandler
         });
     }
 }

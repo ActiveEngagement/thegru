@@ -25,7 +25,7 @@ async function action(options) {
     options.colors ||= nullColorizer();
     options.inputs ||= {};
     options.inputs.cardsFile ||= 'test/env/uploaded-cards.json';
-    options.inputs.imageHandler ||= 'auto';
+    options.inputs.attachmentHandler ||= 'auto';
     options.inputs.collectionType ||= 'standard';
     options.defaultFooter ||= '<{{repository_url}}>';
     options.github ||= {};
