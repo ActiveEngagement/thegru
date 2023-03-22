@@ -47,11 +47,24 @@ export default async function(filePath, contentTree, options = {}) {
 
     const resultTree = await transformTree(contentTree, async(tree) => {
         // This is necessary because the unist-util-visit visit method does not support asynchronous visitors.
-        const analysis = analyzeTree(tree, { image: 'image', link: 'link' });
+        const analysis = analyzeTree(tree, {
+            image: 'image',
+            link: 'link',
+            imageReference: 'imageReference',
+            linkReference: 'linkReference',
+            definition: 'definition',
+        });
 
         for(const node of analysis.image) {
             if(isLocal(node.url)) {
                 node.url = await rewriteAttachment(node.url, 'image');
+            }
+        }
+
+        for(const node of analysis.imageReference) {
+            const definition = analysis.definition.find(n => n.identifier === node.identifier);
+            if(isLocal(definition.url)) {
+                definition.url = await rewriteAttachment(definition.url, 'image');
             }
         }
 
@@ -63,6 +76,19 @@ export default async function(filePath, contentTree, options = {}) {
                 }
                 else {
                     node.url = await rewriteAttachment(node.url, 'link');
+                }
+            }
+        }
+
+        for(const node of analysis.linkReference) {
+            const definition = analysis.definition.find(n => n.identifier === node.identifier);
+            if(isLocal(definition.url)) {
+                const card = cards.find(c => c.file === resolveUrl(definition.url));
+                if(card) {
+                    definition.url = await getCardLink(card);
+                }
+                else {
+                    definition.url = await rewriteAttachment(definition.url, 'link');
                 }
             }
         }

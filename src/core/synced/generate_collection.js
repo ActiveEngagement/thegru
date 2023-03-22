@@ -1,3 +1,4 @@
+import path from 'path';
 import cardTree from './build_tree.js';
 import { buildTree, renderTree } from '../content.js';
 import transformContent from './transform_content.js';
@@ -19,7 +20,8 @@ export default async function(options) {
     for(const [container, info] of Object.entries(inputs.containers)) {
         traversePath(tree, container)
             .makeParents()
-            .onCreate(node => {
+            .onCreate((node, ctx) => {
+                node.info.title ||= path.basename(ctx.path);
                 Object.assign(node.info, info);
             })
             .do();

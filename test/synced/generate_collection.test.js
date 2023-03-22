@@ -7,13 +7,13 @@ import * as types from '../../src/core/synced/container_types.js';
 async function generate(options) {
     options.logger ||= nullLogger();
     options.inputs ||= {};
+    options.attachmentHandler ||= 'upload';
     options.inputs.preferredContainer ||= types.name(types.BOARD_GROUP);
 
     return await generateBase(options);
 }
 
-const installationSource = `
-# Let's get this installed!
+const installationSource = `# Let's get this installed!
 
 Woo hoo!
 `;
@@ -24,8 +24,7 @@ const configurationSource = `
 
 Just remember, if you haven't installed yet, [do so now](installation.md).
 `;
-const configurationExpected = `
-# Let's get [this](https://google.com) configured!
+const configurationExpected = `# Let's get [this](https://google.com) configured!
 
 Just remember, if you haven't installed yet, [do so now](cards/top__setup__installation).
 `;
@@ -37,23 +36,24 @@ Just remember, if you haven't installed yet, [do so now](installation.md).
 
 Try this out!
 
-![fun image](/assets/images/fun.png)
+![fun image]
+
+[fun image]: /assets/images/fun.png
 `;
 
-const startingExpected = `
-# Let's get [this](https://google.com) started!
+const startingExpected = `# Let's get [this](https://google.com) started!
 
-Just remember, if you haven't installed yet, [do so now(cards/top__setup__installation).
+Just remember, if you haven't installed yet, [do so now](cards/top__setup__installation).
 
 Try this out!
 
-![fun image](resources/assets/images/fun.png)
+![fun image]
+
+[fun image]: resources/assets/images/fun.png
 `;
 
-const doingSource = `
----
+const doingSource = `---
 title: Doing
-description: Doing useful things.
 ---
 
 # Let's do something...
@@ -65,8 +65,7 @@ Check [this] out!
 [this]: ../../assets/more_info.txt
 `;
 
-const doingExpected = `
-# Let's do something...
+const doingExpected = `# Let's do something...
 
 Check [this] out!
 
@@ -78,13 +77,12 @@ Check [this] out!
 const secretSource = `
 # This is a top-secret operation
 
-</random_floating_asset.bin>
+[link](/random_floating_asset.bin)
 `;
 
-const secretExpected = `
-# This is a top-secret operation
+const secretExpected = `# This is a top-secret operation
 
-<resources/random_floating_asset.bin>
+[link](resources/random_floating_asset.bin)
 `;
 
 describe('generate_collection.js', () => {
@@ -158,8 +156,6 @@ describe('generate_collection.js', () => {
 
         process.chdir('../..');
 
-        console.log(collection.boardGroups);
-
         expect(collection).toStrictEqual({
             tags: [],
             resources: [
@@ -172,7 +168,7 @@ describe('generate_collection.js', () => {
                 {
                     name: 'README',
                     title: 'README',
-                    description: null,
+                    externalUrl: null,
                     content: '# You really should read this\n',
                     path: 'README.md',
                     file: 'README.md'
@@ -180,23 +176,15 @@ describe('generate_collection.js', () => {
                 {
                     name: 'top__legal__LICENSE',
                     title: 'Boring',
-                    description: null,
+                    externalUrl: null,
                     content: '# You probably should read this\n',
                     path: 'top/legal/LICENSE.md',
                     file: 'dir/LICENSE.md'
                 },
                 {
-                    name: 'top__setup__installation',
-                    title: 'installation',
-                    description: null,
-                    content: installationExpected,
-                    path: 'top/setup/installation.md',
-                    file: 'docs/setup/installation.md',
-                },
-                {
                     name: 'top__setup__configuration',
                     title: 'configuration',
-                    description: null,
+                    externalUrl: null,
                     content: configurationExpected,
                     path: 'top/setup/configuration.md',
                     file: 'docs/setup/configuration.md',
@@ -204,15 +192,23 @@ describe('generate_collection.js', () => {
                 {
                     name: 'top__setup__getting_started',
                     title: 'How to finish up. NOT.',
-                    description: null,
+                    externalUrl: null,
                     content: startingExpected,
                     path: 'top/setup/getting_started.md',
                     file: 'docs/setup/getting_started.md'
                 },
                 {
+                    name: 'top__setup__installation',
+                    title: 'installation',
+                    externalUrl: null,
+                    content: installationExpected,
+                    path: 'top/setup/installation.md',
+                    file: 'docs/setup/installation.md',
+                },
+                {
                     name: 'top__usage__doing_useful_things',
                     title: 'Doing',
-                    description: 'Doing useful things.',
+                    externalUrl: null,
                     content: doingExpected,
                     path: 'top/usage/doing_useful_things.md',
                     file: 'docs/usage/doing_useful_things.md'
@@ -220,7 +216,7 @@ describe('generate_collection.js', () => {
                 {
                     name: 'top__usage__special__top_secret',
                     title: 'top_secret',
-                    description: null,
+                    externalUrl: null,
                     content: secretExpected,
                     path: 'top/usage/special/top_secret.md',
                     file: 'docs/usage/special/top_secret.md'
@@ -228,21 +224,35 @@ describe('generate_collection.js', () => {
             ],
             boards: [
                 {
-                    name: 'top__setup',
-                    title: 'setup',
-                    description: 'Docs about setting up.',
+                    name: 'top__legal',
+                    title: 'legal',
+                    externalUrl: null,
+                    description: null,
                     items: [
                         {
                             type: 'card',
-                            id: 'top__docs__installation'
+                            id: 'top__legal__LICENSE'
+                        }
+                    ],
+                    path: 'top/legal'
+                },
+                {
+                    name: 'top__setup',
+                    title: 'setup',
+                    externalUrl: null,
+                    description: 'Docs about setting up. Duh.',
+                    items: [
+                        {
+                            type: 'card',
+                            id: 'top__setup__configuration'
                         },
                         {
                             type: 'card',
-                            id: 'top__docs__configuration'
+                            id: 'top__setup__getting_started'
                         },
                         {
                             type: 'card',
-                            id: 'top__docs__getting_started'
+                            id: 'top__setup__installation'
                         }
                     ],
                     path: 'top/setup'
@@ -250,6 +260,7 @@ describe('generate_collection.js', () => {
                 {
                     name: 'top__usage',
                     title: 'usage',
+                    externalUrl: null,
                     description: null,
                     items: [
                         {
@@ -273,23 +284,13 @@ describe('generate_collection.js', () => {
                         }
                     ],
                     path: 'top/usage'
-                },
-                {
-                    name: 'top__legal',
-                    title: 'legal',
-                    description: null,
-                    items: [
-                        {
-                            type: 'card',
-                            id: 'top__legal__LICENSE'
-                        }
-                    ]
                 }
             ],
             boardGroups: [
                 {
                     name: 'top',
                     title: 'top',
+                    externalUrl: null,
                     description: null,
                     boards: [
                         'top__legal',
@@ -301,6 +302,7 @@ describe('generate_collection.js', () => {
                 {
                     name: 'random',
                     title: 'random',
+                    externalUrl: null,
                     description: null,
                     boards: [],
                     path: 'random'

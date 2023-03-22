@@ -125,6 +125,7 @@ export function ensureContainerPath(node, containerPath, readInfo = false, paren
     return traversePath(node, containerPath)
         .makeParents()
         .onCreate((node, ctx) => {
+            node.info.title = path.basename(ctx.path);
             if(readInfo) {
                 const infoPath = path.join(parentDir, ctx.path, '.info.yml');
                 if(fs.existsSync(infoPath)) {

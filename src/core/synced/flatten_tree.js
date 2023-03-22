@@ -9,8 +9,6 @@ export default function(tree, options) {
     const cards = [];
     const boards = [];
     const boardGroups = [];
-
-    console.log(tree);
     
     function boardItems(board, boardPath, boardFullName) {
         return Array.from(board.children).map(([name, node]) => {
