@@ -41,14 +41,14 @@ export default async function(options) {
     });
 
     // Query Guru for the given collection id so we can validate its type.
-    const collection = api.getCollection(inputs.collectionId);
+    const collection = await api.getCollection(inputs.collectionId);
 
     if(!collection) {
         throw new TheGuruError(`Collection with id ${inputs.collectionId} not found!`);
     }
 
     if(inputs.collectionType === 'standard') {
-        if(collection.collectionType === 'EXTERNAL') {
+        if(collection.collectionType !== 'STANDARD') {
             throw new TheGuruError(`We expected a Standard Collection but the provided collection ${inputs.collectionId} is a Synced Collection!`);
         }
 

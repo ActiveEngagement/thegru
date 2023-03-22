@@ -44,7 +44,7 @@ export default function(tree, options) {
             if (node.type === 'card') {
                 cards.push({
                     name: state.fullName,
-                    ...node.info,
+                    info: node.info,
                     content: node.content,
                     file: node.file,
                     path: state.path
@@ -54,7 +54,7 @@ export default function(tree, options) {
                 case types.BOARD_GROUP:
                     boardGroups.push({
                         name: state.fullName,
-                        ...node.info,
+                        info: node.info,
                         boards: Array.from(node.children.keys()).map(k => joinNames(state.fullName, k)),
                         path: state.path
                     });
@@ -62,7 +62,7 @@ export default function(tree, options) {
                 case types.BOARD:
                     boards.push({
                         name: state.fullName,
-                        ...node.info,
+                        info: node.info,
                         items: boardItems(node, state.path, state.fullName),
                         path: state.path
                     });

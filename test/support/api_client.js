@@ -122,7 +122,7 @@ export default function(clientOptions = {}) {
 
     function uploadZip(collectionId, fileName, filePath, options) {
         calls.push({
-            type: 'uploadAttachment',
+            type: 'uploadZip',
             collectionId,
             fileName,
             filePath,

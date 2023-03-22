@@ -167,80 +167,93 @@ describe('generate_collection.js', () => {
             cards: [
                 {
                     name: 'README',
-                    title: 'README',
-                    externalUrl: null,
                     content: '# You really should read this\n',
                     path: 'README.md',
-                    file: 'README.md'
+                    file: 'README.md',
+                    info: {
+                        title: 'README',
+                        externalUrl: null
+                    }
                 },
                 {
                     name: 'top__legal__LICENSE',
-                    title: 'Boring',
-                    externalUrl: null,
                     content: '# You probably should read this\n',
                     path: 'top/legal/LICENSE.md',
-                    file: 'dir/LICENSE.md'
+                    file: 'dir/LICENSE.md',
+                    info: {
+                        title: 'Boring',
+                        externalUrl: null
+                    }
                 },
                 {
                     name: 'top__setup__configuration',
-                    title: 'configuration',
-                    externalUrl: null,
                     content: configurationExpected,
                     path: 'top/setup/configuration.md',
                     file: 'docs/setup/configuration.md',
+                    info: {
+                        title: 'configuration',
+                        externalUrl: null
+                    }
                 },
                 {
                     name: 'top__setup__getting_started',
-                    title: 'How to finish up. NOT.',
-                    externalUrl: null,
                     content: startingExpected,
                     path: 'top/setup/getting_started.md',
-                    file: 'docs/setup/getting_started.md'
+                    file: 'docs/setup/getting_started.md',
+                    info: {
+                        title: 'How to finish up. NOT.',
+                        externalUrl: null,
+                    }
                 },
                 {
                     name: 'top__setup__installation',
-                    title: 'installation',
-                    externalUrl: null,
                     content: installationExpected,
                     path: 'top/setup/installation.md',
                     file: 'docs/setup/installation.md',
+                    info: {
+                        title: 'installation',
+                        externalUrl: null,
+                    }
                 },
                 {
                     name: 'top__usage__doing_useful_things',
-                    title: 'Doing',
-                    externalUrl: null,
                     content: doingExpected,
                     path: 'top/usage/doing_useful_things.md',
-                    file: 'docs/usage/doing_useful_things.md'
+                    file: 'docs/usage/doing_useful_things.md',
+                    info: {
+                        title: 'Doing',
+                        externalUrl: null,
+                    }
                 },
                 {
                     name: 'top__usage__special__top_secret',
-                    title: 'top_secret',
-                    externalUrl: null,
                     content: secretExpected,
                     path: 'top/usage/special/top_secret.md',
-                    file: 'docs/usage/special/top_secret.md'
+                    file: 'docs/usage/special/top_secret.md',
+                    info: {
+                        title: 'top_secret',
+                        externalUrl: null,
+                    }
                 }
             ],
             boards: [
                 {
                     name: 'top__legal',
-                    title: 'legal',
-                    externalUrl: null,
-                    description: null,
                     items: [
                         {
                             type: 'card',
                             id: 'top__legal__LICENSE'
                         }
                     ],
-                    path: 'top/legal'
+                    path: 'top/legal',
+                    info: {
+                        title: 'legal',
+                        externalUrl: null,
+                        description: null,
+                    }
                 },
                 {
                     name: 'top__setup',
-                    title: 'setup',
-                    externalUrl: null,
-                    description: 'Docs about setting up. Duh.',
                     items: [
                         {
                             type: 'card',
@@ -255,13 +268,15 @@ describe('generate_collection.js', () => {
                             id: 'top__setup__installation'
                         }
                     ],
-                    path: 'top/setup'
+                    path: 'top/setup',
+                    info: {
+                        title: 'setup',
+                        externalUrl: null,
+                        description: 'Docs about setting up. Duh.',
+                    }
                 },
                 {
                     name: 'top__usage',
-                    title: 'usage',
-                    externalUrl: null,
-                    description: null,
                     items: [
                         {
                             type: 'card',
@@ -283,29 +298,38 @@ describe('generate_collection.js', () => {
                             items: []
                         }
                     ],
-                    path: 'top/usage'
+                    path: 'top/usage',
+                    info: {
+                        title: 'usage',
+                        externalUrl: null,
+                        description: null,
+                    }
                 }
             ],
             boardGroups: [
                 {
                     name: 'top',
-                    title: 'The Very Topmost Container of All',
-                    externalUrl: null,
-                    description: "Don't worry about it.",
                     boards: [
                         'top__legal',
                         'top__setup',
                         'top__usage'
                     ],
-                    path: 'top'
+                    path: 'top',
+                    info: {
+                        title: 'The Very Topmost Container of All',
+                        externalUrl: null,
+                        description: "Don't worry about it.",
+                    }
                 },
                 {
                     name: 'random',
-                    title: 'random',
-                    externalUrl: null,
-                    description: null,
                     boards: [],
-                    path: 'random'
+                    path: 'random',
+                    info: {
+                        title: 'random',
+                        externalUrl: null,
+                        description: null,
+                    }
                 }
             ]
         });

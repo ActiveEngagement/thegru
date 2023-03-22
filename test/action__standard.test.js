@@ -2,7 +2,6 @@ import runAction from '../src/core/action.js';
 import createClientBase from './support/api_client.js';
 import { resource } from './support/util.js';
 import nullColorizer from '../src/gh_action/null_colorizer.js';
-import fs from 'fs';
 import { readFile, writeFile } from '../src/core/fs_util.js';
 import arrayLogger from './support/array_logger.js';
 import nullLogger from './support/null_logger.js';
@@ -15,7 +14,7 @@ async function initCardsFile(data) {
 }
 
 function createClient(options) {
-    options.getCollectionResult ||= { type: 'STANDARD' };
+    options.getCollectionResult ||= { collectionType: 'STANDARD' };
 
     return createClientBase(options);
 }

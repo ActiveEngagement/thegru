@@ -1,3 +1,4 @@
+import fs from 'fs';
 import path from 'path';
 import generate from './generate_collection.js';
 import write from './write_collection.js';
