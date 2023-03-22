@@ -1,4 +1,5 @@
 import path from 'path';
+import fs from 'fs';
 import { analyzeTree } from '../mdast_util.js';
 import { resolveLocalPath } from '../util.js';
 import { transformTree } from '../content.js';
@@ -18,6 +19,11 @@ export default async function(filePath, contentTree, options = {}) {
         let attachment = attachments.find(a => a.path === resolved);
 
         if(!attachment) {
+            if (!fs.existsSync(resolved)) {
+                logger.warning(`${filePath} referenced "${url}", which does not exist on the file system. We'll ignore it, but you likely have a broken link.`);
+                return url;
+            }
+
             const id = resolved.replaceAll('/', '__');
             attachment = { id, path: resolved };
             attachments.push(attachment);
