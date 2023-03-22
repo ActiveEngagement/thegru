@@ -19,6 +19,7 @@ function createClient(options) {
 
 async function action(options) {
     options.logger ||= nullLogger();
+    options.setOutput ||= () => {};
     options.colors ||= nullColorizer();
     options.inputs ||= {};
     options.inputs.attachmentHandler ||= 'auto';

@@ -17,7 +17,8 @@ export default async function(options) {
         github,
         defaultFooter,
         commitCardsFile,
-        getChangedFiles
+        getChangedFiles,
+        setOutput
     } = options;
 
     // Determine the attachment handler.
@@ -76,7 +77,8 @@ export default async function(options) {
             inputs,
             github,
             footer,
-            attachmentHandler
+            attachmentHandler,
+            setOutput
         });
     }
 }

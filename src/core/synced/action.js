@@ -10,7 +10,8 @@ export default async function(options) {
         inputs,
         github,
         footer,
-        attachmentHandler
+        attachmentHandler,
+        setOutput
     } = options;
 
     const collection = await generate({
@@ -25,6 +26,8 @@ export default async function(options) {
     logger.debug(JSON.stringify(collection, undefined, 4));
 
     const zipPath = await write(collection, { logger });
+
+    setOutput('zip', zipPath);
     
     const result = await api.uploadZip(inputs.collectionId, path.basename(zipPath), zipPath);
 

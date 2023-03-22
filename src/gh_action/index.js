@@ -73,7 +73,8 @@ async function main() {
             github,
             defaultFooter,
             commitCardsFile,
-            getChangedFiles
+            getChangedFiles,
+            setOutput: core.setOutput
         });
 
         // Bid the user farewell.
