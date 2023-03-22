@@ -1,7 +1,7 @@
 import tmp from 'tmp';
 import fs from 'fs';
 import path from 'path';
-import { readFile, writeFile } from '../fs_util';
+import { readFile, writeFile } from '../fs_util.js';
 import yaml from 'js-yaml';
 import archiver from 'archiver';
 
