@@ -27,4 +27,6 @@ export default async function(options) {
     const zipPath = await write(collection, { logger });
     
     const result = await api.uploadZip(inputs.collectionId, path.basename(zipPath), zipPath);
+
+    logger.info(JSON.stringify(result));
 }
