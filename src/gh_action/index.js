@@ -28,7 +28,9 @@ async function main() {
         const start = performance.now();
 
         // Acquire the GitHub Actions inputs (specified in the `with:` map).
-        const inputs = getInputs(core.getInput);
+        const inputs = getInputs(core.getInput, {
+            logger: ghLogger({ inputs: {} })
+        });
 
         // Set up the logger to delegate to the GitHub Actions Core toolkit.
         const logger = ghLogger({ inputs });
