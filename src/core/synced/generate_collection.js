@@ -38,6 +38,7 @@ export default async function(options) {
             logger,
             github,
             cards: collection.cards,
+            tree,
             attachmentHandler
         });
         card.content = content.renderTree(resultTree);

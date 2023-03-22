@@ -4,9 +4,10 @@ import { analyzeTree } from '../mdast_util.js';
 import { resolveLocalPath } from '../util.js';
 import { transformTree } from '../content.js';
 import * as types from './container_types.js';
+import { traverse } from './tree_util.js';
 
 export default async function(filePath, contentTree, options = {}) {
-    const { logger, github, cards, containers, attachmentHandler } = options;
+    const { logger, github, cards, tree, attachmentHandler } = options;
 
     const attachments = [];
 
@@ -64,7 +65,13 @@ export default async function(filePath, contentTree, options = {}) {
         const stat = await fs.promises.stat(resolved);
 
         if (stat.isDirectory()) {
-            const container = containers.find(c => c.file === resolved);
+            let container = null;
+
+            traverse(tree).do(node => {
+                if (node.type === 'container' && node.file === resolved) {
+                    container = node;
+                }
+            })
 
             if(!container) {
                 logger.warning(`${filePath} referenced "${url}", which is a directory on the file system, but does not correspond to a Guru board, board section, or board group. We'll ignore it, but you likely have a broken link.`);
