@@ -87,13 +87,12 @@ export default async function(collection, options) {
         }));
     }
 
-    for(const file of collection.resources) {
-        const dir = path.dirname(file);
-        await fs.promises.mkdir(path.join(resourcesDir, dir), { recursive: true});
-        await fs.promises.copyFile(file, path.join(resourcesDir, file));
+    for(const resource of collection.resources) {
+        await fs.promises.copyFile(resource.path, path.join(resourcesDir, resource.id));
     }
 
     const zipFile = tmp.tmpNameSync({ postfix: '.zip' });
+    console.log(zipFile);
     await zipDirectory(dir, zipFile);
 
     return zipFile;

@@ -142,17 +142,17 @@ Hi!
 
 ![remote image](https://jlockard.com/image.png)
 
-![local root image](resources/some/path/image.png)
+![local root image](resources/some__path__image.png)
 
-![local dotslash image](resources/path/to/root/some/path/image.png)
+![local dotslash image](resources/path__to__root__some__path__image.png)
 
-![local parent image](resources/path/to/some/path/image.png)
+![local parent image](resources/path__to__some__path__image.png)
 
-![local relative image](resources/path/to/root/some/path/image.png)
+![local relative image](resources/path__to__root__some__path__image.png)
 
 [remote link](https://google.com)
 
-[local root link](resources/some/path/file.pdf)
+[local root link](resources/some__path__file.pdf)
 `;
             let output = null;
             let attachments = null;
@@ -170,10 +170,22 @@ Hi!
 
             it('correctly identifies the attachments', async() => {
                 expect(attachments).toStrictEqual([
-                    'some/path/image.png',
-                    'path/to/root/some/path/image.png',
-                    'path/to/some/path/image.png',
-                    'some/path/file.pdf'
+                    {
+                        path: 'some/path/image.png',
+                        id: 'some__path__image.png'
+                    },
+                    {
+                        path: 'path/to/root/some/path/image.png',
+                        id: 'path__to__root__some__path__image.png'
+                    },
+                    {
+                        path: 'path/to/some/path/image.png',
+                        id: 'path__to__some__path__image.png'
+                    },
+                    {
+                        path: 'some/path/file.pdf',
+                        id: 'some__path__file.pdf'
+                    }
                 ]);
             });
         });
@@ -202,7 +214,7 @@ Hi!
 
 [remote link](https://google.com)
 
-[local attachment](resources/some/path/file.pdf)
+[local attachment](resources/some__path__file.pdf)
 
 [card 1](cards/some__Long_special_card1name)
 
@@ -210,7 +222,7 @@ Hi!
 
 We can't link to ourselves!
 
-[attachment link](resources/path/to/root2/card.md)
+[attachment link](resources/path__to__root2__card.md)
 `;
         const { content: output } = await build('path/to/root/card.md', content, {
             footer: false,

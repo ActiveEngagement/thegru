@@ -49,7 +49,7 @@ Try this out!
 
 ![fun image]
 
-[fun image]: resources/assets/images/fun.png
+[fun image]: resources/assets__images__fun.png
 `;
 
 const doingSource = `---
@@ -69,9 +69,9 @@ const doingExpected = `# Let's do something...
 
 Check [this] out!
 
-![another image](resources/assets/images/another.jpg)
+![another image](resources/assets__images__another.jpg)
 
-[this]: resources/assets/more_info.txt
+[this]: resources/assets__more_info.txt
 `;
 
 const secretSource = `
@@ -159,10 +159,22 @@ describe('generate_collection.js', () => {
         expect(collection).toStrictEqual({
             tags: [],
             resources: [
-                'assets/images/fun.png',
-                'assets/images/another.jpg',
-                'assets/more_info.txt',
-                'random_floating_asset.bin'
+                {
+                    path: 'assets/images/fun.png',
+                    id: 'assets__images__fun.png'
+                },
+                {
+                    path: 'assets/images/another.jpg',
+                    id: 'assets__images__another.jpg'
+                },
+                {
+                    path: 'assets/more_info.txt',
+                    id: 'assets__more_info.txt'
+                },
+                {
+                    path: 'random_floating_asset.bin',
+                    id: 'random_floating_asset.bin'
+                }
             ],
             cards: [
                 {

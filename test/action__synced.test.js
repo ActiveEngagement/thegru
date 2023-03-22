@@ -96,7 +96,7 @@ describe('action.js', () => {
 
         expect(readFileSync(path.join(dest, 'cards/some__dir__file.md'))).toBe(`# Test
 
-[test](resources/assets/test.pdf)
+[test](resources/assets__test.pdf)
 `);
         expect(readFileSync(path.join(dest, 'cards/some__dir__file.yaml'))).toBe(`Title: file
 ExternalUrl: null
@@ -119,6 +119,6 @@ Items:
 ExternalId: some__dir
 `);
 
-        expect(readFileSync(path.join(dest, 'resources/assets/test.pdf'))).toBe('[some pdf file]');
+        expect(readFileSync(path.join(dest, 'resources/assets__test.pdf'))).toBe('[some pdf file]');
     });
 });

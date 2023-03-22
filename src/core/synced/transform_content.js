@@ -15,11 +15,15 @@ export default async function(filePath, contentTree, options = {}) {
     async function upload(url) {
         const resolved = resolveUrl(url);
 
-        if(!attachments.includes(resolved)) {
-            attachments.push(resolved);
+        let attachment = attachments.find(a => a.path === resolved);
+
+        if(!attachment) {
+            const id = resolved.replaceAll('/', '__');
+            attachment = { id, path: resolved };
+            attachments.push(attachment);
         }
 
-        return path.join('resources', resolved);
+        return path.join('resources', attachment.id);
     }
 
     function getGithubUrl(url) {
