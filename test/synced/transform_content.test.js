@@ -4,6 +4,7 @@ import createApi from '../../src/core/api.js';
 import nullLogger from '../support/null_logger.js';
 import arrayLogger from '../support/array_logger.js';
 import createClient from '../support/api_client.js';
+import env from '../support/env.js';
 
 async function build(filePath, content, options = {}) {
     options.logger ||= nullLogger();
@@ -30,6 +31,43 @@ async function build(filePath, content, options = {}) {
     return { content: output, attachments };
 }
 describe('transform_content.js', () => {
+    beforeEach(async() => {
+        await env({
+            some: {
+                path: {
+                    'image.png': 'content',
+                    'file.pdf': 'content'
+                }
+            },
+            path: {
+                to: {
+                    root: {
+                        some: {
+                            path: {
+                                'image.png': 'content',
+                                'file.pdf': 'content'
+                            }
+                        }
+                    },
+                    root2: {
+                        'card.md': 'content'
+                    },
+                    some: {
+                        path: {
+                            'image.png': 'content',
+                            'file.pdf': 'content'
+                        }
+                    }
+                },
+            }
+        });
+        process.chdir('test/env');
+    });
+
+    afterEach(() => {
+        process.chdir('../..');
+    })
+
     describe.each([
         [null],
         [false],

@@ -3,9 +3,10 @@ import fs from 'fs';
 import { analyzeTree } from '../mdast_util.js';
 import { resolveLocalPath } from '../util.js';
 import { transformTree } from '../content.js';
+import * as types from './container_types.js';
 
 export default async function(filePath, contentTree, options = {}) {
-    const { logger, github, cards, attachmentHandler } = options;
+    const { logger, github, cards, containers, attachmentHandler } = options;
 
     const attachments = [];
 
@@ -47,8 +48,49 @@ export default async function(filePath, contentTree, options = {}) {
         }
     }
 
+    async function rewriteLink(url) {
+        const resolved = resolveUrl(url);
+
+        const card = cards.find(c => c.file === resolved);
+        if(card) {
+            return await getCardLink(card);
+        }
+
+        if (!fs.existsSync(resolved)) {
+            logger.warning(`${filePath} referenced "${url}", which does not exist on the file system. We'll ignore it, but you likely have a broken link.`);
+            return url;
+        }
+
+        const stat = await fs.promises.stat(resolved);
+
+        if (stat.isDirectory()) {
+            const container = containers.find(c => c.file === resolved);
+
+            if(!container) {
+                logger.warning(`${filePath} referenced "${url}", which is a directory on the file system, but does not correspond to a Guru board, board section, or board group. We'll ignore it, but you likely have a broken link.`);
+                return url;
+            }
+
+            return await getContainerLink(container, url);
+        }
+
+        return await rewriteAttachment(url, 'link');
+    }
+
     async function getCardLink(card) {
         return path.join('cards', card.name);
+    }
+
+    async function getContainerLink(container, url) {
+        switch (container.containerType) {
+            case types.BOARD_GROUP:
+                return path.join('board-groups', container.name);
+            case types.BOARD:
+                return path.join('boards', container.name);
+            case types.BOARD_SECTION:
+                logger.warning(`${filePath} referenced "${url}, which is a Guru board section. Since Guru board sections can't be linked to, we'll ignore it, but you likely have a broken link.`);
+                return url;
+        }
     }
 
     function isLocal(url) {
@@ -80,26 +122,14 @@ export default async function(filePath, contentTree, options = {}) {
 
         for(const node of analysis.link) {
             if(isLocal(node.url)) {
-                const card = cards.find(c => c.file === resolveUrl(node.url));
-                if(card) {
-                    node.url = await getCardLink(card);
-                }
-                else {
-                    node.url = await rewriteAttachment(node.url, 'link');
-                }
+                node.url = await rewriteLink(node.url);
             }
         }
 
         for(const node of analysis.linkReference) {
             const definition = analysis.definition.find(n => n.identifier === node.identifier);
             if(isLocal(definition.url)) {
-                const card = cards.find(c => c.file === resolveUrl(definition.url));
-                if(card) {
-                    definition.url = await getCardLink(card);
-                }
-                else {
-                    definition.url = await rewriteAttachment(definition.url, 'link');
-                }
+                definition.url = await rewriteLink(definition.url);
             }
         }
     });
