@@ -1,7 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 import { analyzeTree } from '../mdast_util.js';
-import { resolveLocalPath } from '../util.js';
+import { joinNames, resolveLocalPath } from '../util.js';
 import { transformTree } from '../content.js';
 import * as types from './container_types.js';
 import { traverse } from './tree_util.js';
@@ -66,19 +66,27 @@ export default async function(filePath, contentTree, options = {}) {
 
         if (stat.isDirectory()) {
             let container = null;
+            let containerName = null;
 
-            traverse(tree).do(node => {
-                if (node.type === 'container' && node.file === resolved) {
-                    container = node;
-                }
-            })
+            traverse(tree)
+                .state('name', '')
+                .do((node, name, state) => {
+                    state.name = joinNames(state.name, name);
+
+                    if (node.type === 'container' && node.file === resolved) {
+                        container = node;
+                        containerName = state.name;
+
+                        return false;
+                    }
+                })
 
             if(!container) {
                 logger.warning(`${filePath} referenced "${url}", which is a directory on the file system, but does not correspond to a Guru board, board section, or board group. We'll ignore it, but you likely have a broken link.`);
                 return url;
             }
 
-            return await getContainerLink(container, url);
+            return await getContainerLink(container, containerName, url);
         }
 
         return await rewriteAttachment(url, 'link');
@@ -88,12 +96,12 @@ export default async function(filePath, contentTree, options = {}) {
         return path.join('cards', card.name);
     }
 
-    async function getContainerLink(container, url) {
+    async function getContainerLink(container, name, url) {
         switch (container.containerType) {
             case types.BOARD_GROUP:
-                return path.join('board-groups', container.name);
+                return path.join('board-groups', name);
             case types.BOARD:
-                return path.join('boards', container.name);
+                return path.join('boards', name);
             case types.BOARD_SECTION:
                 logger.warning(`${filePath} referenced "${url}, which is a Guru board section. Since Guru board sections can't be linked to, we'll ignore it, but you likely have a broken link.`);
                 return url;

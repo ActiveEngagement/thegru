@@ -10,9 +10,9 @@ export function root(children = undefined) {
 }
 
 export function container(children = undefined, options = {}) {
-    const { file, ...info } = options;
+    const { file, containerType, ...info } = options;
 
-    return {
+    const object = {
         type: 'container',
         info: Object.assign({
             title: null,
@@ -22,6 +22,12 @@ export function container(children = undefined, options = {}) {
         children: toMap(children),
         file: file || null
     };
+
+    if (containerType) {
+        object.containerType = containerType;
+    }
+
+    return object;
 }
 
 export function card(options = {}) {

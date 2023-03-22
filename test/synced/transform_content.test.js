@@ -5,6 +5,8 @@ import nullLogger from '../support/null_logger.js';
 import arrayLogger from '../support/array_logger.js';
 import createClient from '../support/api_client.js';
 import env from '../support/env.js';
+import { container, root } from '../../src/core/synced/tree_util.js';
+import * as types from '../../src/core/synced/container_types.js';
 
 async function build(filePath, content, options = {}) {
     options.logger ||= nullLogger();
@@ -37,7 +39,8 @@ describe('transform_content.js', () => {
                 path: {
                     'image.png': 'content',
                     'file.pdf': 'content'
-                }
+                },
+                container: {}
             },
             path: {
                 to: {
@@ -229,7 +232,7 @@ Hi!
         });
     });
 
-    test('with card links', async() => {
+    test('with card/container links', async() => {
         const content = `# Hello, world!
 
 Hi!
@@ -245,6 +248,8 @@ Hi!
 We can't link to ourselves!
 
 [attachment link](/path/to/root2/card.md)
+
+[container](/some/container)
 `;
         const expected = `# Hello, world!
 
@@ -261,6 +266,8 @@ Hi!
 We can't link to ourselves!
 
 [attachment link](resources/path__to__root2__card.md)
+
+[container](boards/some__container)
 `;
         const { content: output } = await build('path/to/root/card.md', content, {
             footer: false,
@@ -274,7 +281,12 @@ We can't link to ourselves!
                     name: 'card2___name',
                     file: 'path/to/root2/card2.md'
                 },
-            ]
+            ],
+            tree: root({
+                some: container({
+                    container: container({}, { file: 'some/container', containerType: types.BOARD })
+                }, { file: null, containerType: types.BOARD_GROUP })
+            })
         });
         expect(output).toBe(expected);
     });
