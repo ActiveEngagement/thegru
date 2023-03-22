@@ -1,11 +1,10 @@
-import path from 'path';
-import cardTree from './build_tree.js';
-import { buildTree, renderTree } from '../content.js';
+import buildTree from './build_tree.js';
+import informTree from './inform_tree.js';
+import typifyTree from './typify_tree.js';
+import flattenTree from './flatten_tree.js';
+import * as content from '../content.js';
 import transformContent from './transform_content.js';
-import { traverse, traversePath } from './tree_util.js';
-import typify from './typify_tree.js';
-import flatten from './flatten_tree.js';
-import { stripExtension } from '../fs_util.js';
+import { ensureContainerPath, traversePath } from './tree_util.js';
 
 export default async function(options) {
     const {
@@ -16,42 +15,32 @@ export default async function(options) {
         attachmentHandler
     } = options;
 
-    const tree = cardTree(inputs.cards, { logger });
+    const tree = buildTree(inputs.cards, { logger });
 
-    for(const [container, info] of Object.entries(inputs.containers)) {
-        traversePath(tree, container)
-            .makeParents()
-            .onCreate((node, ctx) => {
-                node.info.title ||= path.basename(ctx.path);
-                Object.assign(node.info, info);
-            })
-            .do();
+    for(const [containerPath, info] of Object.entries(inputs.containers)) {
+        const container = ensureContainerPath(tree, containerPath);
+        Object.assign(container.info, info);
     }
 
-    traverse(tree)
-        .do((node) => {
-            if (node.type === 'card') {
-                node.info.title ||= stripExtension(path.basename(node.file));
-            }
-        });
+    informTree(tree, { logger });
 
-    typify(tree, {
+    typifyTree(tree, {
         logger,
         preferredContainer: inputs.preferredContainer
     });
 
-    const collection = flatten(tree, { logger });
+    const collection = flattenTree(tree, { logger });
     const resources = [];
 
     for(const card of collection.cards) {
-        const contentTree = buildTree(card.content, { logger, github, footer });
+        const contentTree = content.buildTree(card.content, { logger, github, footer });
         const { tree: resultTree, attachments } = await transformContent(card.file, contentTree, {
             logger,
             github,
             cards: collection.cards,
             attachmentHandler
         });
-        card.content = renderTree(resultTree);
+        card.content = content.renderTree(resultTree);
         resources.push(...attachments);
     }
 

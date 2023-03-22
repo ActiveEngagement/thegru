@@ -96,3 +96,7 @@ export function attempt() {
 
     return { catch: catchFunc, catchAll, do: doFunc, doSync };
 }
+
+export function toMap(object) {
+    return object ? new Map(Object.entries(object)) : new Map();
+}

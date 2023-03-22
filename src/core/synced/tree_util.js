@@ -1,17 +1,17 @@
-import fs from 'fs';
 import path from 'path';
 import { TheGuruError } from '../error.js';
-import yaml from 'js-yaml';
-import { readFileSync } from '../fs_util.js';
+import { toMap } from '../util.js';
 
 export function root(children = undefined) {
     return {
         type: 'root',
-        children: children ? new Map(Object.entries(children)) : new Map()
+        children: toMap(children)
     };
 }
 
-export function container(children = undefined, info = {}) {
+export function container(children = undefined, options = {}) {
+    const { file, ...info } = options;
+
     return {
         type: 'container',
         info: Object.assign({
@@ -19,12 +19,13 @@ export function container(children = undefined, info = {}) {
             description: null,
             externalUrl: null
         }, info || {}),
-        children: children ? new Map(Object.entries(children)) : new Map()
+        children: toMap(children),
+        file: file || null
     };
 }
 
 export function card(options = {}) {
-    const { content, file, ...info } = options;
+    const { file, ...info } = options;
 
     return {
         type: 'card',
@@ -32,7 +33,6 @@ export function card(options = {}) {
             title: null,
             externalUrl: null
         }, info),
-        content: content || null,
         file: file || null
     };
 }
@@ -41,105 +41,57 @@ export function attach(parent, name, node) {
     parent.children.set(name, node);
 }
 
-export function traversePath(node, pathString) {
-    let makeParents = false;
-    let delimiter = '/';
-    let onCreate = () => { };
+export function traversePath(node, pathString, callback = undefined) {
+    callback ||= () => { };
 
-    function enableMakeParents() {
-        makeParents = true;
+    let currentNode = node;
+    let currentPath = '';
+    let currentDepth = 0;
 
-        return this;
-    }
+    for(const part of pathString.split('/')) {
+        currentPath = path.join(currentPath, part);
+        currentDepth++;
 
-    function setDelimiter(newDelimiter) {
-        if(newDelimiter) {
-            delimiter = newDelimiter;
+        const ctx = {
+            path: currentPath,
+            depth: currentDepth
+        };
+
+        if(!currentNode.children) {
+            throw new TheGuruError('Cannot traverse a non-container node!');
         }
 
-        return this;
-    }
+        let nextNode = currentNode.children.get(part);
 
-    function setOnCreate(newOnCreate) {
-        onCreate = newOnCreate;
+        const util = {
+            makeMissing(makeCallback = undefined) {
+                makeCallback ||= () => container();
 
-        return this;
-    }
-
-    function doFunc(callback = undefined) {
-        callback ||= () => { };
-
-        let currentNode = node;
-        let currentPath = '';
-        let currentDepth = 0;
-
-        for(const part of pathString.split(delimiter)) {
-            currentPath = path.join(currentPath, part);
-            currentDepth++;
-
-            const ctx = {
-                path: currentPath,
-                depth: currentDepth
-            };
-
-            if(!currentNode.children) {
-                throw new TheGuruError('Cannot traverse a non-container node!');
-            }
-
-            let nextNode = currentNode.children.get(part);
-
-            if(!nextNode) {
-                if(makeParents) {
-                    nextNode = container();
+                if (!nextNode) {
+                    nextNode = makeCallback(ctx);
                     attach(currentNode, part, nextNode);
-                    onCreate(nextNode, ctx);
                 }
-                else {
-                    throw new TheGuruError(`Encountered nonexistent part "${part}" while traversing path "${path}"!`);
-                }
+
+                return nextNode;
             }
+        };
 
-            callback(nextNode, ctx);
+        callback(nextNode, ctx, util);
 
-            currentNode = nextNode;
-        }
-
-        return currentNode;
+        currentNode = nextNode;
     }
 
-    return {
-        makeParents: enableMakeParents,
-        onCreate: setOnCreate,
-        delimiter: setDelimiter,
-        do: doFunc
-    };
+    return currentNode;
 }
 
-export function evaluatePath(node, path, options = {}) {
-    return traversePath(node, path)
-        .delimiter(options.delimiter)
-        .do();
+
+/**
+ * A convenience function to make any missing containers along a path.
+ */
+export function ensureContainerPath(node, pathString) {
+    return traversePath(node, pathString, (_node, _ctx, u) => u.makeMissing());
 }
 
-export function ensureContainerPath(node, containerPath, readInfo = false, parentDir = null) {
-    return traversePath(node, containerPath)
-        .makeParents()
-        .onCreate((node, ctx) => {
-            node.info.title = path.basename(ctx.path);
-            if(readInfo) {
-                const infoPath = path.join(parentDir, ctx.path, '.info.yml');
-                if(fs.existsSync(infoPath)) {
-                    Object.assign(node.info, yaml.load(readFileSync(infoPath)));
-                }
-            }
-        })
-        .do((node, ctx) => {
-            if (!node.info.title) {
-                node.info.title = path.basename(ctx.path);
-            }
-        });
-}
-    
 function _traverse(nodes, callback, initialState) {
     for(const [name, node] of nodes) {
         const state = { ...initialState };

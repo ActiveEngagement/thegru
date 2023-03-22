@@ -1,7 +1,7 @@
 import { InvalidContainerConfigurationError } from '../../src/core/error.js';
 import typifyBase from '../../src/core/synced/typify_tree.js';
 import * as types from '../../src/core/synced/container_types.js';
-import { card, container, evaluatePath, root } from '../../src/core/synced/tree_util.js';
+import { card, container, traversePath as evaluatePath, root } from '../../src/core/synced/tree_util.js';
 import nullLogger from '../support/null_logger.js';
 
 function typify(tree, options = {}) {

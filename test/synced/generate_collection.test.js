@@ -289,9 +289,9 @@ describe('generate_collection.js', () => {
             boardGroups: [
                 {
                     name: 'top',
-                    title: 'top',
+                    title: 'The Very Topmost Container of All',
                     externalUrl: null,
-                    description: null,
+                    description: "Don't worry about it.",
                     boards: [
                         'top__legal',
                         'top__setup',
