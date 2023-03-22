@@ -1,5 +1,5 @@
 import { createInputFactory, invalid } from 'ae_actions';
-import * as types from './synced/container_types';
+import * as types from './synced/container_types.js';
 
 export default function(getCoreInput, options) {
     const { logger } = options;
