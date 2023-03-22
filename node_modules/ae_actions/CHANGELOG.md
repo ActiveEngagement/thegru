@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 0.1.3 - 2023-03-22
+
+### Fixed
+- Fixed a fatal import error.
+
 ## 0.1.2 - 2023-02-22
 
 ### Fixed
@@ -25,4 +30,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial version.
 
-[Unreleased]: https://github.com/ActiveEngagement/theguru/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/ActiveEngagement/theguru/compare/v0.1.3...HEAD
