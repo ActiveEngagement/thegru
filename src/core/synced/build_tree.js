@@ -19,8 +19,6 @@ export default function(rules, options) {
         const name = stripExtension(filePath);
         const infoPath = [name + '.yaml', name + '.yml'].find(p => fs.existsSync(p));
 
-        info.title = path.basename(name);
-
         if(infoPath) {
             Object.assign(info, yaml.load(readFileSync(infoPath)));
         }

@@ -2,9 +2,10 @@ import path from 'path';
 import cardTree from './build_tree.js';
 import { buildTree, renderTree } from '../content.js';
 import transformContent from './transform_content.js';
-import { traversePath } from './tree_util.js';
+import { traverse, traversePath } from './tree_util.js';
 import typify from './typify_tree.js';
 import flatten from './flatten_tree.js';
+import { stripExtension } from '../fs_util.js';
 
 export default async function(options) {
     const {
@@ -26,6 +27,13 @@ export default async function(options) {
             })
             .do();
     }
+
+    traverse(tree)
+        .do((node) => {
+            if (node.type === 'card') {
+                node.info.title ||= stripExtension(path.basename(node.file));
+            }
+        });
 
     typify(tree, {
         logger,
