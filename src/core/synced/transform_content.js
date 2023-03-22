@@ -123,12 +123,20 @@ export default async function(filePath, contentTree, options = {}) {
         });
 
         for(const node of analysis.image) {
+            if (node.title) {
+                node.title = null;
+            }
+
             if(isLocal(node.url)) {
                 node.url = await rewriteAttachment(node.url, 'image');
             }
         }
 
         for(const node of analysis.imageReference) {
+            if (node.title) {
+                node.title = null;
+            }
+
             const definition = analysis.definition.find(n => n.identifier === node.identifier);
             if(isLocal(definition.url)) {
                 definition.url = await rewriteAttachment(definition.url, 'image');
@@ -136,12 +144,20 @@ export default async function(filePath, contentTree, options = {}) {
         }
 
         for(const node of analysis.link) {
+            if (node.title) {
+                node.title = null;
+            }
+
             if(isLocal(node.url)) {
                 node.url = await rewriteLink(node.url);
             }
         }
 
         for(const node of analysis.linkReference) {
+            if (node.title) {
+                node.title = null;
+            }
+
             const definition = analysis.definition.find(n => n.identifier === node.identifier);
             if(isLocal(definition.url)) {
                 definition.url = await rewriteLink(definition.url);
