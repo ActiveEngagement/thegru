@@ -207,7 +207,7 @@ describe('generate_collection.js', () => {
                     path: 'top/setup/configuration.md',
                     file: 'docs/setup/configuration.md',
                     info: {
-                        title: 'configuration',
+                        title: 'Configuration',
                         externalUrl: null
                     }
                 },
@@ -227,7 +227,7 @@ describe('generate_collection.js', () => {
                     path: 'top/setup/installation.md',
                     file: 'docs/setup/installation.md',
                     info: {
-                        title: 'installation',
+                        title: 'Installation',
                         externalUrl: null,
                     }
                 },
@@ -247,7 +247,7 @@ describe('generate_collection.js', () => {
                     path: 'top/usage/special/top_secret.md',
                     file: 'docs/usage/special/top_secret.md',
                     info: {
-                        title: 'top_secret',
+                        title: 'Top Secret',
                         externalUrl: null,
                     }
                 }
@@ -263,7 +263,7 @@ describe('generate_collection.js', () => {
                     ],
                     path: 'top/legal',
                     info: {
-                        title: 'legal',
+                        title: 'Legal',
                         externalUrl: null,
                         description: null,
                     }
@@ -286,7 +286,7 @@ describe('generate_collection.js', () => {
                     ],
                     path: 'top/setup',
                     info: {
-                        title: 'setup',
+                        title: 'Setup',
                         externalUrl: null,
                         description: 'Docs about setting up. Duh.',
                     }
@@ -300,7 +300,7 @@ describe('generate_collection.js', () => {
                         },
                         {
                             type: 'section',
-                            title: 'special',
+                            title: 'Special',
                             items: [
                                 {
                                     type: 'card',
@@ -316,7 +316,7 @@ describe('generate_collection.js', () => {
                     ],
                     path: 'top/usage',
                     info: {
-                        title: 'usage',
+                        title: 'Usage',
                         externalUrl: null,
                         description: null,
                     }
@@ -342,7 +342,7 @@ describe('generate_collection.js', () => {
                     boards: [],
                     path: 'random',
                     info: {
-                        title: 'random',
+                        title: 'Random',
                         externalUrl: null,
                         description: null,
                     }

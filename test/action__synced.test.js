@@ -99,7 +99,7 @@ describe('action.js', () => {
 
 [test](resources/assets__test.pdf)
 `);
-        expect(readFileSync(path.join(dest, 'cards/some__dir__file.yaml'))).toBe(`Title: file
+        expect(readFileSync(path.join(dest, 'cards/some__dir__file.yaml'))).toBe(`Title: File
 ExternalUrl: null
 Tags: []
 ExternalId: some__dir__file
@@ -111,7 +111,7 @@ Boards:
   - some__dir
 ExternalId: some
 `);
-        expect(readFileSync(path.join(dest, 'boards/some__dir.yaml'))).toBe(`Title: dir
+        expect(readFileSync(path.join(dest, 'boards/some__dir.yaml'))).toBe(`Title: Dir
 Description: A Dir
 ExternalUrl: https://google.com
 Items:

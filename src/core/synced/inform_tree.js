@@ -8,6 +8,19 @@ import yaml from 'js-yaml';
 const allowedCardInfo = ['title', 'externalUrl'];
 const allowedContainerInfo = ['title', 'description', 'externalUrl'];
 
+function inferTitle(fileName) {
+    const stripped = stripExtension(fileName).trim();
+    const spaced = stripped.replaceAll(/[^a-zA-Z\d]+/g, ' ');
+    const titled = spaced.replaceAll(
+        /\w\S*/g,
+        function(txt) {
+          return txt.charAt(0).toUpperCase() + txt.substr(1);
+        }
+      );
+
+      return titled;
+}
+
 /**
  * Traverses the given tree, processes any card content, attempts to attach relevant info to each node. Info is derived
  * from file paths, card content, container info files, and card info files.
@@ -17,7 +30,7 @@ export default function(tree, options) {
 
     traverse(tree).do((node, name, state) => {
         // The default title is the name.
-        node.info.title ||= stripExtension(name);
+        node.info.title ||= inferTitle(name);
 
         if(node.type === 'card') {
             // We'll read from the frontmatter if it exists and save the content for later.
