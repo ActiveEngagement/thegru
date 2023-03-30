@@ -15,7 +15,7 @@ const allowedContainerInfo = ['title', 'description', 'externalUrl'];
 export default function(tree, options) {
     const { logger } = options;
 
-    traverse(tree).do((node, name) => {
+    traverse(tree).do((node, name, state) => {
         // The default title is the name.
         node.info.title ||= stripExtension(name);
 
@@ -36,7 +36,7 @@ export default function(tree, options) {
             for (const key of Object.keys(node.info)) {
                 if (!allowedCardInfo.includes(key)) {
                     delete node.info[key];
-                    logger.warning(`Card "${node.path}" contains invalid info key "${key}. It will be ignored.`);
+                    logger.warning(`Card "${state.path}" contains invalid info key "${key}. It will be ignored.`);
                 }
             }
         }
@@ -53,7 +53,7 @@ export default function(tree, options) {
             for (const key of Object.keys(node.info)) {
                 if (!allowedContainerInfo.includes(key)) {
                     delete node.info[key];
-                    logger.warning(`Container "${node.path}" contains invalid info key "${key}. It will be ignored.`);
+                    logger.warning(`Container "${state.path}" contains invalid info key "${key}. It will be ignored.`);
                 }
             }
         }
