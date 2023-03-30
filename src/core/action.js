@@ -6,6 +6,9 @@ import syncedAction from './synced/action.js';
 /**
  * This is the entrypoint for most of the action logic. It is intentionally abstracted away from GitHub Actions and
  * should be executable even in a test environment.
+ * 
+ * This function will determine whether we are working with a standard or synced collection and delegate to the
+ * appropriate action routine.
  */
 
 export default async function(options) {
@@ -53,9 +56,9 @@ export default async function(options) {
             inputs,
             github,
             defaultFooter,
+            attachmentHandler,
             commitCardsFile,
-            getChangedFiles,
-            attachmentHandler
+            getChangedFiles
         });
     }
     else {

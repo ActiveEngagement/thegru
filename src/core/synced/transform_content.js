@@ -1,10 +1,10 @@
 import path from 'path';
 import fs from 'fs';
-import { analyzeTree } from '../mdast_util.js';
 import { joinNames, resolveLocalPath } from '../util.js';
 import { transformTree } from '../content.js';
 import * as types from './container_types.js';
 import { traverse } from './tree_util.js';
+import analysis from '../mdast_analysis.js';
 
 export default async function(filePath, contentTree, options = {}) {
     const { logger, github, cards, tree, attachmentHandler } = options;
@@ -114,55 +114,27 @@ export default async function(filePath, contentTree, options = {}) {
 
     const resultTree = await transformTree(contentTree, async(tree) => {
         // This is necessary because the unist-util-visit visit method does not support asynchronous visitors.
-        const analysis = analyzeTree(tree, {
-            image: 'image',
-            link: 'link',
-            imageReference: 'imageReference',
-            linkReference: 'linkReference',
-            definition: 'definition',
-        });
 
-        for(const node of analysis.image) {
-            if(node.title) {
-                node.title = null;
-            }
+        await analysis(tree)
+            .eachImage(async(image) => {
+                if (image.node.title) {
+                    image.node.title = null;
+                }
 
-            if(isLocal(node.url)) {
-                node.url = await rewriteAttachment(node.url, 'image');
-            }
-        }
+                if(isLocal(image.getUrl())) {
+                    image.setUrl(await rewriteAttachment(image.getUrl(), 'image'));
+                }
+            })
+            .eachLink(async(link) => {
+                if (link.node.title) {
+                    link.node.title = null;
+                }
 
-        for(const node of analysis.imageReference) {
-            if(node.title) {
-                node.title = null;
-            }
-
-            const definition = analysis.definition.find(n => n.identifier === node.identifier);
-            if(isLocal(definition.url)) {
-                definition.url = await rewriteAttachment(definition.url, 'image');
-            }
-        }
-
-        for(const node of analysis.link) {
-            if(node.title) {
-                node.title = null;
-            }
-
-            if(isLocal(node.url)) {
-                node.url = await rewriteLink(node.url);
-            }
-        }
-
-        for(const node of analysis.linkReference) {
-            if(node.title) {
-                node.title = null;
-            }
-
-            const definition = analysis.definition.find(n => n.identifier === node.identifier);
-            if(isLocal(definition.url)) {
-                definition.url = await rewriteLink(definition.url);
-            }
-        }
+                if(isLocal(link.getUrl())) {
+                    link.setUrl(await rewriteLink(link.getUrl()));
+                }
+            })
+            .do();
     });
 
     return { tree: resultTree, attachments };

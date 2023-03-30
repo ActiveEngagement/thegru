@@ -3,7 +3,7 @@ import { buildTree, renderTree } from '../content.js';
 import transformContent from './transform_content.js';
 import { readFile } from '../fs_util.js';
 import { resolveLocalPath } from '../util.js';
-import { analyzeTree } from '../mdast_util.js';
+import analysis from '../mdast_analysis.js';
 
 export default async function(filePath, cardTitle, options) {
     const { logger, api, github, inputs, attachmentHandler, footer, existingCardIds, didFileChange } = options;
@@ -13,9 +13,14 @@ export default async function(filePath, cardTitle, options) {
     const contentTree = await buildTree(content, { logger, github, footer });
 
     // Extract the paths of referenced images from the Markdown file so that we can check whether they have changed.
-    const imagePaths = analyzeTree(contentTree, { image: 'image' }).image
-        .filter(node => !node.url.startsWith('http'))
-        .map(node => resolveLocalPath(node.url, path.dirname(filePath)));
+    const imagePaths = [];
+    analysis(contentTree)
+        .eachImage(image => {
+            if(!image.getUrl().startsWith('http')) {
+                imagePaths.push(resolveLocalPath(image.getUrl(), path.dirname(filePath)));
+            }
+        })
+        .doSync();
     
     const watchedFiles = [filePath, ...imagePaths];
 

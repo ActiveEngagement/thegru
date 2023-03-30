@@ -1,11 +1,15 @@
 import path from 'path';
 import globBase from 'glob';
 import { stripExtension } from './fs_util.js';
+import { visit } from 'unist-util-visit';
 
 export function base64(input) {
     return Buffer.from(input, 'utf8').toString('base64');
 }
 
+/**
+ * Resolves a path potentially containing `/`, `./`, or `../`.
+ */
 export function resolveLocalPath(url, parent) {
     if(url.startsWith('/')) {
         return url.substring(1);
@@ -20,6 +24,9 @@ export function resolveLocalPath(url, parent) {
     return path.join(parent, url);
 }
 
+/**
+ * Gets a list of files matching the given glob. Delegates to `glob`, with some default options.
+ */
 export function glob(pattern, options = {}) {
     if(options.strict === undefined) {
         options.strict = true;
@@ -32,6 +39,9 @@ export function glob(pattern, options = {}) {
     return globBase.sync(pattern, options);
 }
 
+/**
+ * Intelligently joins two card/container names together with a double-underscore.
+ */
 export function joinNames(...names) {
     let result = '';
 
@@ -46,7 +56,7 @@ export function joinNames(...names) {
 }
 
 /**
- * Attempts to execute a closure. Specific exception types may be caught by class.
+ * Exposes a fluent interface for attempting to execute a closure. Specific exception types may be caught by class.
  * 
  * The motivation for this function is the JavaScript try statement's inability to catch specific exceptions.
  */
@@ -97,6 +107,9 @@ export function attempt() {
     return { catch: catchFunc, catchAll, do: doFunc, doSync };
 }
 
+/**
+ * Converts an object to a map. Returns a new map if the object is falsy.
+ */
 export function toMap(object) {
     return object ? new Map(Object.entries(object)) : new Map();
 }

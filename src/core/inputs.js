@@ -1,6 +1,9 @@
 import { createInputFactory, invalid } from 'ae_actions';
 import * as types from './synced/container_types.js';
 
+/**
+ * Parses and validates the action inputs using the given input function.
+ */
 export default function(getCoreInput, options) {
     const { logger } = options;
 

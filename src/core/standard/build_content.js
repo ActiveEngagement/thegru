@@ -1,6 +1,7 @@
 import path from 'path';
+import remarkStringify from 'remark-stringify';
+import { unified } from 'unified';
 import { resolveLocalPath } from '../util.js';
-import { transformTree } from '../content.js';
 import analysis from '../mdast_analysis.js';
 
 export default async function(filePath, contentTree, options = {}) {
@@ -39,17 +40,24 @@ export default async function(filePath, contentTree, options = {}) {
         return !url.startsWith('http') && !url.startsWith('mailto');
     }
 
-    const resultTree = await transformTree(contentTree, async(tree) => {
+    async function transform(tree) {
         // This is necessary because the unist-util-visit visit method does not support asynchronous visitors.
-
         await analysis(tree)
             .eachImage(async(image) => {
-                if(isLocalImage(image.getUrl())) {
+                if (isLocalImage(image.getUrl())) {
                     image.setUrl(await getImageUrl(image.getUrl()));
                 }
             })
             .do();
-    });
+    }
 
-    return { tree: resultTree, attachments };
+    const transformedTree = await unified()
+        .use(() => transform)
+        .run(contentTree);
+    
+    const output = unified()
+        .use(remarkStringify)
+        .stringify(transformedTree);
+    
+    return { content: String(output), attachments };
 }
