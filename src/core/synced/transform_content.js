@@ -109,7 +109,7 @@ export default async function(filePath, contentTree, options = {}) {
     }
 
     function isLocal(url) {
-        return !url.startsWith('http') && !url.startsWith('#');
+        return !url.startsWith('http') && !url.startsWith('#') && !url.startsWith('mailto');
     }
 
     const resultTree = await transformTree(contentTree, async(tree) => {

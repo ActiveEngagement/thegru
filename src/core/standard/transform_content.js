@@ -36,7 +36,7 @@ export default async function(filePath, contentTree, options = {}) {
     }
 
     function isLocalImage(node) {
-        return !node.url.startsWith('http');
+        return !node.url.startsWith('http') && !node.url.startsWith('mailto');
     }
 
     async function rewriteLocalImage(node) {
