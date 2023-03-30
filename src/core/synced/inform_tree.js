@@ -14,11 +14,11 @@ function inferTitle(fileName) {
     const titled = spaced.replaceAll(
         /\w\S*/g,
         function(txt) {
-          return txt.charAt(0).toUpperCase() + txt.substr(1);
+            return txt.charAt(0).toUpperCase() + txt.substr(1);
         }
-      );
+    );
 
-      return titled;
+    return titled;
 }
 
 /**
@@ -46,8 +46,8 @@ export default function(tree, options) {
                 Object.assign(node.info, yaml.load(readFileSync(infoPath)));
             }
 
-            for (const key of Object.keys(node.info)) {
-                if (!allowedCardInfo.includes(key)) {
+            for(const key of Object.keys(node.info)) {
+                if(!allowedCardInfo.includes(key)) {
                     delete node.info[key];
                     logger.warning(`Card "${state.path}" contains invalid info key "${key}. It will be ignored.`);
                 }
@@ -63,8 +63,8 @@ export default function(tree, options) {
                 }
             }
 
-            for (const key of Object.keys(node.info)) {
-                if (!allowedContainerInfo.includes(key)) {
+            for(const key of Object.keys(node.info)) {
+                if(!allowedContainerInfo.includes(key)) {
                     delete node.info[key];
                     logger.warning(`Container "${state.path}" contains invalid info key "${key}. It will be ignored.`);
                 }

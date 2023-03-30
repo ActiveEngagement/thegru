@@ -44,7 +44,7 @@ export default async function(filePath, contentTree, options = {}) {
         // This is necessary because the unist-util-visit visit method does not support asynchronous visitors.
         await analysis(tree)
             .eachImage(async(image) => {
-                if (isLocalImage(image.getUrl())) {
+                if(isLocalImage(image.getUrl())) {
                     image.setUrl(await getImageUrl(image.getUrl()));
                 }
             })

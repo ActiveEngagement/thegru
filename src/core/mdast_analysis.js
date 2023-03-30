@@ -21,7 +21,7 @@ export default function(tree) {
         ensureRequisite(nodeType);
 
         addAnalyzer(async(nodes) => {
-            for (const node of nodes[nodeType]) {
+            for(const node of nodes[nodeType]) {
                 await callback(node);
             }
         });
@@ -35,7 +35,7 @@ export default function(tree) {
         ensureRequisite('definition');
 
         addAnalyzer(async(nodes) => {
-            for (const node of nodes['image']) {
+            for(const node of nodes['image']) {
                 await callback({
                     node,
 
@@ -49,7 +49,7 @@ export default function(tree) {
                 });
             }
 
-            for (const node of nodes['imageReference']) {
+            for(const node of nodes['imageReference']) {
                 const definition = nodes['definition'].find(n => n.identifier === node.identifier);
                 await callback({
                     node,
@@ -76,7 +76,7 @@ export default function(tree) {
         ensureRequisite('definition');
 
         addAnalyzer(async(nodes) => {
-            for (const node of nodes['link']) {
+            for(const node of nodes['link']) {
                 await callback({
                     node,
 
@@ -90,7 +90,7 @@ export default function(tree) {
                 });
             }
 
-            for (const node of nodes['linkReference']) {
+            for(const node of nodes['linkReference']) {
                 const definition = nodes['definition'].find(n => n.identifier === node.identifier);
                 await callback({
                     node,

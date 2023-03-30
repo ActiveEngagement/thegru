@@ -117,7 +117,7 @@ export default async function(filePath, contentTree, options = {}) {
 
         await analysis(tree)
             .eachImage(async(image) => {
-                if (image.node.title) {
+                if(image.node.title) {
                     image.node.title = null;
                 }
 
@@ -126,7 +126,7 @@ export default async function(filePath, contentTree, options = {}) {
                 }
             })
             .eachLink(async(link) => {
-                if (link.node.title) {
+                if(link.node.title) {
                     link.node.title = null;
                 }
 
