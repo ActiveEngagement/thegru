@@ -60,6 +60,8 @@ title: Doing
 
 Check [this] out!
 
+<https://google.com>
+
 ![another image](/assets/images/another.jpg)
 
 [this]: ../../assets/more_info.txt
@@ -68,6 +70,8 @@ Check [this] out!
 const doingExpected = `# Let's do something...
 
 Check [this] out!
+
+[https://google.com](https://google.com)
 
 ![another image](resources/assets__images__another.jpg)
 

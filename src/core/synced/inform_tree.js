@@ -16,7 +16,7 @@ export default function(tree, options) {
         // The default title is the name.
         node.info.title ||= stripExtension(name);
 
-        if (node.type === 'card') {
+        if(node.type === 'card') {
             // We'll read from the frontmatter if it exists and save the content for later.
             const { data, content } = matter(readFileSync(node.file));
             Object.assign(node.info, data);
@@ -28,8 +28,9 @@ export default function(tree, options) {
             if(infoPath) {
                 Object.assign(node.info, yaml.load(readFileSync(infoPath)));
             }
-        } else if (node.type === 'container') {
-            if (node.file) {
+        }
+        else if(node.type === 'container') {
+            if(node.file) {
                 // We'll read from the info file in the directory if it exists.
                 const infoBase = path.join(node.file, '.info');
                 const infoPath = [infoBase + '.yaml', infoBase + '.yml'].find(p => fs.existsSync(p));

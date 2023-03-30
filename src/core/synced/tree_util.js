@@ -23,7 +23,7 @@ export function container(children = undefined, options = {}) {
         file: file || null
     };
 
-    if (containerType) {
+    if(containerType) {
         object.containerType = containerType;
     }
 
@@ -73,7 +73,7 @@ export function traversePath(node, pathString, callback = undefined) {
             makeMissing(makeCallback = undefined) {
                 makeCallback ||= () => container();
 
-                if (!nextNode) {
+                if(!nextNode) {
                     nextNode = makeCallback(ctx);
                     attach(currentNode, part, nextNode);
                 }
