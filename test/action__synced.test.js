@@ -87,7 +87,7 @@ describe('action.js', () => {
 
         const call = client.getCalls()[1];
         expect(call.type).toBe('uploadZip');
-        expect(call.fileName).toBe(path.basename(call.filePath))
+        expect(call.fileName).toBe(path.basename(call.filePath));
         expect(call.filePath.endsWith('.zip')).toBe(true);
 
         const { name: dest } = tmp.dirSync();

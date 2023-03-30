@@ -21,7 +21,7 @@ export default async function(filePath, contentTree, options = {}) {
         let attachment = attachments.find(a => a.path === resolved);
 
         if(!attachment) {
-            if (!fs.existsSync(resolved)) {
+            if(!fs.existsSync(resolved)) {
                 logger.warning(`${filePath} referenced "${url}", which does not exist on the file system. We'll ignore it, but you likely have a broken link.`);
                 return url;
             }
@@ -57,14 +57,14 @@ export default async function(filePath, contentTree, options = {}) {
             return await getCardLink(card);
         }
 
-        if (!fs.existsSync(resolved)) {
+        if(!fs.existsSync(resolved)) {
             logger.warning(`${filePath} referenced "${url}", which does not exist on the file system. We'll ignore it, but you likely have a broken link.`);
             return url;
         }
 
         const stat = await fs.promises.stat(resolved);
 
-        if (stat.isDirectory()) {
+        if(stat.isDirectory()) {
             let container = null;
             let containerName = null;
 
@@ -73,13 +73,13 @@ export default async function(filePath, contentTree, options = {}) {
                 .do((node, name, state) => {
                     state.name = joinNames(state.name, name);
 
-                    if (node.type === 'container' && node.file === resolved) {
+                    if(node.type === 'container' && node.file === resolved) {
                         container = node;
                         containerName = state.name;
 
                         return false;
                     }
-                })
+                });
 
             if(!container) {
                 logger.warning(`${filePath} referenced "${url}", which is a directory on the file system, but does not correspond to a Guru board, board section, or board group. We'll ignore it, but you likely have a broken link.`);
@@ -98,13 +98,13 @@ export default async function(filePath, contentTree, options = {}) {
 
     async function getContainerLink(container, name, url) {
         switch (container.containerType) {
-            case types.BOARD_GROUP:
-                return path.join('board-groups', name);
-            case types.BOARD:
-                return path.join('boards', name);
-            case types.BOARD_SECTION:
-                logger.warning(`${filePath} referenced "${url}, which is a Guru board section. Since Guru board sections can't be linked to, we'll ignore it, but you likely have a broken link.`);
-                return url;
+        case types.BOARD_GROUP:
+            return path.join('board-groups', name);
+        case types.BOARD:
+            return path.join('boards', name);
+        case types.BOARD_SECTION:
+            logger.warning(`${filePath} referenced "${url}, which is a Guru board section. Since Guru board sections can't be linked to, we'll ignore it, but you likely have a broken link.`);
+            return url;
         }
     }
 
@@ -123,7 +123,7 @@ export default async function(filePath, contentTree, options = {}) {
         });
 
         for(const node of analysis.image) {
-            if (node.title) {
+            if(node.title) {
                 node.title = null;
             }
 
@@ -133,7 +133,7 @@ export default async function(filePath, contentTree, options = {}) {
         }
 
         for(const node of analysis.imageReference) {
-            if (node.title) {
+            if(node.title) {
                 node.title = null;
             }
 
@@ -144,7 +144,7 @@ export default async function(filePath, contentTree, options = {}) {
         }
 
         for(const node of analysis.link) {
-            if (node.title) {
+            if(node.title) {
                 node.title = null;
             }
 
@@ -154,7 +154,7 @@ export default async function(filePath, contentTree, options = {}) {
         }
 
         for(const node of analysis.linkReference) {
-            if (node.title) {
+            if(node.title) {
                 node.title = null;
             }
 

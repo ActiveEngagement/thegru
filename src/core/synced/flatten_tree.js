@@ -21,10 +21,10 @@ export default function(tree, options) {
                     type: 'card'
                 };
             case 'container':
-                if (node.info.description) {
+                if(node.info.description) {
                     logger.warning(`The container "${fullPath}" cannot be given the description "${node.info.description}" because it is a Guru board section, which cannot have a description.`);
                 }
-                if (node.info.externalUrl) {
+                if(node.info.externalUrl) {
                     logger.warning(`The container "${fullPath}" cannot be given the external URL "${node.info.externalUrl}" because it is a Guru board section, which cannot have an external URL.`);
                 }
                 return {
@@ -41,7 +41,7 @@ export default function(tree, options) {
         .do((node, name, state) => {
             state.fullName = joinNames(state.fullName, name);
 
-            if (node.type === 'card') {
+            if(node.type === 'card') {
                 cards.push({
                     name: state.fullName,
                     info: node.info,
@@ -49,7 +49,8 @@ export default function(tree, options) {
                     file: node.file,
                     path: state.path
                 });
-            } else if (node.type === 'container') {
+            }
+            else if(node.type === 'container') {
                 switch (node.containerType) {
                 case types.BOARD_GROUP:
                     boardGroups.push({

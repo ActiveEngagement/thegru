@@ -69,7 +69,7 @@ describe('transform_content.js', () => {
 
     afterEach(() => {
         process.chdir('../..');
-    })
+    });
 
     describe.each([
         [null],

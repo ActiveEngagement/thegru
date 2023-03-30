@@ -34,14 +34,15 @@ export default function(rules, options) {
         let rootContainer;
 
         const rootContainerPath = rule.rootContainer;
-        if (rootContainerPath) {
+        if(rootContainerPath) {
             // If the user has specified a "root container" path in the rule, then we need to evaluate it and then
             // evaluate the actual container path beneath it.
             //
             // Note that no file paths are included in any created containers, since there are likely no corresponding
             // directories.
             rootContainer = ensureContainerPath(tree, rootContainerPath);
-        } else {
+        }
+        else {
             // If no root container path was specified, then the container path will be evaluated beneath the tree itself.
             rootContainer = tree;
         }
@@ -49,7 +50,7 @@ export default function(rules, options) {
         let container;
 
         let containerPath = path.dirname(file);
-        if (containerPath !== '.') {
+        if(containerPath !== '.') {
             // If the file is in one or more sub-directories, then we need to traverse the path (beneath the root
             // container), creating any containers not yet in the tree and attaching the correct file path.
             //
@@ -61,11 +62,12 @@ export default function(rules, options) {
             container = traversePath(rootContainer, containerPath, (node, ctx, util) => {
                 node = util.makeMissing();
 
-                if (!node.file) {
+                if(!node.file) {
                     node.file = path.join(parentDir, ctx.path);
                 }
             });
-        } else {
+        }
+        else {
             // If the file is top-level (i.e. with no parent directory), then no further containers are needed and we'll
             // return the root container.
             container = rootContainer;

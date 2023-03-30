@@ -6,10 +6,10 @@
  * @typedef {import('../types.js').Exit} Exit
  */
 
-import {checkQuote} from 'mdast-util-to-markdown/lib/util/check-quote.js'
-import {formatLinkAsAutolink} from 'mdast-util-to-markdown/lib/util/format-link-as-autolink.js'
+import {checkQuote} from 'mdast-util-to-markdown/lib/util/check-quote.js';
+import {formatLinkAsAutolink} from 'mdast-util-to-markdown/lib/util/format-link-as-autolink.js';
 
-link.peek = linkPeek
+link.peek = linkPeek;
 
 /**
  * @param {Link} node
@@ -19,71 +19,72 @@ link.peek = linkPeek
  * @returns {string}
  */
 export default function link(node, _, state, info) {
-  const quote = checkQuote(state)
-  const suffix = quote === '"' ? 'Quote' : 'Apostrophe'
-  const tracker = state.createTracker(info)
-  /** @type {Exit} */
-  let exit
-  /** @type {Exit} */
-  let subexit
+    const quote = checkQuote(state);
+    const suffix = quote === '"' ? 'Quote' : 'Apostrophe';
+    const tracker = state.createTracker(info);
+    /** @type {Exit} */
+    let exit;
+    /** @type {Exit} */
+    let subexit;
 
-  exit = state.enter('link')
-  subexit = state.enter('label')
-  let value = tracker.move('[')
-  value += tracker.move(
-    state.containerPhrasing(node, {
-      before: value,
-      after: '](',
-      ...tracker.current()
-    })
-  )
-  value += tracker.move('](')
-  subexit()
+    exit = state.enter('link');
+    subexit = state.enter('label');
+    let value = tracker.move('[');
+    value += tracker.move(
+        state.containerPhrasing(node, {
+            before: value,
+            after: '](',
+            ...tracker.current()
+        })
+    );
+    value += tracker.move('](');
+    subexit();
 
-  if (
+    if(
     // If there’s no url but there is a title…
-    (!node.url && node.title) ||
+        (!node.url && node.title) ||
     // If there are control characters or whitespace.
     /[\0- \u007F]/.test(node.url)
-  ) {
-    subexit = state.enter('destinationLiteral')
-    value += tracker.move('<')
-    value += tracker.move(
-      state.safe(node.url, {before: value, after: '>', ...tracker.current()})
-    )
-    value += tracker.move('>')
-  } else {
+    ) {
+        subexit = state.enter('destinationLiteral');
+        value += tracker.move('<');
+        value += tracker.move(
+            state.safe(node.url, {before: value, after: '>', ...tracker.current()})
+        );
+        value += tracker.move('>');
+    }
+    else {
     // No whitespace, raw is prettier.
-    subexit = state.enter('destinationRaw')
-    value += tracker.move(
-      state.safe(node.url, {
-        before: value,
-        after: node.title ? ' ' : ')',
-        ...tracker.current()
-      })
-    )
-  }
+        subexit = state.enter('destinationRaw');
+        value += tracker.move(
+            state.safe(node.url, {
+                before: value,
+                after: node.title ? ' ' : ')',
+                ...tracker.current()
+            })
+        );
+    }
 
-  subexit()
+    subexit();
 
-  if (node.title) {
-    subexit = state.enter(`title${suffix}`)
-    value += tracker.move(' ' + quote)
-    value += tracker.move(
-      state.safe(node.title, {
-        before: value,
-        after: quote,
-        ...tracker.current()
-      })
-    )
-    value += tracker.move(quote)
-    subexit()
-  }
+    if(node.title) {
+        subexit = state.enter(`title${suffix}`);
+        value += tracker.move(' ' + quote);
+        value += tracker.move(
+            state.safe(node.title, {
+                before: value,
+                after: quote,
+                ...tracker.current()
+            })
+        );
+        value += tracker.move(quote);
+        subexit();
+    }
 
-  value += tracker.move(')')
+    value += tracker.move(')');
 
-  exit()
-  return value
+    exit();
+    return value;
 }
 
 /**
@@ -93,5 +94,5 @@ export default function link(node, _, state, info) {
  * @returns {string}
  */
 function linkPeek(node, _, state) {
-  return formatLinkAsAutolink(node, state) ? '<' : '['
+    return formatLinkAsAutolink(node, state) ? '<' : '[';
 }
