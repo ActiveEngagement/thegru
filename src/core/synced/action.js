@@ -9,10 +9,17 @@ export default async function(options) {
         logger,
         inputs,
         github,
-        footer,
+        defaultFooter,
         attachmentHandler,
         setOutput
     } = options;
+
+    // Determine the card footer.
+    let footer = inputs.cardFooter;
+    if(footer === true) {
+        logger.info('Using default card footer...');
+        footer = defaultFooter;
+    }
 
     const collection = await generate({
         logger,

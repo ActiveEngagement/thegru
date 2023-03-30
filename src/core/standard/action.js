@@ -12,11 +12,18 @@ export default async function(options) {
         colors,
         inputs,
         github,
-        footer,
+        defaultFooter,
         commitCardsFile,
         getChangedFiles,
         attachmentHandler
     } = options;
+
+    // Determine the card footer.
+    let footer = inputs.cardFooter;
+    if(footer === undefined || footer === null || footer === true) {
+        logger.info('Using default card footer...');
+        footer = defaultFooter;
+    }
 
     // Determine whether all cards should be updated and notify the user accordingly. All cards should be updated if:
     //   the "update_all" input is true, or

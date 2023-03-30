@@ -27,13 +27,6 @@ export default async function(options) {
         attachmentHandler = github.repo.isPublic ? 'github_urls' : 'upload';
     }
 
-    // Determine the card footer.
-    let footer = inputs.cardFooter;
-    if(footer === undefined || footer === null || footer === true) {
-        logger.info('Using default card footer...');
-        footer = defaultFooter;
-    }
-
     // Set up the API with the given client.
     const api = createApi(client, {
         logger,
@@ -59,7 +52,7 @@ export default async function(options) {
             colors,
             inputs,
             github,
-            footer,
+            defaultFooter,
             commitCardsFile,
             getChangedFiles,
             attachmentHandler
@@ -76,7 +69,7 @@ export default async function(options) {
             colors,
             inputs,
             github,
-            footer,
+            defaultFooter,
             attachmentHandler,
             setOutput
         });
