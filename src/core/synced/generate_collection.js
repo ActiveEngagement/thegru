@@ -4,7 +4,10 @@ import typifyTree from './typify_tree.js';
 import flattenTree from './flatten_tree.js';
 import * as content from '../content.js';
 import transformContent from './transform_content.js';
-import { ensureContainerPath, traversePath } from './tree_util.js';
+import { ensureContainerPath } from './tree_util.js';
+import link from './mdast_non_auto_link.js';
+import { unified } from 'unified';
+import remarkStringify from 'remark-stringify';
 
 export default async function(options) {
     const {
@@ -41,7 +44,16 @@ export default async function(options) {
             tree,
             attachmentHandler
         });
-        card.content = content.renderTree(resultTree);
+
+        const output = unified()
+            .use(remarkStringify, {
+                handlers: {
+                    link
+                }
+            })
+            .stringify(resultTree);
+        card.content = String(output);
+
         resources.push(...attachments);
     }
 
