@@ -1,52 +1,41 @@
 import path from 'path';
-import { resolveLocalPath } from '../util.js';
-import { validate } from '../unist_analyze.js';
-import { definition, image, imageReference } from '../mdast_predicates.js';
-import { unifyImages } from '../mdast_unify.js';
+import fs from 'fs';
+import transform from '../transform_content.js';
+import rewriteAttachment from '../rewrite_attachment.js';
 
 export default async function(filePath, analysis, options = {}) {
-    validate(analysis, image, imageReference, definition);
-
     const { logger, api, github, attachmentHandler } = options;
 
     const attachments = [];
 
-    function resolveUrl(url) {
-        return resolveLocalPath(url, path.dirname(filePath));
-    }
-
-    async function uploadImage(url) {
-        logger.info(`Uploading and rewriting local image ${url}`);
-
-        const attachment = await api.uploadAttachment(path.basename(url), resolveUrl(url));
+    async function upload(url, resolved, type) {
+        const attachment = await api.uploadAttachment(path.basename(url), resolved);
         attachments.push(attachment);
 
         return attachment.link;
     }
 
-    function getGithubImageUrl(url) {
-        logger.info(`Rewriting local image ${url}`);
-        return 'https://raw.githubusercontent.com/' + path.join(github.repo.name, github.commit.sha, resolveUrl(url));
-    }
-
-    async function getImageUrl(url) {
-        switch (attachmentHandler) {
-        case 'upload':
-            return await uploadImage(url);
-        case 'github_urls':
-            return getGithubImageUrl(url);
+    async function rewriteLink(url, resolved) {
+        if(!fs.existsSync(resolved)) {
+            logger.warning(`${filePath} referenced "${url}", which does not exist on the file system. We'll ignore it, but you likely have a broken link.`);
+            return url;
         }
-    }
 
-    function isLocalImage(url) {
-        return !url.startsWith('http') && !url.startsWith('mailto');
-    }
+        const stat = await fs.promises.stat(resolved);
 
-    for(const image of unifyImages(analysis)) {
-        if(isLocalImage(image.getUrl())) {
-            image.setUrl(await getImageUrl(image.getUrl()));
+        if(stat.isDirectory()) {
+            logger.warning(`${filePath} referenced "${url}", which is a directory. We'll ignore it, but you likely have a broken link.`);
+            return url;
         }
+
+        return await rewriteAttachment(url, resolved, 'link', {
+            logger, attachmentHandler, github, upload
+        });
     }
+
+    await transform(filePath, analysis, {
+        logger, attachmentHandler, github, rewriteLink, upload
+    });
 
     return { attachments };
 }

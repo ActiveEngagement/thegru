@@ -1,26 +1,17 @@
 import path from 'path';
 import fs from 'fs';
-import { joinNames, resolveLocalPath } from '../util.js';
+import { joinNames } from '../util.js';
 import * as types from './container_types.js';
 import { traverse } from './tree/util.js';
-import { validate } from '../unist_analyze.js';
-import { definition, image, imageReference, link, linkReference } from '../mdast_predicates.js';
-import { unifyBoth } from '../mdast_unify.js';
+import transform from '../transform_content.js';
+import rewriteAttachment from '../rewrite_attachment.js';
 
 export default async function(filePath, analysis, options = {}) {
-    validate(analysis, link, linkReference, image, imageReference, definition);
-
     const { logger, github, cards, tree, attachmentHandler } = options;
 
     const attachments = [];
 
-    function resolveUrl(url) {
-        return resolveLocalPath(url, path.dirname(filePath));
-    }
-
-    async function upload(url) {
-        const resolved = resolveUrl(url);
-
+    async function upload(url, resolved) {
         let attachment = attachments.find(a => a.path === resolved);
 
         if(!attachment) {
@@ -37,24 +28,7 @@ export default async function(filePath, analysis, options = {}) {
         return path.join('resources', attachment.id);
     }
 
-    function getGithubUrl(url) {
-        return 'https://raw.githubusercontent.com/' + path.join(github.repo.name, github.commit.sha, resolveUrl(url));
-    }
-
-    async function rewriteAttachment(url, type) {
-        switch (attachmentHandler) {
-        case 'upload':
-            logger.info(`'Uploading and rewriting local ${type} ${url}`);
-            return await upload(url);
-        case 'github_urls':
-            logger.info(`'Rewriting local ${type} ${url}`);
-            return getGithubUrl(url);
-        }
-    }
-
-    async function rewriteLink(url) {
-        const resolved = resolveUrl(url);
-
+    async function rewriteLink(url, resolved) {
         const card = cards.find(c => c.file === resolved);
         if(card) {
             return await getCardLink(card);
@@ -92,7 +66,9 @@ export default async function(filePath, analysis, options = {}) {
             return await getContainerLink(container, containerName, url);
         }
 
-        return await rewriteAttachment(url, 'link');
+        return await rewriteAttachment(url, resolved, 'link', {
+            logger, attachmentHandler, github, upload
+        });
     }
 
     async function getCardLink(card) {
@@ -111,25 +87,9 @@ export default async function(filePath, analysis, options = {}) {
         }
     }
 
-    function isLocal(url) {
-        return !url.startsWith('http') && !url.startsWith('#') && !url.startsWith('mailto');
-    }
-
-    for(const imageOrLink of unifyBoth(analysis)) {
-        if(imageOrLink.node.title) {
-            imageOrLink.node.title = null;
-        }
-
-        const url = imageOrLink.getUrl();
-
-        if(isLocal(url)) {
-            imageOrLink.setUrl(
-                imageOrLink.type == 'image'
-                    ? await rewriteAttachment(url, 'image')
-                    : await rewriteLink(url)
-            );
-        }
-    }
+    await transform(filePath, analysis, {
+        logger, attachmentHandler, github, upload, rewriteLink
+    });
 
     return { attachments };
 }

@@ -23,6 +23,14 @@ export function resolveLocalPath(url, parent) {
     return path.join(parent, url);
 }
 
+export function isLocalUrl(url) {
+    const http = url.startsWith('http://') || url.startsWith('https://');
+    const internal = url.startsWith('#');
+    const email = url.startsWith('mailto');
+
+    return !(http || internal || email);
+}
+
 /**
  * Gets a list of files matching the given glob. Delegates to `glob`, with some default options.
  */
