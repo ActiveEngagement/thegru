@@ -17,6 +17,12 @@ export default function(getCoreInput, options) {
         }
     }
 
+    function validatePreferredContainerType(input, name) {
+        if (types.from(types.name, input) === types.BOARD_SECTION) {
+            return invalid(`"${name}" cannot be "${input}", because Guru sections are only permitted beneath boards. You should change the preferred container type to "board" and set "rootContainer" in the card rule.`);
+        }
+    }
+
     return createInputFactory()
         .defaults()
         .getInputWith(getCoreInput)
@@ -47,7 +53,11 @@ export default function(getCoreInput, options) {
 
                 input('cards', b => b.required().json({ type: 'array'}).use(validateCards));
                 input('containers', b => b.fallback('{ }').json({ type: 'object'}));
-                input('preferred_container', b => b.fallback(types.name(types.BOARD_GROUP)).options(...types.types(types.name)));
+                input('preferred_container', b => b
+                    .fallback(types.name(types.BOARD_GROUP))
+                    .options(...types.types(types.name))
+                    .use(validatePreferredContainerType)
+                );
             }
         });
 }

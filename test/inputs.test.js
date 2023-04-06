@@ -286,8 +286,7 @@ describe('inputs.js', () => {
 
             test.each([
                 ['board_group'],
-                ['board'],
-                ['board_section']
+                ['board']
             ])('with a valid option', (input) => {
                 const actual = getInputs(name => name === 'preferred_container' ? input : getInput(name)).preferredContainer;
                 expect(actual).toBe(input);
@@ -297,6 +296,12 @@ describe('inputs.js', () => {
                 const f = () => getInputs(name => name === 'preferred_container' ? 'invalid' : getInput(name));
                 expect(f).toThrow(InvalidInputsError);
                 expect(f).toThrow('"preferred_container" must be one of [board_group, board, board_section]');
+            });
+
+            test('with board_section throws appropriate error', () => {
+                const f = () => getInputs(name => name === 'preferred_container' ? 'board_section': getInput(name));
+                expect(f).toThrow(InvalidInputsError);
+                expect(f).toThrow('"preferred_container" cannot be "board_section", because Guru sections are only permitted beneath boards. You should change the preferred container type to "board" and set "rootContainer" in the card rule.');
             });
         });
     });

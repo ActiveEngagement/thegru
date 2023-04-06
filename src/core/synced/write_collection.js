@@ -92,7 +92,6 @@ export default async function(collection, options) {
     }
 
     const zipFile = tmp.tmpNameSync({ postfix: '.zip' });
-    console.log(zipFile);
     await zipDirectory(dir, zipFile);
 
     return zipFile;

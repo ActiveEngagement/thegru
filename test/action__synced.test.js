@@ -1,5 +1,4 @@
 import path from 'path';
-import fs from 'fs';
 import tmp from 'tmp';
 import yaml from 'js-yaml';
 import runAction from '../src/core/action.js';

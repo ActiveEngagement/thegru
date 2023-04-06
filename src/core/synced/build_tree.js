@@ -1,6 +1,7 @@
 import path from 'path';
-import { root, card, attach, traversePath, ensureContainerPath } from './tree_util.js';
+import { root, card, attach, traversePath, ensureContainerPath } from './tree.js';
 import { glob } from '../util.js';
+import { allowedCardInfo } from './allowed_info.js';
 
 /**
  * Builds a basic tree of cards and containers from the given set of card rules. This tree contains only file paths
@@ -10,7 +11,6 @@ export default function(rules, options) {
     const { logger } = options;
 
     const tree = root();
-
     rules.forEach(applyRule);
 
     return tree;
@@ -59,13 +59,11 @@ export default function(rules, options) {
             // This way, if the container was originally created by some other method (say, an explicit container clause
             // in a rule, but also referenced by a rule containing a card beneath a subdirectory, then the file will
             // still get attached as it should and info files will still be read).
-            container = traversePath(rootContainer, containerPath, (node, ctx, util) => {
-                node = util.makeMissing();
-
+            container = traversePath(rootContainer, containerPath, (node, ctx) => {
                 if(!node.file) {
                     node.file = path.join(parentDir, ctx.path);
                 }
-            });
+            }, { makeMissing: true });
         }
         else {
             // If the file is top-level (i.e. with no parent directory), then no further containers are needed and we'll
@@ -91,11 +89,16 @@ export default function(rules, options) {
             const container = getContainerForCard(rule, file, parentDir);
             const name = path.basename(file);
 
-            attach(container, name, card({
-                file: fullPath,
-                title: rule.title || null,
-                externalUrl: rule.externalUrl || null
-            }));
+            const payload = { file: fullPath };
+
+            // Attach any valid info.
+            for (const key of allowedCardInfo) {
+                if (key in rule) {
+                    payload[key] = rule[key];
+                }
+            }
+
+            attach(container, name, card(payload));
         }
     }
 
@@ -103,7 +106,7 @@ export default function(rules, options) {
      * Adds appropriate nodes to the tree for the given card rule.
      */
     function applyRule(rule) {
-        // A lone string is interpretated as a basic glob.
+        // A lone string is interpreted as a basic glob.
         if(typeof rule === 'string') {
             applyRule({ glob: rule });
 

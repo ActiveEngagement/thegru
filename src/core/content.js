@@ -2,31 +2,25 @@ import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkStringify from 'remark-stringify';
 
-export function buildTree(content, options = {}) {
-    const { logger, github, footer: footerTemplate } = options;
+//
+// A few functions for conveniently working with `unified` MDAST steps individually, instead of as an entire pipeline.
+//
 
-    if(footerTemplate && typeof footerTemplate === 'string') {
-        const footer = footerTemplate.replaceAll('{{repository_url}}', github.repo.url);
-        content += '\n\n' + footer;
-    }
-    else {
-        logger.info('Skipping card footer...');
-    }
-
+/**
+ * Parses Markdown content into an MDAST tree.
+ */
+export function buildTree(content, remarkOptions = undefined) {
     return unified()
-        .use(remarkParse)
+        .use(remarkParse, remarkOptions)
         .parse(content);
 }
 
-export async function transformTree(tree, transform) {
-    return await unified()
-        .use(() => transform)
-        .run(tree);
-}
-
-export function renderTree(tree) {
+/**
+ * Renders an MDAST tree into Markdown content.
+ */
+export function renderTree(tree, remarkOptions = undefined) {
     const output = unified()
-        .use(remarkStringify)
+        .use(remarkStringify, remarkOptions)
         .stringify(tree);
 
     return String(output);

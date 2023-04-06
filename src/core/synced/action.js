@@ -25,6 +25,8 @@ export default async function(options) {
         footer = defaultFooter;
     }
 
+    // Generate an object representing the built collection.
+    // This step is separate so that it is easily testable without constant zipping, unzipping, and working with the API.
     const collection = await generate({
         logger,
         inputs,
@@ -36,10 +38,11 @@ export default async function(options) {
     logger.debug('Generated collection:\n');
     logger.debug(JSON.stringify(collection, undefined, 4));
 
+    // Write the collection to a temporary zip file and output its path.
     const zipPath = await write(collection, { logger });
-
     setOutput('zip', zipPath);
     
+    // Upload the zip to Guru.
     const result = await api.uploadZip(inputs.collectionId, path.basename(zipPath), zipPath);
 
     logger.info(JSON.stringify(result));

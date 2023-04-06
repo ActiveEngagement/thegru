@@ -1,35 +1,26 @@
 import path from 'path';
 import fs from 'fs';
 import { readFileSync, stripExtension } from '../fs_util.js';
-import { traverse } from './tree_util.js';
+import { traverse } from './tree.js';
 import matter from 'gray-matter';
 import yaml from 'js-yaml';
-
-const allowedCardInfo = ['title', 'externalUrl'];
-const allowedContainerInfo = ['title', 'description', 'externalUrl'];
-
-function inferTitle(fileName) {
-    const stripped = stripExtension(fileName).trim();
-    const spaced = stripped.replaceAll(/[^a-zA-Z\d]+/g, ' ');
-    const titled = spaced.replaceAll(
-        /\w\S*/g,
-        function(txt) {
-            return txt.charAt(0).toUpperCase() + txt.substr(1);
-        }
-    );
-
-    return titled;
-}
+import { allowedCardInfo, allowedContainerInfo } from './allowed_info.js';
 
 /**
- * Traverses the given tree, processes any card content, attempts to attach relevant info to each node. Info is derived
- * from file paths, card content, container info files, and card info files.
+ * Traverses the given card/container tree and attempts to attach information (e.g. titles, external urls, descriptions,
+ * etc.) from the following sources:
+ *  - The default title is a "titleized" version of the file/directory name.
+ *  - Cards may have a "frontmatter" section that contains info attributes.
+ *  - Directories representing containers may have a ".info.yml" file containing info attributes.
+ *  - Card Markdown files may have a corresponding YAML file with the same basename containing info attributes.
+ * 
+ * Note that as a side effect any info currently in the tree will be validated and fixed if necessary.
  */
 export default function(tree, options) {
     const { logger } = options;
 
     traverse(tree).do((node, name, state) => {
-        // The default title is the name.
+        // The default title is a titleized form of the filename.
         node.info.title ||= inferTitle(name);
 
         if(node.type === 'card') {
@@ -46,6 +37,7 @@ export default function(tree, options) {
                 Object.assign(node.info, yaml.load(readFileSync(infoPath)));
             }
 
+            // Let's make sure only valid info was added.
             for(const key of Object.keys(node.info)) {
                 if(!allowedCardInfo.includes(key)) {
                     delete node.info[key];
@@ -63,6 +55,7 @@ export default function(tree, options) {
                 }
             }
 
+            // Let's make sure only valid info was added.
             for(const key of Object.keys(node.info)) {
                 if(!allowedContainerInfo.includes(key)) {
                     delete node.info[key];
@@ -71,4 +64,32 @@ export default function(tree, options) {
             }
         }
     });
+}
+
+/**
+ * "Titleizes" a file name.
+ * 
+ * The filename is stripped of its extension and extreme whitespace is trimmed. All sequences of non-alphanumeric
+ * characters are replaced by a single space. Each resulting word is capitalized.
+ * 
+ * Examples:
+ * 
+ * ```
+ * inferTitle('test'); // => 'Test'
+ * inferTitle('test-123'); // => 'Test 123'
+ * inferTitle('test------123'); // => 'Test 123'
+ * inferTitle('&*^__test------123   '); // => ' Test 123'
+ * ```
+ */
+function inferTitle(fileName) {
+    const stripped = stripExtension(fileName).trim();
+    const spaced = stripped.replaceAll(/[^a-zA-Z\d]+/g, ' ');
+    const titled = spaced.replaceAll(
+        /\w\S*/g,
+        function(txt) {
+            return txt.charAt(0).toUpperCase() + txt.substr(1);
+        }
+    );
+
+    return titled;
 }

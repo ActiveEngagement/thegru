@@ -3,10 +3,12 @@ import transformContent from '../../src/core/synced/transform_content.js';
 import createApi from '../../src/core/api.js';
 import nullLogger from '../support/null_logger.js';
 import arrayLogger from '../support/array_logger.js';
-import createClient from '../support/api_client.js';
 import env from '../support/env.js';
-import { container, root } from '../../src/core/synced/tree_util.js';
+import { container, root } from '../../src/core/synced/tree.js';
 import * as types from '../../src/core/synced/container_types.js';
+import { image, imageReference, link, linkReference, definition } from '../../src/core/mdast_predicates.js';
+import analyze from '../../src/core/unist_analyze.js';
+import attachFooter from '../../src/core/attach_footer.js';
 
 async function build(filePath, content, options = {}) {
     options.logger ||= nullLogger();
@@ -26,9 +28,10 @@ async function build(filePath, content, options = {}) {
     }
     options.cards ||= [];
 
-    const tree = buildTree(content, options);
-    const { tree: resultTree, attachments } = await transformContent(filePath, tree, options);
-    const output = renderTree(resultTree);
+    const tree = buildTree(attachFooter(content, options), options);
+    const analysis = analyze(tree, image, imageReference, link, linkReference, definition);
+    const { attachments } = await transformContent(filePath, analysis, options);
+    const output = renderTree(tree);
 
     return { content: output, attachments };
 }

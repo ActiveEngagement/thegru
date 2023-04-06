@@ -1,9 +1,12 @@
 import path from 'path';
 import { resolveLocalPath } from '../util.js';
-import { transformTree } from '../content.js';
-import analysis from '../mdast_analysis.js';
+import { validate } from '../unist_analyze.js';
+import { definition, image, imageReference } from '../mdast_predicates.js';
+import { unifyImages } from '../mdast_unify.js';
 
-export default async function(filePath, contentTree, options = {}) {
+export default async function(filePath, analysis, options = {}) {
+    validate(analysis, image, imageReference, definition);
+
     const { logger, api, github, attachmentHandler } = options;
 
     const attachments = [];
@@ -39,17 +42,11 @@ export default async function(filePath, contentTree, options = {}) {
         return !url.startsWith('http') && !url.startsWith('mailto');
     }
 
-    const resultTree = await transformTree(contentTree, async(tree) => {
-        // This is necessary because the unist-util-visit visit method does not support asynchronous visitors.
+    for (const image of unifyImages(analysis)) {
+        if(isLocalImage(image.getUrl())) {
+            image.setUrl(await getImageUrl(image.getUrl()));
+        }
+    }
 
-        await analysis(tree)
-            .eachImage(async(image) => {
-                if(isLocalImage(image.getUrl())) {
-                    image.setUrl(await getImageUrl(image.getUrl()));
-                }
-            })
-            .do();
-    });
-
-    return { tree: resultTree, attachments };
+    return { attachments };
 }

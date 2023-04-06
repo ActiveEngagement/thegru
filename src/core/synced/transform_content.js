@@ -1,12 +1,15 @@
 import path from 'path';
 import fs from 'fs';
 import { joinNames, resolveLocalPath } from '../util.js';
-import { transformTree } from '../content.js';
 import * as types from './container_types.js';
-import { traverse } from './tree_util.js';
-import analysis from '../mdast_analysis.js';
+import { traverse } from './tree.js';
+import { validate } from '../unist_analyze.js';
+import { definition, image, imageReference, link, linkReference } from '../mdast_predicates.js';
+import { unifyBoth } from '../mdast_unify.js';
 
-export default async function(filePath, contentTree, options = {}) {
+export default async function(filePath, analysis, options = {}) {
+    validate(analysis, link, linkReference, image, imageReference, definition);
+
     const { logger, github, cards, tree, attachmentHandler } = options;
 
     const attachments = [];
@@ -112,30 +115,21 @@ export default async function(filePath, contentTree, options = {}) {
         return !url.startsWith('http') && !url.startsWith('#') && !url.startsWith('mailto');
     }
 
-    const resultTree = await transformTree(contentTree, async(tree) => {
-        // This is necessary because the unist-util-visit visit method does not support asynchronous visitors.
+    for (const imageOrLink of unifyBoth(analysis)) {
+        if(imageOrLink.node.title) {
+            imageOrLink.node.title = null;
+        }
 
-        await analysis(tree)
-            .eachImage(async(image) => {
-                if(image.node.title) {
-                    image.node.title = null;
-                }
+        const url = imageOrLink.getUrl();
 
-                if(isLocal(image.getUrl())) {
-                    image.setUrl(await rewriteAttachment(image.getUrl(), 'image'));
-                }
-            })
-            .eachLink(async(link) => {
-                if(link.node.title) {
-                    link.node.title = null;
-                }
+        if(isLocal(url)) {
+            imageOrLink.setUrl(
+                imageOrLink.type == 'image'
+                    ? await rewriteAttachment(url, 'image')
+                    : await rewriteLink(url)
+            );
+        }
+    }
 
-                if(isLocal(link.getUrl())) {
-                    link.setUrl(await rewriteLink(link.getUrl()));
-                }
-            })
-            .do();
-    });
-
-    return { tree: resultTree, attachments };
+    return { attachments };
 }

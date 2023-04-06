@@ -4,6 +4,9 @@ import createApi from '../../src/core/api.js';
 import nullLogger from '../support/null_logger.js';
 import arrayLogger from '../support/array_logger.js';
 import createClient from '../support/api_client.js';
+import { image, imageReference, definition } from '../../src/core/mdast_predicates.js';
+import analyze from '../../src/core/unist_analyze.js';
+import attachFooter from '../../src/core/attach_footer.js';
 
 async function build(filePath, content, options = {}) {
     options.logger ||= nullLogger();
@@ -22,9 +25,10 @@ async function build(filePath, content, options = {}) {
         options.footer = '<{{repository_url}}>';
     }
 
-    const tree = await buildTree(content, options);
-    const result = (await transformContent(filePath, tree, options)).tree;
-    return (await renderTree(result));
+    const tree = await buildTree(attachFooter(content, options), options);
+    const analysis = analyze(tree, image, imageReference, definition);
+    await transformContent(filePath, analysis, options);
+    return (await renderTree(tree));
 }
 
 describe('build_content.js', () => {

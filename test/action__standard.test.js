@@ -27,6 +27,9 @@ async function action(options) {
     options.inputs.attachmentHandler ||= 'auto';
     options.inputs.collectionType ||= 'standard';
     options.defaultFooter ||= '<{{repository_url}}>';
+    if(options.footer === undefined) {
+        options.footer = true;
+    }
     options.github ||= {};
     options.github.repo ||= {};
     options.github.repo.url ||= 'https://example.com';

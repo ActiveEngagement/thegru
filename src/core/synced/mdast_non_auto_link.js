@@ -1,3 +1,14 @@
+//
+// This is a horrifying solution to a problem that should be temporary.
+//
+// Guru, for whatever reason, does not like auto links. We therefore must prevent their creation. This function is a
+// remark-stringify handler that has been copied straight from the link handler in the GitHub repository, with the
+// autolink parts removed.
+//
+// I could think of no better way, unfortunately.
+//
+
+
 /**
  * @typedef {import('mdast').Link} Link
  * @typedef {import('../types.js').Parent} Parent

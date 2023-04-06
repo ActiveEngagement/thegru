@@ -3,7 +3,10 @@ import { buildTree, renderTree } from '../content.js';
 import transformContent from './transform_content.js';
 import { readFile } from '../fs_util.js';
 import { resolveLocalPath } from '../util.js';
-import analysis from '../mdast_analysis.js';
+import analyze from '../unist_analyze.js';
+import { image, imageReference, definition } from '../mdast_predicates.js';
+import { unifyImages } from '../mdast_unify.js';
+import attachFooter from '../attach_footer.js';
 
 /**
  * Syncs (creates or updates) the given card.
@@ -13,17 +16,14 @@ export default async function(filePath, cardTitle, options) {
 
     logger.info(`Reading ${filePath}`);
     const content = await readFile(filePath);
-    const contentTree = await buildTree(content, { logger, github, footer });
+    const contentTree = buildTree(attachFooter(content, { logger, github, footer }));
+
+    const analysis = analyze(contentTree, image, imageReference, definition);
 
     // Extract the paths of referenced images from the Markdown file so that we can check whether they have changed.
-    const imagePaths = [];
-    analysis(contentTree)
-        .eachImage(image => {
-            if(!image.getUrl().startsWith('http')) {
-                imagePaths.push(resolveLocalPath(image.getUrl(), path.dirname(filePath)));
-            }
-        })
-        .doSync();
+    const imagePaths = unifyImages(analysis)
+        .filter(image => image.getUrl().startsWith('http'))
+        .map(image => resolveLocalPath(image.getUrl(), path.dirname(filePath)));
     
     const watchedFiles = [filePath, ...imagePaths];
 
@@ -41,14 +41,14 @@ export default async function(filePath, cardTitle, options) {
     }
 
     // Build the card content.
-    const { tree: resultContentTree, attachments } = await transformContent(filePath, contentTree, {
+    const { attachments } = await transformContent(filePath, analysis, {
         logger,
         api,
         github,
         footer,
         attachmentHandler
     });
-    const builtContent = renderTree(resultContentTree);
+    const builtContent = renderTree(contentTree);
     const wrappedContent = builtContent;
 
     // It is necessary to transform the attachments slightly because of Guru craziness.
