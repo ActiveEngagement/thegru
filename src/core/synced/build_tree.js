@@ -92,8 +92,8 @@ export default function(rules, options) {
             const payload = { file: fullPath };
 
             // Attach any valid info.
-            for (const key of allowedCardInfo) {
-                if (key in rule) {
+            for(const key of allowedCardInfo) {
+                if(key in rule) {
                     payload[key] = rule[key];
                 }
             }

@@ -27,7 +27,7 @@ function createType(name, level) {
  * yielded to the callback and replaced with its return value.
  */
 export function types(callback = null) {
-    const ids = Object.keys(_types)
+    const ids = Object.keys(_types);
     
     return callback ? ids.map(callback) : ids;
 }

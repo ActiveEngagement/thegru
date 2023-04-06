@@ -115,7 +115,7 @@ export default async function(filePath, analysis, options = {}) {
         return !url.startsWith('http') && !url.startsWith('#') && !url.startsWith('mailto');
     }
 
-    for (const imageOrLink of unifyBoth(analysis)) {
+    for(const imageOrLink of unifyBoth(analysis)) {
         if(imageOrLink.node.title) {
             imageOrLink.node.title = null;
         }

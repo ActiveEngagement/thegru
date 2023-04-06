@@ -13,12 +13,12 @@ export default function(tree, ...tests) {
     const nodes = tests.map(() => []);
 
     visit(tree, (node, index, parent) => {
-        for (let i = 0; i < tests.length; i++) {
-            if (is(node, tests[i], index, parent)) {
+        for(let i = 0; i < tests.length; i++) {
+            if(is(node, tests[i], index, parent)) {
                 nodes[i].push(node);
             }
         }
-    })
+    });
 
     return createAnalysis(tests, nodes);
 }
@@ -33,8 +33,8 @@ export function createAnalysis(tests, nodes) {
 }
 
 export function validate(analysis, ...required) {
-    for (const key of required) {
-        if (!analysis.get(key)) {
+    for(const key of required) {
+        if(!analysis.get(key)) {
             throw new TheGuruError(`The tree analysis does not contain the required key "${key}". This should never happen and is certainly a bug.`);
         }
     }

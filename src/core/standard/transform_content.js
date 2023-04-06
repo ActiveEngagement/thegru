@@ -42,7 +42,7 @@ export default async function(filePath, analysis, options = {}) {
         return !url.startsWith('http') && !url.startsWith('mailto');
     }
 
-    for (const image of unifyImages(analysis)) {
+    for(const image of unifyImages(analysis)) {
         if(isLocalImage(image.getUrl())) {
             image.setUrl(await getImageUrl(image.getUrl()));
         }

@@ -109,13 +109,14 @@ export function traversePath(node, pathString, callback = undefined, options = {
 
         let currentNode = parentNode.children.get(part);
 
-        if (!currentNode) {
-            if (makeMissing) {
+        if(!currentNode) {
+            if(makeMissing) {
                 if(!currentNode) {
                     currentNode = container();
                     attach(parentNode, part, currentNode);
                 }
-            } else {
+            }
+            else {
                 throw new TheGuruError(`${currentPath} does not exist in the tree!`);
             }
         }
