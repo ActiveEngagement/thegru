@@ -1,7 +1,11 @@
-import fs from 'fs';
 import path from 'path';
 import generate from './generate_collection.js';
 import write from './write_collection.js';
+
+/**
+ * This is the entrypoint for most of the synced-collection-based action logic. It is intentionally abstracted away
+ * from GitHub Actions and should be executable even in a test environment.
+ */
 
 export default async function(options) {
     const {

@@ -1,7 +1,6 @@
 import path from 'path';
 import globBase from 'glob';
 import { stripExtension } from './fs_util.js';
-import { visit } from 'unist-util-visit';
 
 export function base64(input) {
     return Buffer.from(input, 'utf8').toString('base64');

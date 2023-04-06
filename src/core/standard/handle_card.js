@@ -5,6 +5,9 @@ import { readFile } from '../fs_util.js';
 import { resolveLocalPath } from '../util.js';
 import analysis from '../mdast_analysis.js';
 
+/**
+ * Syncs (creates or updates) the given card.
+ */
 export default async function(filePath, cardTitle, options) {
     const { logger, api, github, inputs, attachmentHandler, footer, existingCardIds, didFileChange } = options;
 

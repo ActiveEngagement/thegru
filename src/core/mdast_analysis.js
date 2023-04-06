@@ -1,9 +1,18 @@
 import { visit } from 'unist-util-visit';
 
+/**
+ * Exposes a fluent api for "analyzing" an MDAST tree.
+ * 
+ * At the moment, it supports iterating over images and links, as well as other nodes by type. The impetus for this
+ * function was twofold:
+ *   1. Because the unist-util-visit visit() method is synchronous, nodes need to be "collected" and then iterated over.
+ *   2. Because images and links can be specified with the "reference-style" syntax, images and links needed a common
+ *      interface.
+ */
 export default function(tree) {
-    const requisites = [];
-    const nodes = {};
-    const analyzers = [];
+    const requisites = []; // All the unique node types that will need to be aggregated.
+    const nodes = {}; // Will be populated with the nodes of each requisite type.
+    const analyzers = []; // Callbacks to which to give the nodes when ready.
 
     function ensureRequisite(requisite) {
         if(!requisites.includes(requisite)) {
@@ -17,6 +26,15 @@ export default function(tree) {
         return this;
     }
 
+    /**
+     * Adds a basic "node analyzer," which simply analyzes nodes of a given type. For example:
+     * 
+     * ```
+     * analysis(tree)
+     *   .eachNode('paragraph', p => console.log(p.text))
+     *   .doSync();
+     * ```
+     */
     function addNodeAnalyzer(nodeType, callback) {
         ensureRequisite(nodeType);
 
@@ -29,6 +47,28 @@ export default function(tree) {
         return this;
     }
 
+    /**
+     * Adds an "image analyzer," which analyzes both `image` and `imageReference` nodes and unifies them under a single
+     * interface for easy URL accessing. For example:
+     * 
+     * ```
+     * analysis(tree)
+     *   .eachImage(i => console.log(i.getUrl()))
+     *   .doSync();
+     * ```
+     * 
+     * `https://google.com` will be output when `tree` is built from either of the two following Markdown snippets:
+     * 
+     * ```
+     * ![test](https://google.com)
+     * ```
+     * 
+     * ```
+     * ![test]
+     * 
+     * [test]: https://google.com
+     * ```
+     */
     function addImageAnalyzer(callback) {
         ensureRequisite('image');
         ensureRequisite('imageReference');
@@ -70,6 +110,28 @@ export default function(tree) {
         return this;
     }
 
+    /**
+     * Adds a "link analyzer," which analyzes both `link` and `linkReference` nodes and unifies them under a single
+     * interface for easy URL accessing. For example:
+     * 
+     * ```
+     * analysis(tree)
+     *   .eachLink(l => console.log(l.getUrl()))
+     *   .doSync();
+     * ```
+     * 
+     * `https://google.com` will be output when `tree` is built from either of the two following Markdown snippets:
+     * 
+     * ```
+     * [test](https://google.com)
+     * ```
+     * 
+     * ```
+     * [test]
+     * 
+     * [test]: https://google.com
+     * ```
+     */
     function addLinkAnalyzer(callback) {
         ensureRequisite('link');
         ensureRequisite('linkReference');
@@ -125,6 +187,9 @@ export default function(tree) {
         });
     }
 
+    /**
+     * Asynchronously performs the analysis. Analyzers may safely return promises.
+     */
     async function doFunc() {
         visitAll();
 
@@ -135,6 +200,9 @@ export default function(tree) {
         return this;
     }
 
+    /**
+     * Synchronously performs the analysis. Analyzers should not return promises.
+     */
     function doSync() {
         visitAll();
 

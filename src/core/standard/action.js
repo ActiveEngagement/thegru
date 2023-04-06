@@ -5,6 +5,10 @@ import commitFlags from '../commit_flags.js';
 import handleCard from './handle_card.js';
 import { InvalidGitObjectError } from '../error.js';
 
+/**
+ * This is the entrypoint for most of the standard-collection-based action logic. It is intentionally abstracted away
+ * from GitHub Actions and should be executable even in a test environment.
+ */
 export default async function(options) {
     const {
         api,
