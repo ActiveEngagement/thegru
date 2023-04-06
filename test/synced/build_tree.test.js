@@ -1,4 +1,4 @@
-import buildTreeBase from '../../src/core/synced/tree/build_tree.js';
+import buildTreeBase from '../../src/core/synced/tree/build.js';
 import nullLogger from '../support/null_logger.js';
 import arrayLogger from '../support/array_logger.js';
 import env from '../support/env.js';

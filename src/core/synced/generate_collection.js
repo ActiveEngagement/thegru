@@ -1,7 +1,7 @@
-import buildTree from './tree/build_tree.js';
-import informTree from './tree/inform_tree.js';
-import typifyTree from './tree/typify_tree.js';
-import flattenTree from './tree/flatten_tree.js';
+import buildTree from './tree/build.js';
+import informTree from './tree/inform.js';
+import typifyTree from './tree/typify.js';
+import flattenTree from './tree/flatten.js';
 import * as content from '../content.js';
 import transformContent from './transform_content.js';
 import { ensureContainerPath } from './tree/util.js';
