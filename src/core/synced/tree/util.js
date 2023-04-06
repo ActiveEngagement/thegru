@@ -1,7 +1,7 @@
 import path from 'path';
-import { TheGuruError } from '../error.js';
-import { toMap } from '../util.js';
-import { allowedCardInfo, allowedContainerInfo } from './allowed_info.js';
+import { TheGuruError } from '../../error.js';
+import { toMap } from '../../util.js';
+import { allowedCardInfo, allowedContainerInfo } from '../allowed_info.js';
 
 //
 // Contains utilities for creating and working with theguru card/container trees.

@@ -4,7 +4,7 @@ import createApi from '../../src/core/api.js';
 import nullLogger from '../support/null_logger.js';
 import arrayLogger from '../support/array_logger.js';
 import env from '../support/env.js';
-import { container, root } from '../../src/core/synced/tree.js';
+import { container, root } from '../../src/core/synced/tree/util.js';
 import * as types from '../../src/core/synced/container_types.js';
 import { image, imageReference, link, linkReference, definition } from '../../src/core/mdast_predicates.js';
 import analyze from '../../src/core/unist_analyze.js';

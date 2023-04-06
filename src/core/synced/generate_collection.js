@@ -1,10 +1,10 @@
-import buildTree from './build_tree.js';
-import informTree from './inform_tree.js';
-import typifyTree from './typify_tree.js';
-import flattenTree from './flatten_tree.js';
+import buildTree from './tree/build_tree.js';
+import informTree from './tree/inform_tree.js';
+import typifyTree from './tree/typify_tree.js';
+import flattenTree from './tree/flatten_tree.js';
 import * as content from '../content.js';
 import transformContent from './transform_content.js';
-import { ensureContainerPath } from './tree.js';
+import { ensureContainerPath } from './tree/util.js';
 import linkHandler from './mdast_non_auto_link.js';
 import attachFooter from '../attach_footer.js';
 import analyze from '../unist_analyze.js';

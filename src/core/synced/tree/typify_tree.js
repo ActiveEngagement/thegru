@@ -1,7 +1,7 @@
 import path from 'path';
-import { traverse } from './tree.js';
-import * as types from './container_types.js';
-import { InvalidContainerConfigurationError } from '../error.js';
+import { traverse } from './util.js';
+import * as types from '../container_types.js';
+import { InvalidContainerConfigurationError } from '../../error.js';
 
 /**
  * Traverses the given tree and assigns container types (i.e. board, board group, or board section) to each container

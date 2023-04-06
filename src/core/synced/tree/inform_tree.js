@@ -1,10 +1,10 @@
 import path from 'path';
 import fs from 'fs';
-import { readFileSync, stripExtension } from '../fs_util.js';
-import { traverse } from './tree.js';
+import { readFileSync, stripExtension } from '../../fs_util.js';
+import { traverse } from './util.js';
 import matter from 'gray-matter';
 import yaml from 'js-yaml';
-import { allowedCardInfo, allowedContainerInfo } from './allowed_info.js';
+import { allowedCardInfo, allowedContainerInfo } from '../allowed_info.js';
 
 /**
  * Traverses the given card/container tree and attempts to attach information (e.g. titles, external urls, descriptions,

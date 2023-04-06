@@ -1,7 +1,7 @@
 import path from 'path';
-import { root, card, attach, traversePath, ensureContainerPath } from './tree.js';
-import { glob } from '../util.js';
-import { allowedCardInfo } from './allowed_info.js';
+import { root, card, attach, traversePath, ensureContainerPath } from './util.js';
+import { glob } from '../../util.js';
+import { allowedCardInfo } from '../allowed_info.js';
 
 /**
  * Builds a basic tree of cards and containers from the given set of card rules. This tree contains only file paths

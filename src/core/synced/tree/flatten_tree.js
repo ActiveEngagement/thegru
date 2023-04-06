@@ -1,7 +1,7 @@
 import path from 'path';
-import { joinNames } from '../util.js';
-import * as types from './container_types.js';
-import { traverse } from './tree.js';
+import { joinNames } from '../../util.js';
+import * as types from '../container_types.js';
+import { traverse } from './util.js';
 
 /**
  * Flattens the given card/container tree into arrays of cards, boards, and board groups, which is closer to the format

@@ -2,7 +2,7 @@ import path from 'path';
 import fs from 'fs';
 import { joinNames, resolveLocalPath } from '../util.js';
 import * as types from './container_types.js';
-import { traverse } from './tree.js';
+import { traverse } from './tree/util.js';
 import { validate } from '../unist_analyze.js';
 import { definition, image, imageReference, link, linkReference } from '../mdast_predicates.js';
 import { unifyBoth } from '../mdast_unify.js';
