@@ -46,11 +46,7 @@ export default async function(options) {
         });
 
         const output = unified()
-            .use(remarkStringify, {
-                handlers: {
-                    link
-                }
-            })
+            .use(remarkStringify)
             .stringify(resultTree);
         card.content = String(output);
 
