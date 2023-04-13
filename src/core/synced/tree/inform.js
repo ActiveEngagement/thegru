@@ -33,8 +33,7 @@ export default function(tree, options) {
 
             Object.assign(node.info, data);
 
-            if (data && data !== {}) {
-                console.log(data);
+            if (data && Object.keys(data).legnth !== 0) {
                 logger.info('Using frontmatter');
             }
 
