@@ -55,7 +55,7 @@ async function main() {
 
         // Greet the user.
         logger.info(`Here we go! ${colors.yellow(`theguru v${version}`)} is ready for takeoff!`);
-        logger.debug(`Inputs: ${JSON.stringify(inputs)}`);
+        logger.trace(`Inputs: ${JSON.stringify(inputs)}`);
 
         // Set up an API client that delegates to node-fetch.
         const client = createClient(createFetch({ logger }));

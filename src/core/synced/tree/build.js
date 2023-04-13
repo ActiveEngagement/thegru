@@ -8,7 +8,7 @@ import { allowedCardInfo } from '../allowed_info.js';
  * and types, plus any info contained in the rules themselves.
  */
 export default function(rules, options) {
-    const { logger } = options;
+    const { logger, colors } = options;
 
     const tree = root();
     rules.forEach(applyRule);
@@ -28,6 +28,7 @@ export default function(rules, options) {
             //
             // Do note that no file paths are included when missing containers are created, because there is no
             // guarantee of a corresponding directory.
+            logger.trace(`The container "${rule.container}" was specified explicitly in the rule.`);
             return ensureContainerPath(tree, rule.container);
         }
 
@@ -40,6 +41,7 @@ export default function(rules, options) {
             //
             // Note that no file paths are included in any created containers, since there are likely no corresponding
             // directories.
+            logger.trace(`A rootContainer "${rootContainerPath}" was specified in the rule. We'll prepend it to the container path.`);
             rootContainer = ensureContainerPath(tree, rootContainerPath);
         }
         else {
@@ -59,6 +61,7 @@ export default function(rules, options) {
             // This way, if the container was originally created by some other method (say, an explicit container clause
             // in a rule, but also referenced by a rule containing a card beneath a subdirectory, then the file will
             // still get attached as it should and info files will still be read).
+            logger.trace(`The card resides in the relative directory ${containerPath}. We'll append it to the contianer path.`);
             container = traversePath(rootContainer, containerPath, (node, ctx) => {
                 if(!node.file) {
                     node.file = path.join(parentDir, ctx.path);
@@ -90,10 +93,15 @@ export default function(rules, options) {
             logger.debug('\t' + file);
 
             const fullPath = path.join(parentDir, file);
+            logger.trace('\t\tFinding the right container for this card...');
             const container = getContainerForCard(rule, file, parentDir);
             const name = path.basename(file);
 
-            logger.trace(`\t\tAssigned to container ${container}`);
+            if (container) {
+                logger.trace(`\t\tAssigned to ${container}`);
+            } else {
+                logger.trace(`\t\tAssigned to the top level (no container).`);
+            }
 
             const payload = { file: fullPath };
 
@@ -108,9 +116,7 @@ export default function(rules, options) {
      * Adds appropriate nodes to the tree for the given card rule.
      */
     function applyRule(rule) {
-        logger.debug('Rule:');
-        logger.debug(JSON.stringify(rule));
-        logger.debug('Process:');
+        logger.debug(`Found rule ${JSON.stringify(rule)}`);
 
         // A lone string is interpreted as a basic glob.
         if(typeof rule === 'string') {
@@ -129,7 +135,7 @@ export default function(rules, options) {
         if(rule.rootDir) {
             // If there's a root dir glob, then apply the rule for each indicated root dir.
 
-            logger.debug('Rule has a rootDir glob and will be interpretated once under each directory matching the glob.');
+            logger.debug('Since the rule has a rootDir glob, it will be interpretated once under each directory matching the glob.');
 
             if(!rule.rootDir.endsWith('/')) {
                 logger.warning(`Card rule rootDir "${rule.rootDir}" does not end with a "/". This was probably an accident, so we will append one.`);
