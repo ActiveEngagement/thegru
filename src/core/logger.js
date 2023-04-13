@@ -1,14 +1,23 @@
 import { SILENT, level, name, verbosities } from '../core/verbosities.js';
 
 export default function(base, verbosity) {
-    const instance = { };
+    const instance = {
+        startGroup(message, v) {
+            if(!v || level(v) <= level(verbosity)) {
+                base.startGroup(message, verbosity);
+            }
+        },
 
-    // Delegate these directly.
-    ['startGroup', 'endGroup'].forEach((name) => {
-        instance[name] = function(message) {
-            base[name](message);
-        };
-    });
+        endGroup(v) {
+            if(!v || level(v) <= level(verbosity)) {
+                base.endGroup(verbosity);
+            }
+        },
+
+        verbosity() {
+            return verbosity;
+        }
+    };
 
     // Register a log method for each verbosity that delegates if it is not less than the current verbosity.
     verbosities().forEach(v => {
@@ -23,8 +32,6 @@ export default function(base, verbosity) {
             }
         };
     })
-
-    instance.verbosity = () => verbosity;
 
     return instance;
 }

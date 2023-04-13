@@ -9,7 +9,7 @@ import linkHandler from './mdast_non_auto_link.js';
 import attachFooter from '../attach_footer.js';
 import analyze from '../unist_analyze.js';
 import { image, imageReference, link, linkReference, definition } from '../mdast_predicates.js';
-import { INFO, level } from '../verbosities.js';
+import { INFO } from '../verbosities.js';
 
 /**
  * Generates an object representing the new synced collection.
@@ -29,13 +29,11 @@ export default async function(options) {
     } = options;
 
     function heading(message) {
-        //if (level(logger.verbosity()) > INFO) {
-            message = colors.bold(message);
-        //}
-        logger.info(message);
+        logger.info(colors.dim('> ') + message);
     }
 
-    logger.startGroup('Process card/container rules');
+    logger.info(' ');
+    logger.startGroup('Process card/container rules', INFO);
 
     // Build the card/container tree from the provided card rules.
     heading('Reading the cards config...');
@@ -67,7 +65,7 @@ export default async function(options) {
         preferredContainer: inputs.preferredContainer
     });
 
-    logger.endGroup();
+    logger.endGroup(INFO);
 
     // Flatten the now-complete tree into cards, boards, and board groups.
     const { cards, boards, boardGroups } = flattenTree(tree, { logger });

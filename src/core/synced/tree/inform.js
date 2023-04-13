@@ -68,7 +68,7 @@ export default function(tree, options) {
             for(const key of Object.keys(node.info)) {
                 if(!allowedContainerInfo.includes(key)) {
                     delete node.info[key];
-                    logger.info(`${state.path} contains invalid info key "${key}. It will be ignored.`);
+                    logger.warning(`${state.path} contains invalid info key "${key}. It will be ignored.`);
                 }
             }
         }
