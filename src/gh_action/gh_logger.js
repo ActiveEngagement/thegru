@@ -20,7 +20,7 @@ export default function(options) {
             msg = colors.bold.yellow('!!!') + ' ' + msg;
         }
 
-        func(m);
+        func(msg);
     }
 
     return logger({
