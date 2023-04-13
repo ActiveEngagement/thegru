@@ -38,8 +38,8 @@ export default async function(options) {
         attachmentHandler
     });
 
-    logger.debug('Generated collection:\n');
-    logger.debug(JSON.stringify(collection, undefined, 4));
+    logger.trace('Generated collection:\n');
+    logger.trace(JSON.stringify(collection, undefined, 4));
 
     // Write the collection to a temporary zip file and output its path.
     logger.info(' ');
