@@ -2,7 +2,7 @@ import path from 'path';
 import { root, card, attach, traversePath, ensureContainerPath } from './util.js';
 import { glob } from '../../util.js';
 import { allowedCardInfo } from '../allowed_info.js';
-import { INFO, level } from '../../verbosities.js';
+import { DEBUG, INFO, level } from '../../verbosities.js';
 
 /**
  * Builds a basic tree of cards and containers from the given set of card rules. This tree contains only file paths
@@ -97,7 +97,7 @@ export default function(rules, options) {
         logger.debug(`Found these files under ${parentDir}`);
 
         for(const file of files) {
-            if (level(logger.verbosity()) > INFO) {
+            if (level(logger.verbosity()) > DEBUG) {
                 logger.debug('\t' + file);
             }
 
@@ -105,12 +105,12 @@ export default function(rules, options) {
             const { container, path: containerPath } = getContainerForCard(rule, file, parentDir);
             const name = path.basename(file);
 
-            const containerString = containerPath === '' ? 'the top level' : containerPath;
+            const containerString = containerPath === '' ? 'the top level' : `"${containerPath}"`;
 
-            if (level(logger.verbosity()) <= INFO) {
+            if (level(logger.verbosity()) <= DEBUG) {
                 logger.debug('\t' + file + colors.dim(` (assigned to ${containerString})`));
             } else {
-                logger.trace(`\t\tAssigned to ${containerString}`);
+                logger.trace(`\t\tAssigned to ${containerString}.`);
             }
 
             const payload = { file: fullPath };
