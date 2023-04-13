@@ -163,7 +163,5 @@ export default function(rules, options) {
             // Otherwise, apply the rule without any parent dir.
             applyRuleForParentDir(rule, ruleInfo, '');
         }
-
-        logger.debug('');
     }
 }
