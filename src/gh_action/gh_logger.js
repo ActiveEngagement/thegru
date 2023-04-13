@@ -18,7 +18,7 @@ export default function(options) {
     }
 
     function warning(message) {
-        this.info(colors.black.bgYellow('[!!!]') + ' ' + message);
+        this.info(colors.yellow('!!!') + ' ' + message);
     }
 
     function notice(message) {
