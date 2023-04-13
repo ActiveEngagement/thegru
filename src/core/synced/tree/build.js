@@ -94,12 +94,12 @@ export default function(rules, options) {
             nodir: true
         });
 
-        logger.debug(`Found these files under ${parentDir}`);
-        logger.indent(DEBUG);
+        logger.info(`Found these files under ${parentDir}`);
+        logger.indent(INFO);
 
         for(const file of files) {
             if (level(logger.verbosity()) > DEBUG) {
-                logger.debug(file);
+                logger.info(file);
                 logger.indent();
             }
 
@@ -110,7 +110,7 @@ export default function(rules, options) {
             const containerString = containerPath === '' ? 'the top level' : `"${containerPath}"`;
 
             if (level(logger.verbosity()) <= DEBUG) {
-                logger.debug(file + colors.gray(` (assigned to ${containerString})`));
+                logger.info(file + colors.gray(` (assigned to ${containerString})`));
             } else {
                 logger.trace(`Assigned to ${containerString}.`);
                 logger.unindent();
@@ -124,14 +124,14 @@ export default function(rules, options) {
             attach(container, name, card(payload));
         }
 
-        logger.unindent(DEBUG);
+        logger.unindent(INFO);
     }
 
     /**
      * Adds appropriate nodes to the tree for the given card rule.
      */
     function applyRule(rule) {
-        logger.debug(`Found rule ${JSON.stringify(rule)}`);
+        logger.debug(colors.bold(`Found rule ${JSON.stringify(rule)}`));
 
         // A lone string is interpreted as a basic glob.
         if(typeof rule === 'string') {

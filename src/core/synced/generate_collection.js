@@ -9,7 +9,7 @@ import linkHandler from './mdast_non_auto_link.js';
 import attachFooter from '../attach_footer.js';
 import analyze from '../unist_analyze.js';
 import { image, imageReference, link, linkReference, definition } from '../mdast_predicates.js';
-import { DEBUG, INFO } from '../verbosities.js';
+import { DEBUG, INFO, WARNING } from '../verbosities.js';
 
 /**
  * Generates an object representing the new synced collection.
@@ -33,14 +33,15 @@ export default async function(options) {
     }
 
     logger.info(' ');
-    logger.startGroup('Process card/container rules', INFO);
 
     // Build the card/container tree from the provided card rules.
-    heading('Reading the cards config...');
+    logger.startGroup('Read the cards config');
     const tree = buildTree(inputs.cards, { logger, colors });
+    logger.endGroup();
 
-    heading('Reading the containers config...');
+    logger.startGroup('Read the containers config');
     const containerEntries = Object.entries(inputs.containers);
+    logger.endGroup();
 
     if (containerEntries.length > 0) {
         logger.debug(`Found these containers in the config:`);
@@ -49,32 +50,31 @@ export default async function(options) {
     }
 
     // Ensure that each explicitly provided container is created and attach the provided info.
-    logger.indent(DEBUG);
+    logger.indent(INFO);
     for(const [containerPath, info] of containerEntries) {
-        logger.debug(containerPath);
+        logger.info(containerPath);
         logger.trace(`  Info: ${JSON.stringify(info)}`);
 
         const container = ensureContainerPath(tree, containerPath);
         Object.assign(container.info, info);
     }
-    logger.unindent(DEBUG);
+    logger.unindent(INFO);
 
     // Traverse the tree and attach info to each node.
     // Note that explicitly provided info (in either inputs.cards or inputs.containers) has already been attached above.
-    heading('Looking for card/container info...');
-    informTree(tree, { logger });
-    logger.debug();
+    logger.startGroup('Look for card/container info');
+    informTree(tree, { logger, colors });
+    logger.endGroup();
 
     // Traverse the tree and determine each container's type (i.e. board, board group, or board section).
     // This is not entirely straightforward, since board groups cannot contain cards or board sections; therefore the
     // logic resides in its own file.
-    heading('Labelling containers "board" or "board group"...');
+    logger.startGroup('Designate containers as boards or board groups');
     typifyTree(tree, {
         logger,
         preferredContainer: inputs.preferredContainer
     });
-
-    logger.endGroup(INFO);
+    logger.endGroup();
 
     // Flatten the now-complete tree into cards, boards, and board groups.
     const { cards, boards, boardGroups } = flattenTree(tree, { logger });

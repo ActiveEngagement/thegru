@@ -23,8 +23,8 @@ export default function(tree, options = {}) {
     // groups that cannot contain cards, and it could lead to some slightly confusing behavior.
     for(const [rootName, node] of tree.children) {
         if(node.type === 'container') {
-            const topType = analyzeBranch(rootName, node, { logger, preferredType });
             logger.indent(DEBUG);
+            const topType = analyzeBranch(rootName, node, { logger, preferredType });
             logger.debug(`"${rootName}" will be a ${types.name(topType)}`);
             typifyBranch(node, topType);
             logger.unindent(DEBUG);

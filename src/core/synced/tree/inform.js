@@ -18,10 +18,10 @@ import { DEBUG } from '../../verbosities.js';
  * Note that as a side effect any info currently in the tree will be validated and fixed if necessary.
  */
 export default function(tree, options) {
-    const { logger } = options;
+    const { logger, colors } = options;
 
     traverse(tree).do((node, name, state) => {
-        logger.debug(state.path);
+        logger.info(colors.bold(state.path));
         logger.indent(DEBUG);
 
         // The default title is a titleized form of the filename.
@@ -34,7 +34,7 @@ export default function(tree, options) {
             Object.assign(node.info, data);
 
             if (data && data !== {}) {
-                logger.debug('Using frontmatter');
+                logger.info('Using frontmatter');
             }
 
             node.content = content;
@@ -43,7 +43,7 @@ export default function(tree, options) {
             const name = stripExtension(node.file);
             const infoPath = [name + '.yaml', name + '.yml'].find(p => fs.existsSync(p));
             if(infoPath) {
-                logger.debug(`Using ${infoPath}`);
+                logger.info(`Using ${infoPath}`);
                 Object.assign(node.info, yaml.load(readFileSync(infoPath)));
             }
 
@@ -61,7 +61,7 @@ export default function(tree, options) {
                 const infoBase = path.join(node.file, '.info');
                 const infoPath = [infoBase + '.yaml', infoBase + '.yml'].find(p => fs.existsSync(p));
                 if(infoPath) {
-                    logger.debug(`Using ${infoPath}`);
+                    logger.info(`Using ${infoPath}`);
                     Object.assign(node.info, yaml.load(readFileSync(infoPath)));
                 }
             }
