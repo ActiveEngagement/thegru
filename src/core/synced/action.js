@@ -53,7 +53,6 @@ export default async function(options) {
     const result = await api.uploadZip(inputs.collectionId, path.basename(zipPath), zipPath);
 
     if(result.jobId) {
-        console.log(colors);
         logger.info(`Collection ${colors.green('uploaded')} successfully, job id ${colors.bold(result.jobId)}`);
     } else {
         throw new TheGuruError('Sync failed with response: ' + JSON.stringify(result));
