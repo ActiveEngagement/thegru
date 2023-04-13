@@ -76,7 +76,7 @@ export default function(tree, options) {
         }
 
         logger.trace(`Evaluated info: ${JSON.stringify(node.info)}`);
-        logger.unindent(DEBUG);
+        logger.unindent();
     });
 }
 
