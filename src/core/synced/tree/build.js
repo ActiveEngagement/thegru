@@ -29,9 +29,13 @@ export default function(rules, options) {
             // Do note that no file paths are included when missing containers are created, because there is no
             // guarantee of a corresponding directory.
             logger.trace(`\t\tThe container "${rule.container}" was specified explicitly in the rule.`);
-            return ensureContainerPath(tree, rule.container);
+            return {
+                container: ensureContainerPath(tree, rule.container),
+                path: rule.container
+            };
         }
 
+        let fullContainerPath = '';
         let rootContainer;
 
         const rootContainerPath = rule.rootContainer;
@@ -42,6 +46,7 @@ export default function(rules, options) {
             // Note that no file paths are included in any created containers, since there are likely no corresponding
             // directories.
             logger.trace(`\t\tA rootContainer "${rootContainerPath}" was specified in the rule. We'll prepend it to the container path.`);
+            fullContainerPath = path.join(fullContainerPath, rootContainerPath);
             rootContainer = ensureContainerPath(tree, rootContainerPath);
         }
         else {
@@ -62,6 +67,7 @@ export default function(rules, options) {
             // in a rule, but also referenced by a rule containing a card beneath a subdirectory, then the file will
             // still get attached as it should and info files will still be read).
             logger.trace(`\t\tThe card resides in the relative directory ${containerPath}. We'll append it to the contianer path.`);
+            fullContainerPath = path.join(fullContainerPath, containerPath);
             container = traversePath(rootContainer, containerPath, (node, ctx) => {
                 if(!node.file) {
                     node.file = path.join(parentDir, ctx.path);
@@ -74,7 +80,7 @@ export default function(rules, options) {
             container = rootContainer;
         }
 
-        return container;
+        return { container, path: fullContainerPath };
     }
 
     /**
@@ -93,12 +99,11 @@ export default function(rules, options) {
             logger.debug('\t' + file);
 
             const fullPath = path.join(parentDir, file);
-            logger.trace('\t\tFinding the right container for this card...');
-            const container = getContainerForCard(rule, file, parentDir);
+            const { container, path: containerPath } = getContainerForCard(rule, file, parentDir);
             const name = path.basename(file);
 
             if (container) {
-                logger.trace(`\t\tAssigned to ${container}`);
+                logger.trace(`\t\tAssigned to ${containerPath}`);
             } else {
                 logger.trace(`\t\tAssigned to the top level (no container).`);
             }
