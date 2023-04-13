@@ -9,6 +9,7 @@ import linkHandler from './mdast_non_auto_link.js';
 import attachFooter from '../attach_footer.js';
 import analyze from '../unist_analyze.js';
 import { image, imageReference, link, linkReference, definition } from '../mdast_predicates.js';
+import { INFO, level } from '../verbosities.js';
 
 /**
  * Generates an object representing the new synced collection.
@@ -27,30 +28,40 @@ export default async function(options) {
         attachmentHandler
     } = options;
 
+    function heading(message) {
+        if (level(logger.verbosity()) > INFO) {
+            message = colors.bold(message);
+        }
+        logger.info(message);
+    }
+
     logger.startGroup('Process card/container rules');
 
     // Build the card/container tree from the provided card rules.
+    heading('Reading the cards config...');
     const tree = buildTree(inputs.cards, { logger });
 
-    logger.debug();
-
+    heading('Reading the containers config...');
+    logger.debug(`Found these containers in the config`);
     // Ensure that each explicitly provided container is created and attach the provided info.
     for(const [containerPath, info] of Object.entries(inputs.containers)) {
-        logger.debug(`Found container ${containerPath} in config.`);
+        logger.debug('\t' + containerPath);
+        logger.trace(`\t\tInfo: ${JSON.stringify(info)}`);
+
         const container = ensureContainerPath(tree, containerPath);
         Object.assign(container.info, info);
     }
 
-    // Traverse the tree and attaches info to each node.
+    // Traverse the tree and attach info to each node.
     // Note that explicitly provided info (in either inputs.cards or inputs.containers) has already been attached above.
-    logger.info(colors.bold('Looking for card/container info...'));
+    heading('Looking for card/container info...');
     informTree(tree, { logger });
     logger.debug();
 
     // Traverse the tree and determine each container's type (i.e. board, board group, or board section).
     // This is not entirely straightforward, since board groups cannot contain cards or board sections; therefore the
     // logic resides in its own file.
-    logger.info(colors.bold('Labelling containers boards or board groups...'));
+    heading('Labelling containers as boards or board groups...');
     typifyTree(tree, {
         logger,
         preferredContainer: inputs.preferredContainer

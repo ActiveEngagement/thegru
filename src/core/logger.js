@@ -24,5 +24,7 @@ export default function(base, verbosity) {
         };
     })
 
+    instance.verbosity = () => verbosity;
+
     return instance;
 }
