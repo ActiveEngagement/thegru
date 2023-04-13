@@ -68,6 +68,8 @@ export default async function(cards, options) {
         await rewriteCard(card);
     }
 
+    logger.endGroup();
+
     if (topLevelCards.length > 0) {
         logger.startGroup('Top-level cards');
         for (const card of topLevelCards) {

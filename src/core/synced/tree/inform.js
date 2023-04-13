@@ -54,6 +54,13 @@ export default function(tree, options) {
                     logger.warning(`Card "${state.path}" contains invalid info key "${key}". It will be ignored.`);
                 }
             }
+
+            const sanitized = sanitizeTitle(node.info.title);
+
+            if (node.info.title !== sanitized) {
+                node.info.title = sanitized;
+                logger.info(`Some invalid characters in the "title" were stripped out.`);
+            }
         }
         else if(node.type === 'container') {
             if(node.file) {
@@ -72,6 +79,13 @@ export default function(tree, options) {
                     delete node.info[key];
                     logger.warning(`${state.path} contains invalid info key "${key}". It will be ignored.`);
                 }
+            }
+
+            const sanitized = sanitizeTitle(node.info.title);
+
+            if (node.info.title !== sanitized) {
+                node.info.title = sanitized;
+                logger.info(`Some invalid characters in the "title" were stripped out.`);
             }
         }
 
@@ -106,4 +120,8 @@ function inferTitle(fileName) {
     );
 
     return titled;
+}
+
+function sanitizeTitle(title) {
+    return title.replaceAll(/[^a-zA-Z\d\s()'"\.,]/g, '');
 }
