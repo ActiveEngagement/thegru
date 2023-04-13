@@ -66,7 +66,7 @@ export default function(rules, options) {
             // This way, if the container was originally created by some other method (say, an explicit container clause
             // in a rule, but also referenced by a rule containing a card beneath a subdirectory, then the file will
             // still get attached as it should and info files will still be read).
-            logger.trace(`\t\tThe card resides in the relative directory ${containerPath}. We'll append it to the contianer path.`);
+            logger.trace(`\t\tThe card resides in the relative directory "${containerPath}". We'll append that to the path.`);
             fullContainerPath = path.join(fullContainerPath, containerPath);
             container = traversePath(rootContainer, containerPath, (node, ctx) => {
                 if(!node.file) {
@@ -103,9 +103,9 @@ export default function(rules, options) {
             const name = path.basename(file);
 
             if (containerPath === '') {
-                logger.trace(`\t\tAssigned to the top level (no container).`);
+                logger.trace(`\t\t=> Assigned to the top level (no container).`);
             } else {
-                logger.trace(`\t\tAssigned to ${containerPath}`);
+                logger.trace(`\t\t=> tAssigned to "${containerPath}".`);
             }
 
             const payload = { file: fullPath };
