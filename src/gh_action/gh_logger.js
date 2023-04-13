@@ -10,7 +10,7 @@ export default function(options) {
     const { colors, verbosity } = options;
 
     function message(msg, indent, verbosity) {
-        const func = core.info;
+        let func = core.info;
 
         if (verbosity === NOTICE) {
             func = core.warning;
