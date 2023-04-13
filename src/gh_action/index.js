@@ -13,7 +13,7 @@ import version from './version.cjs';
 import isRepoPublic from './gh_repo_public.js';
 import commitCardsFile from './commit_cards_file.js';
 import getChangedFilesBase from './file_changes.js';
-import verbosities from '../core/verbosities.js';
+import * as verbosities from '../core/verbosities.js';
 
 /**
  * This is the main entry point for the GitHub action. It's SOLE purpose should be to set up dependencies for
