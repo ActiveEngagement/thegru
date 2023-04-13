@@ -19,6 +19,8 @@ inputs:
     required: false
   attachment_handler:
     required: false
+  verbosity:
+    required: false
 
   board_id:
     required: false
