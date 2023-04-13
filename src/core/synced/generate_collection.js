@@ -40,9 +40,16 @@ export default async function(options) {
     const tree = buildTree(inputs.cards, { logger });
 
     heading('Reading the containers config...');
-    logger.debug(`Found these containers in the config`);
+    const containerEntries = Object.entries(inputs.containers);
+
+    if (containerEntries.length > 0) {
+        logger.debug(`Found these containers in the config:`);
+    } else {
+        logger.debug('No containers found in the config.');
+    }
+
     // Ensure that each explicitly provided container is created and attach the provided info.
-    for(const [containerPath, info] of Object.entries(inputs.containers)) {
+    for(const [containerPath, info] of containerEntries) {
         logger.debug('\t' + containerPath);
         logger.trace(`\t\tInfo: ${JSON.stringify(info)}`);
 

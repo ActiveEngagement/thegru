@@ -2,6 +2,7 @@ import path from 'path';
 import { root, card, attach, traversePath, ensureContainerPath } from './util.js';
 import { glob } from '../../util.js';
 import { allowedCardInfo } from '../allowed_info.js';
+import { INFO, level } from '../../verbosities.js';
 
 /**
  * Builds a basic tree of cards and containers from the given set of card rules. This tree contains only file paths
@@ -96,16 +97,20 @@ export default function(rules, options) {
         logger.debug(`Found these files under ${parentDir}`);
 
         for(const file of files) {
-            logger.debug('\t' + file);
+            if (level(logger.verbosity()) > INFO) {
+                logger.debug('\t' + file);
+            }
 
             const fullPath = path.join(parentDir, file);
             const { container, path: containerPath } = getContainerForCard(rule, file, parentDir);
             const name = path.basename(file);
 
-            if (containerPath === '') {
-                logger.trace(`\t\t=> Assigned to the top level (no container).`);
+            const containerString = containerPath === '' ? 'the top level' : containerPath;
+
+            if (level(logger.verbosity()) <= INFO) {
+                logger.debug('\t' + file + colors.dim(` (assigned to ${containerString})`));
             } else {
-                logger.trace(`\t\t=> Assigned to "${containerPath}".`);
+                logger.trace(`\t\tAssigned to ${containerString}`);
             }
 
             const payload = { file: fullPath };
@@ -140,7 +145,7 @@ export default function(rules, options) {
         if(rule.rootDir) {
             // If there's a root dir glob, then apply the rule for each indicated root dir.
 
-            logger.debug('Since the rule has a rootDir glob, it will be interpretated once under each directory matching the glob.');
+            logger.debug('Since the rule has a rootDir glob, it will be interpreted once under each directory matching the glob.');
 
             if(!rule.rootDir.endsWith('/')) {
                 logger.warning(`Card rule rootDir "${rule.rootDir}" does not end with a "/". This was probably an accident, so we will append one.`);
