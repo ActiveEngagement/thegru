@@ -10,11 +10,12 @@ let maxId = -1; // Keep track of the latest id.
 const _verbosities = {}; // The internal list of verbosities.
 
 export const SILENT = create('silent', 0);
-export const NOTICE = create('notice', 1);
-export const WARNING = create('warning', 2);
-export const INFO = create('info', 3);
-export const DEBUG = create('debug', 4);
-export const TRACE = create('trace', 5);
+export const ERROR = create('error', 1);
+export const NOTICE = create('notice', 2);
+export const WARNING = create('warning', 3);
+export const INFO = create('info', 4);
+export const DEBUG = create('debug', 5);
+export const TRACE = create('trace', 6);
 
 function create(name, level) {
     const id = (++maxId).toString(); // toString() is necessary because objects must have string keys.

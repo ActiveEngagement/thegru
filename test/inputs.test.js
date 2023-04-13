@@ -140,7 +140,7 @@ describe('inputs.js', () => {
             test('with invalid option throws error', () => {
                 const f = () => getInputs(name => name === 'verbosity' ? 'invalid' : getInput(name));
                 expect(f).toThrow(InvalidInputsError);
-                expect(f).toThrow('"verbosity" must be one of [silent, notice, warning, info, debug, trace]');
+                expect(f).toThrow('"verbosity" must be one of [silent, error, notice, warning, info, debug, trace]');
             });
         });
 
