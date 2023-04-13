@@ -21,7 +21,7 @@ export default function(tree, options) {
     const { logger } = options;
 
     traverse(tree).do((node, name, state) => {
-        logger.debug(`[${state.path}]`);
+        logger.debug(state.path);
         logger.indent(DEBUG);
 
         // The default title is a titleized form of the filename.
