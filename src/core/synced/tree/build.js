@@ -28,7 +28,7 @@ export default function(rules, options) {
             //
             // Do note that no file paths are included when missing containers are created, because there is no
             // guarantee of a corresponding directory.
-            logger.trace(`The container "${rule.container}" was specified explicitly in the rule.`);
+            logger.trace(`\t\tThe container "${rule.container}" was specified explicitly in the rule.`);
             return ensureContainerPath(tree, rule.container);
         }
 
@@ -41,7 +41,7 @@ export default function(rules, options) {
             //
             // Note that no file paths are included in any created containers, since there are likely no corresponding
             // directories.
-            logger.trace(`A rootContainer "${rootContainerPath}" was specified in the rule. We'll prepend it to the container path.`);
+            logger.trace(`\t\tA rootContainer "${rootContainerPath}" was specified in the rule. We'll prepend it to the container path.`);
             rootContainer = ensureContainerPath(tree, rootContainerPath);
         }
         else {
@@ -61,7 +61,7 @@ export default function(rules, options) {
             // This way, if the container was originally created by some other method (say, an explicit container clause
             // in a rule, but also referenced by a rule containing a card beneath a subdirectory, then the file will
             // still get attached as it should and info files will still be read).
-            logger.trace(`The card resides in the relative directory ${containerPath}. We'll append it to the contianer path.`);
+            logger.trace(`\t\tThe card resides in the relative directory ${containerPath}. We'll append it to the contianer path.`);
             container = traversePath(rootContainer, containerPath, (node, ctx) => {
                 if(!node.file) {
                     node.file = path.join(parentDir, ctx.path);
