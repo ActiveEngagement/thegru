@@ -1,6 +1,6 @@
 import { visit } from 'unist-util-visit';
 import { is } from 'unist-util-is';
-import { TheGuruError } from './error';
+import { TheGuruError } from './error.js';
 
 /**
  * "Analyzes" a UNIST tree.
