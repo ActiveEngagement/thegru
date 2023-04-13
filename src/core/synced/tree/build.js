@@ -84,16 +84,16 @@ export default function(rules, options) {
             nodir: true
         });
 
-        logger.info(`Found these files under ${parentDir}`);
+        logger.debug(`Found these files under ${parentDir}`);
 
         for(const file of files) {
-            logger.info('\t' + file);
+            logger.debug('\t' + file);
 
             const fullPath = path.join(parentDir, file);
             const container = getContainerForCard(rule, file, parentDir);
             const name = path.basename(file);
 
-            logger.debug(`\t\tAssigned to container ${container}`);
+            logger.trace(`\t\tAssigned to container ${container}`);
 
             const payload = { file: fullPath };
 

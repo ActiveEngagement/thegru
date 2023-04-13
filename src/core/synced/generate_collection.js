@@ -29,9 +29,9 @@ export default async function(options) {
     } = options;
 
     function heading(message) {
-        if (level(logger.verbosity()) > INFO) {
+        //if (level(logger.verbosity()) > INFO) {
             message = colors.bold(message);
-        }
+        //}
         logger.info(message);
     }
 
