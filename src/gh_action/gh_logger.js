@@ -13,7 +13,7 @@ export default function(options) {
 
     function debug(message) {
         if(isDebug()) {
-            core.debug(message);
+            this.info(message);
         }
     }
 
