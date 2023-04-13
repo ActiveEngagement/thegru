@@ -105,7 +105,7 @@ export default function(rules, options) {
             if (containerPath === '') {
                 logger.trace(`\t\t=> Assigned to the top level (no container).`);
             } else {
-                logger.trace(`\t\t=> tAssigned to "${containerPath}".`);
+                logger.trace(`\t\t=> Assigned to "${containerPath}".`);
             }
 
             const payload = { file: fullPath };

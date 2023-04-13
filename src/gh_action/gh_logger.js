@@ -1,5 +1,5 @@
 import core from '@actions/core';
-import { NOTICE, WARNING } from '../core/verbosities.js';
+import { NOTICE, TRACE, WARNING } from '../core/verbosities.js';
 import logger from '../core/logger.js';
 
 /**
@@ -18,6 +18,10 @@ export default function(options) {
 
         if (verbosity === WARNING) {
             msg = colors.bold.yellow('!!!') + ' ' + msg;
+        }
+
+        if (verbosity === TRACE) {
+            msg = colors.dim(msg);
         }
 
         func(msg);
