@@ -3,7 +3,7 @@ import informTree from './tree/inform.js';
 import typifyTree from './tree/typify.js';
 import flattenTree from './tree/flatten.js';
 import { ensureContainerPath } from './tree/util.js';
-import rewrite from './tree/rewrite.js';
+import rewrite from './rewrite_cards.js';
 
 /**
  * Generates an object representing the new synced collection.
@@ -67,19 +67,19 @@ export default async function(options) {
     });
     logger.endGroup();
 
+    // Flatten the now-complete tree into cards, boards, and board groups.
+    const { cards, boards, boardGroups } = flattenTree(tree, { logger });
+
     // Now we need to transform each card's content in order to rewrite links, collect resources, etc.
     logger.info(' ');
     logger.info(colors.bold('Rewriting card content...'));
     logger.info(' ');
-    const resources = await rewrite(tree, {
+    const resources = await rewrite(cards, {
         logger,
         github,
-        cards,
-        attachmentHandler
+        attachmentHandler,
+        footer
     });
-
-    // Flatten the now-complete tree into cards, boards, and board groups.
-    const { cards, boards, boardGroups } = flattenTree(tree, { logger });
 
     return {
         tags: [], // Tags are currently unsupported, so we'll just return an empty array.
