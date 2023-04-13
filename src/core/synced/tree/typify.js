@@ -9,7 +9,7 @@ import { DEBUG } from '../../verbosities.js';
  * node based on its position in the tree and the given preferred top-level container type.
  */
 export default function(tree, options = {}) {
-    const { logger, preferredContainer } = options;
+    const { logger, colors, preferredContainer } = options;
 
     const preferredType = types.from(types.name, preferredContainer);
 
@@ -23,11 +23,13 @@ export default function(tree, options = {}) {
     // groups that cannot contain cards, and it could lead to some slightly confusing behavior.
     for(const [rootName, node] of tree.children) {
         if(node.type === 'container') {
-            logger.indent(DEBUG);
+            logger.info(colors.bold(rootName));
+
+            logger.indent();
             const topType = analyzeBranch(rootName, node, { logger, preferredType });
-            logger.debug(`"${rootName}" will be a ${types.name(topType)}`);
+            logger.info(`=> will be a ${types.name(topType)}.`);
             typifyBranch(node, topType);
-            logger.unindent(DEBUG);
+            logger.unindent();
         }
     }
 
@@ -87,7 +89,7 @@ export default function(tree, options = {}) {
         }
 
         if(topType !== preferredType) {
-            logger.info(`The preferred top-level container type "${types.name(preferredType)}" could not be used for container "${rootName}". Using "${types.name(topType)}" instead.`);
+            logger.info(`The preferred top-level container type "${types.name(preferredType)}" could not be used. Using "${types.name(topType)}" instead.`);
         }
 
         return topType;

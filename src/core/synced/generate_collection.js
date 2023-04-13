@@ -41,7 +41,6 @@ export default async function(options) {
 
     logger.startGroup('Read the containers config');
     const containerEntries = Object.entries(inputs.containers);
-    logger.endGroup();
 
     if (containerEntries.length > 0) {
         logger.debug(`Found these containers in the config:`);
@@ -59,6 +58,7 @@ export default async function(options) {
         Object.assign(container.info, info);
     }
     logger.unindent(INFO);
+    logger.endGroup();
 
     // Traverse the tree and attach info to each node.
     // Note that explicitly provided info (in either inputs.cards or inputs.containers) has already been attached above.
@@ -72,6 +72,7 @@ export default async function(options) {
     logger.startGroup('Designate containers as boards or board groups');
     typifyTree(tree, {
         logger,
+        colors,
         preferredContainer: inputs.preferredContainer
     });
     logger.endGroup();
