@@ -84,7 +84,7 @@ export default function(tree, options = {}) {
         }
 
         if(topType !== preferredType) {
-            logger.warning(`The preferred top-level container type "${types.name(preferredType)}" could not be used for container "${rootName}". Using "${types.name(topType)}" instead.`);
+            logger.info(`The preferred top-level container type "${types.name(preferredType)}" could not be used for container "${rootName}". Using "${types.name(topType)}" instead.`);
         }
 
         return topType;

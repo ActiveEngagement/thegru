@@ -84,7 +84,7 @@ export default function(rules, options) {
             nodir: true
         });
 
-        logger.info(`Matched these files under ${parentDir}:`);
+        logger.info(`Found these files under ${parentDir}`);
 
         for(const file of files) {
             logger.info('\t' + file);
