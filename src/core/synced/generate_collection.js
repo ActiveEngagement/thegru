@@ -76,6 +76,7 @@ export default async function(options) {
     logger.info(' ');
     const resources = await rewrite(cards, {
         logger,
+        colors,
         github,
         attachmentHandler,
         footer,
