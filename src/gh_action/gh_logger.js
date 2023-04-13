@@ -17,9 +17,17 @@ export default function(options) {
         }
     }
 
-    const instance = { isDebug, debug };
+    function warning(message) {
+        this.info(colors.yellow('!!! ') + message);
+    }
 
-    ['info', 'warning', 'startGroup', 'endGroup'].forEach((name) => {
+    function notice(message) {
+        core.warning(message);
+    }
+
+    const instance = { isDebug, debug, warning, notice };
+
+    ['info', 'startGroup', 'endGroup'].forEach((name) => {
         // Delegate each of these to GitHub actions.
         instance[name] = function(message) {
             core[name](message);
