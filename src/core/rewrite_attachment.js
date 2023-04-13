@@ -5,7 +5,7 @@ export default async function(url, resolved, type, options) {
 
     switch (attachmentHandler) {
     case 'upload':
-        logger.info(`'Uploading and rewriting local ${type} ${url}`);
+        logger.info(`Uploading and rewriting local ${type} ${url}`);
         return await upload(url, resolved, type);
     case 'github_urls':
         logger.info(`'Rewriting local ${type} ${url}`);
