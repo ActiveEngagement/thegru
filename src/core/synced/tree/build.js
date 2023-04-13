@@ -87,13 +87,13 @@ export default function(rules, options) {
         logger.info(`Matched these files under ${parentDir}:`);
 
         for(const file of files) {
-            logger.info(file);
+            logger.info('\t' + file);
 
             const fullPath = path.join(parentDir, file);
             const container = getContainerForCard(rule, file, parentDir);
             const name = path.basename(file);
 
-            logger.debug(`\tAssigned to container ${container}`);
+            logger.debug(`\t\tAssigned to container ${container}`);
 
             const payload = { file: fullPath };
 
