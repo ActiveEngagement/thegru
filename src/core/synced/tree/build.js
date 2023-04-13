@@ -78,25 +78,27 @@ export default function(rules, options) {
      * Adds appropriate container and card nodes to the tree for the given card rule, under the given parent directory
      * (which may be blank).
      */
-    function applyRuleForParentDir(rule, parentDir) {
+    function applyRuleForParentDir(rule, ruleInfo, parentDir) {
         const files = glob(rule.glob, {
             cwd: parentDir,
             nodir: true
         });
 
+        logger.info(`Matched these files under ${parentDir}:`);
+
         for(const file of files) {
+            logger.info(file);
+
             const fullPath = path.join(parentDir, file);
             const container = getContainerForCard(rule, file, parentDir);
             const name = path.basename(file);
 
+            logger.debug(`\tAssigned to container ${container}`);
+
             const payload = { file: fullPath };
 
             // Attach any valid info.
-            for(const key of allowedCardInfo) {
-                if(key in rule) {
-                    payload[key] = rule[key];
-                }
-            }
+            Object.assign(payload, ruleInfo);
 
             attach(container, name, card(payload));
         }
@@ -106,26 +108,41 @@ export default function(rules, options) {
      * Adds appropriate nodes to the tree for the given card rule.
      */
     function applyRule(rule) {
+        logger.debug('Rule:');
+        logger.debug(JSON.stringify(rule));
+        logger.debug('Process:');
+
         // A lone string is interpreted as a basic glob.
         if(typeof rule === 'string') {
-            applyRule({ glob: rule });
+            rule = { glob: rule };
+        }
 
-            return;
+        const ruleInfo = {};
+
+        for(const [key, value] of Object.entries(rule)) {
+            if(allowedCardInfo.includes(key)) {
+                logger.debug(`Using "${key}" from rule.`);
+                ruleInfo[key] = value;
+            }
         }
 
         if(rule.rootDir) {
             // If there's a root dir glob, then apply the rule for each indicated root dir.
+
+            logger.debug('Rule has a rootDir glob and will be interpretated once under each directory matching the glob.');
 
             if(!rule.rootDir.endsWith('/')) {
                 logger.warning(`Card rule rootDir "${rule.rootDir}" does not end with a "/". This was probably an accident, so we will append one.`);
                 rule.rootDir += '/';
             }
 
-            glob(rule.rootDir).forEach(p => applyRuleForParentDir(rule, p));
+            glob(rule.rootDir).forEach(p => applyRuleForParentDir(rule, ruleInfo, p));
         }
         else {
             // Otherwise, apply the rule without any parent dir.
-            applyRuleForParentDir(rule, '');
+            applyRuleForParentDir(rule, ruleInfo, '');
         }
+
+        logger.debug('');
     }
 }

@@ -20,6 +20,8 @@ export default function(tree, options) {
     const { logger } = options;
 
     traverse(tree).do((node, name, state) => {
+        logger.debug(state.path);
+
         // The default title is a titleized form of the filename.
         node.info.title ||= inferTitle(name);
 
@@ -28,12 +30,18 @@ export default function(tree, options) {
             const { data, content } = matter(readFileSync(node.file));
 
             Object.assign(node.info, data);
+
+            if (data && data !== {}) {
+                logger.debug('\tUsing frontmatter');
+            }
+
             node.content = content;
 
             // We'll read from the associated .yml or .yaml file if it exists.
             const name = stripExtension(node.file);
             const infoPath = [name + '.yaml', name + '.yml'].find(p => fs.existsSync(p));
             if(infoPath) {
+                logger.debug(`\tUsing ${infoPath}`);
                 Object.assign(node.info, yaml.load(readFileSync(infoPath)));
             }
 
@@ -51,6 +59,7 @@ export default function(tree, options) {
                 const infoBase = path.join(node.file, '.info');
                 const infoPath = [infoBase + '.yaml', infoBase + '.yml'].find(p => fs.existsSync(p));
                 if(infoPath) {
+                    logger.debug(`\tUsing ${infoPath}`);
                     Object.assign(node.info, yaml.load(readFileSync(infoPath)));
                 }
             }
@@ -63,6 +72,8 @@ export default function(tree, options) {
                 }
             }
         }
+
+        logger.debug(`\tInfo: ${JSON.stringify(node.info)}`);
     });
 }
 

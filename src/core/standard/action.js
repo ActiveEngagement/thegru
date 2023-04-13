@@ -25,7 +25,7 @@ export default async function(options) {
     // Determine the card footer.
     let footer = inputs.cardFooter;
     if(footer === undefined || footer === null || footer === true) {
-        logger.info('Using default card footer...');
+        logger.debug('Using default card footer...');
         footer = defaultFooter;
     }
 

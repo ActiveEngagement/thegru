@@ -23,6 +23,7 @@ export default function(tree, options = {}) {
     for(const [rootName, node] of tree.children) {
         if(node.type === 'container') {
             const topType = analyzeBranch(rootName, node, { logger, preferredType });
+            logger.debug(`\t${rootName} => ${types.name(topType)}`);
             typifyBranch(node, topType);
         }
     }

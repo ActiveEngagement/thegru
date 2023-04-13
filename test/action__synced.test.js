@@ -62,7 +62,7 @@ describe('action.js', () => {
 
     test('a typical scenario', async() => {
         const client = createClient({
-            uploadZipResult: {}
+            uploadZipResult: { jobId: '123' }
         });
 
         const logger = arrayLogger();
