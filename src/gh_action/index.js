@@ -43,7 +43,7 @@ async function main() {
         // Set up the colorizer to use ansi-colors if ANSI is allowed or a dummy otherwise.
         const colors = inputs.ansi ? c : nullColorizer();
 
-        const verbosity = inputs.verbosity;
+        let verbosity = inputs.verbosity;
         
         // If GitHub Actions is set to "Debug Logging" mode, then we'll raise the verbosity to DEBUG if it isn't already.
         if (core.isDebug() && verbosities.level(verbosity) < verbosities.level(verbosities.DEBUG)) {
