@@ -78,7 +78,8 @@ export default async function(options) {
         logger,
         github,
         attachmentHandler,
-        footer
+        footer,
+        tree
     });
 
     return {

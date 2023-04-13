@@ -8,12 +8,16 @@ import linkHandler from './mdast_non_auto_link.js';
 export default async function(cards, options) {
     const {
         logger,
+        colors,
         github,
         attachmentHandler,
-        footer
+        footer,
+        tree
     } = options;
 
     async function rewriteCard(card) {
+        logger.info(colors.bold(card.path));
+        logger.indent();
         // Build an MDAST tree of the card's content (with the footer attached).
         const contentTree = content.buildTree(
             attachFooter(card.content, { logger, github, footer })
@@ -36,6 +40,8 @@ export default async function(cards, options) {
 
         // Collect any referenced attachments that were found while processing the content so we can upload them later.
         resources.push(...attachments);
+
+        logger.unindent();
     }
 
     const resources = [];
