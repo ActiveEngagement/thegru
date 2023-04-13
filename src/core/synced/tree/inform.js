@@ -51,7 +51,7 @@ export default function(tree, options) {
             for(const key of Object.keys(node.info)) {
                 if(!allowedCardInfo.includes(key)) {
                     delete node.info[key];
-                    logger.info(`Card "${state.path}" contains invalid info key "${key}". It will be ignored.`);
+                    logger.warning(`Card "${state.path}" contains invalid info key "${key}". It will be ignored.`);
                 }
             }
         }
