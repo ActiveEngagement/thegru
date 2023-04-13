@@ -37,7 +37,7 @@ export default async function(options) {
 
     // Build the card/container tree from the provided card rules.
     heading('Reading the cards config...');
-    const tree = buildTree(inputs.cards, { logger });
+    const tree = buildTree(inputs.cards, { logger, colors });
 
     heading('Reading the containers config...');
     const containerEntries = Object.entries(inputs.containers);

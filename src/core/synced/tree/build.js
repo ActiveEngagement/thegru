@@ -108,7 +108,7 @@ export default function(rules, options) {
             const containerString = containerPath === '' ? 'the top level' : `"${containerPath}"`;
 
             if (level(logger.verbosity()) <= DEBUG) {
-                logger.debug('\t' + file + colors.dim(` (assigned to ${containerString})`));
+                logger.debug('\t' + file + colors.gray(` (assigned to ${containerString})`));
             } else {
                 logger.trace(`\t\tAssigned to ${containerString}.`);
             }
