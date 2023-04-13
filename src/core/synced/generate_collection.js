@@ -72,8 +72,7 @@ export default async function(options) {
 
     // Now we need to transform each card's content in order to rewrite links, collect resources, etc.
     logger.info(' ');
-    logger.info(colors.bold('Rewriting card content...'));
-    logger.info(' ');
+    logger.info('Rewriting card content...');
     const resources = await rewrite(cards, {
         logger,
         colors,

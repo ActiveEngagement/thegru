@@ -8,9 +8,6 @@ export default function(content, options) {
         const footer = footerTemplate.replaceAll('{{repository_url}}', github.repo.url);
         content += '\n\n' + footer;
     }
-    else {
-        logger.info('Skipping card footer...');
-    }
 
     return content;
 }

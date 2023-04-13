@@ -42,6 +42,7 @@ export default async function(options) {
     logger.debug(JSON.stringify(collection, undefined, 4));
 
     // Write the collection to a temporary zip file and output its path.
+    logger.info(' ');
     const zipPath = await write(collection, { logger });
     logger.info(`Zipped the collection to "${zipPath}"`);
     setOutput('zip', zipPath);

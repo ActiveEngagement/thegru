@@ -16,7 +16,7 @@ export default async function(filePath, analysis, options = {}) {
 
         if(!attachment) {
             if(!fs.existsSync(resolved)) {
-                logger.warning(`${filePath} referenced "${url}", which does not exist on the file system. We'll ignore it, but you likely have a broken link.`);
+                logger.notice(`${filePath} referenced "${url}", which does not exist on the file system. We'll ignore it, but you likely have a broken link.`);
                 return url;
             }
 
@@ -35,7 +35,7 @@ export default async function(filePath, analysis, options = {}) {
         }
 
         if(!fs.existsSync(resolved)) {
-            logger.warning(`${filePath} referenced "${url}", which does not exist on the file system. We'll ignore it, but you likely have a broken link.`);
+            logger.notice(`${filePath} referenced "${url}", which does not exist on the file system. We'll ignore it, but you likely have a broken link.`);
             return url;
         }
 
