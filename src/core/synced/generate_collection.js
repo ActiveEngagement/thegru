@@ -9,7 +9,7 @@ import linkHandler from './mdast_non_auto_link.js';
 import attachFooter from '../attach_footer.js';
 import analyze from '../unist_analyze.js';
 import { image, imageReference, link, linkReference, definition } from '../mdast_predicates.js';
-import { INFO } from '../verbosities.js';
+import { DEBUG, INFO } from '../verbosities.js';
 
 /**
  * Generates an object representing the new synced collection.
@@ -29,7 +29,7 @@ export default async function(options) {
     } = options;
 
     function heading(message) {
-        logger.info(colors.dim('> ') + message);
+        logger.info(colors.bold(message));
     }
 
     logger.info(' ');
@@ -49,13 +49,15 @@ export default async function(options) {
     }
 
     // Ensure that each explicitly provided container is created and attach the provided info.
+    logger.indent(DEBUG);
     for(const [containerPath, info] of containerEntries) {
-        logger.debug('\t' + containerPath);
-        logger.trace(`\t\tInfo: ${JSON.stringify(info)}`);
+        logger.debug(containerPath);
+        logger.trace(`  Info: ${JSON.stringify(info)}`);
 
         const container = ensureContainerPath(tree, containerPath);
         Object.assign(container.info, info);
     }
+    logger.unindent(DEBUG);
 
     // Traverse the tree and attach info to each node.
     // Note that explicitly provided info (in either inputs.cards or inputs.containers) has already been attached above.

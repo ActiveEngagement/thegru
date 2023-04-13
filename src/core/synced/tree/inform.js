@@ -5,6 +5,7 @@ import { traverse } from './util.js';
 import matter from 'gray-matter';
 import yaml from 'js-yaml';
 import { allowedCardInfo, allowedContainerInfo } from '../allowed_info.js';
+import { DEBUG } from '../../verbosities.js';
 
 /**
  * Traverses the given card/container tree and attempts to attach information (e.g. titles, external urls, descriptions,
@@ -20,7 +21,8 @@ export default function(tree, options) {
     const { logger } = options;
 
     traverse(tree).do((node, name, state) => {
-        logger.debug(state.path);
+        logger.debug(`[${state.path}]`);
+        logger.indent(DEBUG);
 
         // The default title is a titleized form of the filename.
         node.info.title ||= inferTitle(name);
@@ -32,7 +34,7 @@ export default function(tree, options) {
             Object.assign(node.info, data);
 
             if (data && data !== {}) {
-                logger.debug('\tUsing frontmatter');
+                logger.debug('Using frontmatter');
             }
 
             node.content = content;
@@ -41,7 +43,7 @@ export default function(tree, options) {
             const name = stripExtension(node.file);
             const infoPath = [name + '.yaml', name + '.yml'].find(p => fs.existsSync(p));
             if(infoPath) {
-                logger.debug(`\tUsing ${infoPath}`);
+                logger.debug(`Using ${infoPath}`);
                 Object.assign(node.info, yaml.load(readFileSync(infoPath)));
             }
 
@@ -59,7 +61,7 @@ export default function(tree, options) {
                 const infoBase = path.join(node.file, '.info');
                 const infoPath = [infoBase + '.yaml', infoBase + '.yml'].find(p => fs.existsSync(p));
                 if(infoPath) {
-                    logger.debug(`\tUsing ${infoPath}`);
+                    logger.debug(`Using ${infoPath}`);
                     Object.assign(node.info, yaml.load(readFileSync(infoPath)));
                 }
             }
@@ -73,7 +75,8 @@ export default function(tree, options) {
             }
         }
 
-        logger.debug(`\tInfo: ${JSON.stringify(node.info)}`);
+        logger.trace(`Evaluated info: ${JSON.stringify(node.info)}`);
+        logger.unindent(DEBUG);
     });
 }
 

@@ -1,6 +1,12 @@
 import { SILENT, level, name, verbosities } from '../core/verbosities.js';
 
 export default function(base, verbosity) {
+    const indent = 0;
+
+    function message(msg, v) {
+        base.message('  '.repeat(indent) + msg, v)
+    }
+
     const instance = {
         startGroup(message, v) {
             if(!v || level(v) <= level(verbosity)) {
@@ -11,6 +17,18 @@ export default function(base, verbosity) {
         endGroup(v) {
             if(!v || level(v) <= level(verbosity)) {
                 base.endGroup(verbosity);
+            }
+        },
+
+        indent(v) {
+            if(!v || level(v) <= level(verbosity)) {
+                indent++;
+            }
+        },
+
+        unindent(v) {
+            if(!v || level(v) <= level(verbosity)) {
+                indent--;
             }
         },
 
@@ -26,9 +44,9 @@ export default function(base, verbosity) {
             return;
         }
 
-        instance[name(v)] = function(message) {
+        instance[name(v)] = function(msg) {
             if(level(v) <= level(verbosity)) {
-                base.message(message, v);
+                message(msg, v);
             }
         };
     })
