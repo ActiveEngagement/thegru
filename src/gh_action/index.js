@@ -28,19 +28,20 @@ async function main() {
         // We need to start this now in order to get an accureate duration.
         const start = performance.now();
 
-        // Set up the colorizer to use ansi-colors if ANSI is allowed or a dummy otherwise.
-        const colors = inputs.ansi ? c : nullColorizer();
-
         // Acquire the GitHub Actions inputs (specified in the `with:` map).
         const inputs = getInputs(core.getInput, {
             // This second logger is necessary to prevent a circular dependency.
             // We'll set its verbosity to the highest setting, since we won't know the desired verbosity until we've
             // parsed the inputs.
             logger: ghLogger({
-                colors,
+                // This null colorizer is necessary to prevent a circular dependency.
+                colors: nullColorizer(),
                 verbosity: verbosities.TRACE
             })
         });
+
+        // Set up the colorizer to use ansi-colors if ANSI is allowed or a dummy otherwise.
+        const colors = inputs.ansi ? c : nullColorizer();
 
         const verbosity = inputs.verbosity;
         
