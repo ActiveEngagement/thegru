@@ -22,7 +22,7 @@ export default function(tree, options) {
 
     traverse(tree).do((node, name, state) => {
         logger.info(colors.bold(state.path));
-        logger.indent(DEBUG);
+        logger.indent();
 
         // The default title is a titleized form of the filename.
         node.info.title ||= inferTitle(name);

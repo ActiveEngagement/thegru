@@ -95,7 +95,7 @@ export default function(rules, options) {
         });
 
         logger.info(`Found these files under ${parentDir}`);
-        logger.indent(INFO);
+        logger.indent();
 
         for(const file of files) {
             if (level(logger.verbosity()) > DEBUG) {

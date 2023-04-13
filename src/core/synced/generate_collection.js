@@ -43,13 +43,13 @@ export default async function(options) {
     const containerEntries = Object.entries(inputs.containers);
 
     if (containerEntries.length > 0) {
-        logger.debug(`Found these containers in the config:`);
+        logger.info(`Found these containers in the config:`);
     } else {
-        logger.debug('No containers found in the config.');
+        logger.info('No containers found in the config.');
     }
 
     // Ensure that each explicitly provided container is created and attach the provided info.
-    logger.indent(INFO);
+    logger.indent();
     for(const [containerPath, info] of containerEntries) {
         logger.info(containerPath);
         logger.trace(`  Info: ${JSON.stringify(info)}`);
@@ -57,7 +57,7 @@ export default async function(options) {
         const container = ensureContainerPath(tree, containerPath);
         Object.assign(container.info, info);
     }
-    logger.unindent(INFO);
+    logger.unindent();
     logger.endGroup();
 
     // Traverse the tree and attach info to each node.

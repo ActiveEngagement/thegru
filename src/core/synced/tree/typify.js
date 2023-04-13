@@ -89,7 +89,7 @@ export default function(tree, options = {}) {
         }
 
         if(topType !== preferredType) {
-            logger.info(`The preferred top-level container type "${types.name(preferredType)}" could not be used. Using "${types.name(topType)}" instead.`);
+            logger.info(`The preferred top-level container type "${types.name(preferredType)}" could not be used.`);
         }
 
         return topType;
