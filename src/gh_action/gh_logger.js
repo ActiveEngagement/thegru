@@ -5,7 +5,7 @@ import core from '@actions/core';
  */
 
 export default function(options) {
-    const { inputs } = options;
+    const { inputs, colors } = options;
 
     function isDebug() {
         return core.isDebug() || inputs.debugLogging;
