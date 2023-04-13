@@ -4,7 +4,7 @@ export default function(base, verbosity) {
     let indent = 0;
 
     function message(msg, v) {
-        base.message('  '.repeat(indent) + msg, v)
+        base.message(msg, indent, v)
     }
 
     const instance = {

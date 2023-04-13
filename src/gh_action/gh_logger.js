@@ -9,7 +9,7 @@ import logger from '../core/logger.js';
 export default function(options) {
     const { colors, verbosity } = options;
 
-    function message(msg, verbosity) {
+    function message(msg, indent, verbosity) {
         const func = core.info;
 
         if (verbosity === NOTICE) {
@@ -23,6 +23,8 @@ export default function(options) {
         if (verbosity === TRACE) {
             msg = colors.gray(msg);
         }
+
+        msg = '  '.repeat(indent) + msg;
 
         func(msg);
     }
