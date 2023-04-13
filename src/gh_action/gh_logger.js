@@ -1,38 +1,31 @@
 import core from '@actions/core';
+import { NOTICE, WARNING } from '../core/verbosities.js';
+import logger from '../core/logger.js';
 
 /**
  * Creates a logger implementation that delegates to the GitHub Actions Core toolkit.
  */
 
 export default function(options) {
-    const { inputs, colors } = options;
+    const { colors, verbosity } = options;
 
-    function isDebug() {
-        return core.isDebug() || inputs.debugLogging;
-    }
+    function message(msg, verbosity) {
+        const func = core.info;
 
-    function debug(message) {
-        if(isDebug()) {
-            this.info(message);
+        if (verbosity === NOTICE) {
+            func = core.warning;
         }
+
+        if (verbosity === WARNING) {
+            msg = colors.bold.yellow('!!!') + ' ' + msg;
+        }
+
+        func(m);
     }
 
-    function warning(message) {
-        this.info(colors.yellow('!!!') + ' ' + message);
-    }
-
-    function notice(message) {
-        core.warning(message);
-    }
-
-    const instance = { isDebug, debug, warning, notice };
-
-    ['info', 'startGroup', 'endGroup'].forEach((name) => {
-        // Delegate each of these to GitHub actions.
-        instance[name] = function(message) {
-            core[name](message);
-        };
-    });
-
-    return instance;
+    return logger({
+        startGroup: core.startGroup,
+        endGroup: core.endGroup,
+        message
+    }, verbosity);
 }

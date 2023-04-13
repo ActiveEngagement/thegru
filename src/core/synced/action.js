@@ -27,8 +27,6 @@ export default async function(options) {
         footer = defaultFooter;
     }
 
-    logger.debug('Generating collection...');
-
     // Generate an object representing the built collection.
     // This step is separate so that it is easily testable without constant zipping, unzipping, and working with the API.
     const collection = await generate({

@@ -1,6 +1,7 @@
 import { InvalidInputsError } from 'ae_actions';
 import getInputsBase from '../src/core/inputs.js';
 import nullLogger from './support/null_logger.js';
+import * as verbosities from '../src/core/verbosities.js';
 
 function getInputs(callback) {
     return getInputsBase(callback, { logger: nullLogger() });
@@ -22,7 +23,7 @@ function typicalInputs(collectionType) {
             attachment_handler: 'auto',
             update_all: 'true',
             ansi: 'false',
-            debug_logging: 'false'
+            verbosity: 'warning'
         };
     }
     else if(collectionType === 'synced') {
@@ -36,7 +37,7 @@ function typicalInputs(collectionType) {
             card_footer: 'Footer!',
             prefer_sections: 'false',
             ansi: 'false',
-            debug_logging: 'false'
+            verbosity: 'warning'
         };
     }
 }
@@ -101,28 +102,6 @@ describe('inputs.js', () => {
             expect(actual).toBe(null);
         });
 
-        describe('debugLogging', () => {
-            test('is not required and has default', () => {
-                const actual = getInputs(name => name === 'debug_logging' ? '' : getInput(name)).debugLogging;
-                expect(actual).toBe(false);
-            });
-
-            test('with true', () => {
-                const actual = getInputs(name => name === 'debug_logging' ? 'true' : getInput(name)).debugLogging;
-                expect(actual).toBe(true);
-            });
-
-            test('with false', () => {
-                const actual = getInputs(name => name === 'debug_logging' ? 'false' : getInput(name)).debugLogging;
-                expect(actual).toBe(false);
-            });
-
-            test('with something else throws error', () => {
-                const f = () => getInputs(name => name === 'debug_logging' ? 'invalid' : getInput(name)).debugLogging;
-                expect(f).toThrow(InvalidInputsError);
-            });
-        });
-
         describe('ansi', () => {
             test('is not required and has default', () => {
                 const actual = getInputs(name => name === 'ansi' ? '' : getInput(name)).ansi;
@@ -142,6 +121,26 @@ describe('inputs.js', () => {
             test('with something else throws error', () => {
                 const f = () => getInputs(name => name === 'ansi' ? 'invalid' : getInput(name)).ansi;
                 expect(f).toThrow(InvalidInputsError);
+            });
+        });
+
+        describe('verbosity', () => {
+            test('is not required and has default', () => {
+                const actual = getInputs(name => name === 'verbosity' ? '' : getInput(name)).verbosity;
+                expect(actual).toBe(verbosities.INFO);
+            });
+
+            test.each([
+                verbosities.verbosities()
+            ])('with a valid option', (v) => {
+                const actual = getInputs(name => name === 'verbosity' ? verbosities.name(v) : getInput(name)).verbosity;
+                expect(actual).toBe(v);
+            });
+
+            test('with invalid option throws error', () => {
+                const f = () => getInputs(name => name === 'verbosity' ? 'invalid' : getInput(name));
+                expect(f).toThrow(InvalidInputsError);
+                expect(f).toThrow('"verbosity" must be one of [silent, notice, warning, info, debug, trace]');
             });
         });
 
@@ -209,7 +208,7 @@ describe('inputs.js', () => {
                 attachmentHandler: 'auto',
                 updateAll: true,
                 ansi: false,
-                debugLogging: false
+                verbosity: verbosities.WARNING
             });
         });
 

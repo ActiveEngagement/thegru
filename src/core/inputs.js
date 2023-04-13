@@ -1,5 +1,6 @@
-import { createInputFactory, invalid } from 'ae_actions';
+import { createInputFactory, invalid, result } from 'ae_actions';
 import * as types from './synced/container_types.js';
+import * as verbs from './verbosities.js';
 
 /**
  * Parses and validates the action inputs using the given input function.
@@ -34,8 +35,12 @@ export default function(getCoreInput, options) {
 
             input('card_footer', b => b.try(b => b.boolean()));
             input('ansi', b => b.fallback('true').boolean());
-            input('debug_logging', b => b.fallback('false').boolean());
             input('attachment_handler', b => b.fallback('auto').options('auto', 'github_urls', 'upload'));
+            input('verbosity', b => b
+                .fallback(verbs.name(verbs.INFO))
+                .options(...verbs.verbosities(verbs.name))
+                .use(name => result(verbs.from(verbs.name, name)))
+            );
 
             const type = input('collection_type', b => b.required().options('standard', 'synced'));
 

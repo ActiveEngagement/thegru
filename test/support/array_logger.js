@@ -1,30 +1,24 @@
+import logger from '../../src/core/logger.js';
+import { TRACE } from '../../src/core/verbosities.js';
+
 export default function() {
     const messages = [];
 
-    return {
-        debug(message) {
-            messages.push(message);
-        },
-        info(message) {
-            messages.push(message);
-        },
-        warning(message) {
-            messages.push(message);
-        },
-        notice(message) {
-            messages.push(message);
-        },
+    const instance = logger({
         startGroup(name) {
             messages.push('===' + name + '===');
         },
         endGroup() {
             messages.push('=========');
         },
-        isDebug() {
-            return true;
-        },
-        getMessages() {
-            return messages;
+        message(msg) {
+            messages.push(msg)
         }
-    };
+    }, TRACE);
+
+    instance.getMessages = function() {
+        return messages;
+    }
+
+    return instance;
 }

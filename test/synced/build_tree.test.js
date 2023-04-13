@@ -243,9 +243,10 @@ describe('build_tree.js', () => {
         });
 
         it('emits an appropriate log message', () => {
-            expect(logger.getMessages()).toStrictEqual([
+            const includes = logger.getMessages().includes(
                 'Card rule rootDir "*" does not end with a "/". This was probably an accident, so we will append one.'
-            ]);
+            );
+            expect(includes).toBe(true);
         });
     });
 
