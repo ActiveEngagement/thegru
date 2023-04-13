@@ -35,6 +35,8 @@ inputs:
     required: false
   preferred_container:
     required: false
+  dry_run:
+    required: false
 
 # TODO
 runs:

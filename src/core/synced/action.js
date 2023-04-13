@@ -45,6 +45,11 @@ export default async function(options) {
     const zipPath = await write(collection, { logger });
     logger.info(`Zipped the collection to "${zipPath}"`);
     setOutput('zip', zipPath);
+
+    if(inputs.dryRun) {
+        logger.info(colors.blue('Skipping upload because "dry_run" is true.'));
+        return;
+    }
     
     // Upload the zip to Guru.
     logger.info('Sending collection to Guru...');

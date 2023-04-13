@@ -63,6 +63,7 @@ export default function(getCoreInput, options) {
                     .options(...types.types(types.name))
                     .use(validatePreferredContainerType)
                 );
+                input('dry_run', b => b.fallback('false').boolean());
             }
         });
 }
