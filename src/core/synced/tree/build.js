@@ -12,6 +12,7 @@ export default function(rules, options) {
     const { logger, colors } = options;
 
     const tree = root();
+    logger.info(`Processing ${rules.length} rule${rules.length === 1 ? '' : 's'}...`);
     rules.forEach(applyRule);
 
     return tree;
