@@ -68,7 +68,7 @@ export default async function(options) {
     // Traverse the tree and determine each container's type (i.e. board, board group, or board section).
     // This is not entirely straightforward, since board groups cannot contain cards or board sections; therefore the
     // logic resides in its own file.
-    heading('Labelling containers as boards or board groups...');
+    heading('Labelling containers "board" or "board group"...');
     typifyTree(tree, {
         logger,
         preferredContainer: inputs.preferredContainer

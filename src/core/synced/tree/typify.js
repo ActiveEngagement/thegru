@@ -2,6 +2,7 @@ import path from 'path';
 import { traverse } from './util.js';
 import * as types from '../container_types.js';
 import { InvalidContainerConfigurationError } from '../../error.js';
+import { DEBUG } from '../../verbosities.js';
 
 /**
  * Traverses the given tree and assigns container types (i.e. board, board group, or board section) to each container
@@ -23,8 +24,10 @@ export default function(tree, options = {}) {
     for(const [rootName, node] of tree.children) {
         if(node.type === 'container') {
             const topType = analyzeBranch(rootName, node, { logger, preferredType });
-            logger.debug(`\t${rootName} => ${types.name(topType)}`);
+            logger.indent(DEBUG);
+            logger.debug(`"${rootName}" will be a ${types.name(topType)}`);
             typifyBranch(node, topType);
+            logger.unindent(DEBUG);
         }
     }
 
