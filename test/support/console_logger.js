@@ -9,6 +9,9 @@ export default function() {
         warning(message) {
             console.log(message);
         },
+        notice(message) {
+            console.log(message);
+        },
         startGroup(name) {
             console.log('===' + name + '===');
         },

@@ -11,6 +11,9 @@ export default function() {
         warning(message) {
             messages.push(message);
         },
+        notice(message) {
+            messages.push(message);
+        },
         startGroup(name) {
             messages.push('===' + name + '===');
         },

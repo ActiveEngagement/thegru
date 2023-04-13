@@ -3,6 +3,7 @@ export default function() {
         debug() {},
         info() {},
         warning() {},
+        notice() {},
         startGroup() {},
         endGroup() {}
     };
