@@ -2,14 +2,8 @@ import buildTree from './tree/build.js';
 import informTree from './tree/inform.js';
 import typifyTree from './tree/typify.js';
 import flattenTree from './tree/flatten.js';
-import * as content from '../content.js';
-import transformContent from './transform_content.js';
 import { ensureContainerPath } from './tree/util.js';
-import linkHandler from './mdast_non_auto_link.js';
-import attachFooter from '../attach_footer.js';
-import analyze from '../unist_analyze.js';
-import { image, imageReference, link, linkReference, definition } from '../mdast_predicates.js';
-import { DEBUG, INFO, WARNING } from '../verbosities.js';
+import rewrite from './tree/rewrite.js';
 
 /**
  * Generates an object representing the new synced collection.
@@ -27,10 +21,6 @@ export default async function(options) {
         footer,
         attachmentHandler
     } = options;
-
-    function heading(message) {
-        logger.info(colors.bold(message));
-    }
 
     logger.info(' ');
 
@@ -77,37 +67,19 @@ export default async function(options) {
     });
     logger.endGroup();
 
+    // Now we need to transform each card's content in order to rewrite links, collect resources, etc.
+    logger.info(' ');
+    logger.info(colors.bold('Rewriting card content...'));
+    logger.info(' ');
+    const resources = await rewrite(tree, {
+        logger,
+        github,
+        cards,
+        attachmentHandler
+    });
+
     // Flatten the now-complete tree into cards, boards, and board groups.
     const { cards, boards, boardGroups } = flattenTree(tree, { logger });
-
-    // Now, before we're finished, we need to transform each card's content in order to rewrite links, collect
-    // resources, etc.
-
-    const resources = [];
-    for(const card of cards) {
-        // Build an MDAST tree of the card's content (with the footer attached).
-        const contentTree = content.buildTree(
-            attachFooter(card.content, { logger, github, footer })
-        );
-
-        const analysis = analyze(contentTree, image, imageReference, link, linkReference, definition);
-
-        // Transform the tree as appropriate for synced collections.
-        const { attachments } = await transformContent(card.file, analysis, {
-            logger,
-            github,
-            cards,
-            tree,
-            attachmentHandler
-        });
-
-        // Render the transformed tree to Markdown.
-        // Pass a custom link handler to prevent autolinks (Guru doesn't like them for some reason).
-        card.content = content.renderTree(contentTree, { handlers: { link: linkHandler }});
-
-        // Collect any referenced attachments that were found while processing the content so we can upload them later.
-        resources.push(...attachments);
-    }
 
     return {
         tags: [], // Tags are currently unsupported, so we'll just return an empty array.

@@ -143,7 +143,41 @@ export function ensureContainerPath(node, pathString) {
     return traversePath(node, pathString, null, { makeMissing: true });
 }
 
-function _traverse(nodes, callback, initialState) {
+async function _traverseAsync(nodes, callback, initialState, async = false) {
+    for(const [name, node] of nodes) {
+        // Duplicate the initial state so we won't be changing the state of higher levels.
+        const state = { ...initialState };
+
+        // Advance path and depth if appropriate.
+
+        if(state.path !== undefined) {
+            state.path = path.join(state.path, name);
+        }
+
+        if(state.depth !== undefined) {
+            state.depth += 1;
+        }
+
+        // Yield the node, its name, and the state to the caller.
+        const result = await callback(node, name, state);
+
+        // Allow the caller to quit the traversal.
+        if(result === false) {
+            return false;
+        }
+
+        // Traverse each child if appropriate.
+        if(node.children) {
+            if(await _traverseAsync(node.children, callback, state) === false) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+function _traverse(nodes, callback, initialState, async = false) {
     for(const [name, node] of nodes) {
         // Duplicate the initial state so we won't be changing the state of higher levels.
         const state = { ...initialState };
@@ -197,11 +231,16 @@ export function traverse(node) {
         return _traverse(node.children, callback, initialState);
     }
 
+    async function doAsync(callback) {
+        return await _traverseAsync(node.children, callback, initialState);
+    }
+
     addState('path', '');
     addState('depth', 0);
 
     return {
         state: addState,
-        do: doFunc
+        do: doFunc,
+        doAsync
     };
 }
