@@ -102,10 +102,10 @@ export default function(rules, options) {
             const { container, path: containerPath } = getContainerForCard(rule, file, parentDir);
             const name = path.basename(file);
 
-            if (container) {
-                logger.trace(`\t\tAssigned to ${containerPath}`);
-            } else {
+            if (containerPath === '') {
                 logger.trace(`\t\tAssigned to the top level (no container).`);
+            } else {
+                logger.trace(`\t\tAssigned to ${containerPath}`);
             }
 
             const payload = { file: fullPath };
