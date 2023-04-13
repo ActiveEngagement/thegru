@@ -21,7 +21,7 @@ export default function(options) {
         }
 
         if (verbosity === TRACE) {
-            msg = colors.dim(msg);
+            msg = colors.gray(msg);
         }
 
         func(msg);
