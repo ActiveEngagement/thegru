@@ -109,6 +109,16 @@ export default function(clientOptions = {}) {
         }
     }
 
+    function getCollections(options) {
+        calls.push({
+            type: 'getCollections',
+            options
+        });
+        const result = call(clientOptions.getCollectionsResult);
+
+        return response(result);
+    }
+
     function uploadAttachment(fileName, filePath, options) {
         calls.push({
             type: 'uploadAttachment',
@@ -139,6 +149,7 @@ export default function(clientOptions = {}) {
         destroyCard,
         getCard,
         getCollection,
+        getCollections,
         uploadAttachment,
         uploadZip
     };

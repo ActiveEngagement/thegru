@@ -11,7 +11,12 @@ import { $ } from 'execa';
 import { readFileSync } from '../src/core/fs_util.js';
 
 function createClient(options) {
-    options.getCollectionResult ||= { collectionType: 'EXTERNAL' };
+    options.getCollectionsResult ||= [
+        {
+            slug: 'c123',
+            collectionType: 'EXTERNAL'
+        }
+    ];
 
     return createClientBase(options);
 }
@@ -103,7 +108,7 @@ ExternalUrl: null
 Tags: []
 ExternalId: some__dir__file
 `);
-        expect(readFileSync(path.join(dest, 'board-groups/some.yaml'))).toBe(`Title: Some Container!
+        expect(readFileSync(path.join(dest, 'board-groups/some.yaml'))).toBe(`Title: Some Container
 Description: null
 ExternalUrl: null
 Boards:

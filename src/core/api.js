@@ -143,6 +143,16 @@ export default function(client, options) {
         return await validate(response);
     }
 
+    async function getCollections() {
+        logger.debug(`Getting all collections`);
+
+        const response = await client.getCollections({
+            headers: headers()
+        });
+
+        return await validate(response);
+    }
+
     async function getCollection(id) {
         logger.debug(`Getting collection with id ${id}`);
 
@@ -183,6 +193,7 @@ export default function(client, options) {
         destroyCard,
         getCard,
         getCollection,
+        getCollections,
         uploadAttachment,
         uploadZip
     };

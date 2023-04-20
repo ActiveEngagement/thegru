@@ -11,6 +11,37 @@ This GitHub action will automatically sync one or more Markdown files with [Guru
 
 *If you are familiar with this action, follow these instructions to quickly get started. If not, [read on](#introduction).*
 
+### Standard Collections
+
+[Obtain a Guru user API token](https://help.getguru.com/en/articles/4740119-how-to-obtain-your-api-credentials) if you have not done so already. Then, put the email of the token's user in a GitHub Actions secret called `GURU_USER_EMAIL`. Put the token itself in a secret called `GURU_USER_TOKEN`.
+
+Get the [ids or slugs](#identifiers) of the Guru collection, board, and/or board section in which the cards should be created. The easiest way to get these is by navigating to the collection, board, or section in the Guru app and copying them from the URL.
+
+Next, in order for us to accurately [detect file changes](#when-we-update), you **must** include the `fetch-depth` option in your checkout action. It should look something like this:
+
+```yaml
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # For performance, you may adjust this value, but file changes may not always work.
+```
+
+Finally, add the template below to your workflow file (in `.github/workflows`). You may add this to an existing workflow or create a new one solely for Guru. Insert your own [`collection_id`](#collection_id). Optionally insert your own [`board_id`](#board_id) and/or [`board_section_id`](#board_section_id), or remove those lines. Adjust [`cards`](#cards) as desired.
+
+```yaml
+      - uses: ActiveEngagement/theguru@v0.5
+        with:
+          user_email: ${{ secrets.GURU_USER_EMAIL }}
+          user_token: ${{ secrets.GURU_USER_TOKEN }}
+          github: ${{ toJson(github) }} # Provides some necessary context.
+          collection_type: standard
+          collection_id: # UUID or slug
+          board_id: # OPTIONAL. UUID or slug
+          board_section_id: # OPTIONAL. UUID
+          cards: '{ "README.md": "Card Title" }' # Adjust as required.
+```
+
+### Synced Collections
+
 [Obtain a Guru user API token](https://help.getguru.com/en/articles/4740119-how-to-obtain-your-api-credentials) if you have not done so already. Then, put the email of the token's user in a GitHub Actions secret called `GURU_USER_EMAIL`. Put the token itself in a secret called `GURU_USER_TOKEN`.
 
 Get the [ids or slugs](#identifiers) of the Guru collection, board, and/or board section in which the cards should be created. The easiest way to get these is by navigating to the collection, board, or section in the Guru app and copying them from the URL.

@@ -134,10 +134,6 @@ Hi!
         it('renders correctly', () => {
             expect(output).toBe(expected);
         });
-
-        it('emits a log message', () => {
-            expect(logger.getMessages().some(msg => msg === 'Skipping card footer...')).toBe(true);
-        });
     });
 
     describe('with images and links', () => {

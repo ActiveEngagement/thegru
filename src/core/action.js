@@ -37,16 +37,20 @@ export default async function(options) {
         userToken: inputs.userToken
     });
 
-    // Query Guru for the given collection id so we can validate its type.
-    const collection = await api.getCollection(inputs.collectionId);
+    // Get all collections from Guru.
+    const collections = await api.getCollections();
+
+    // Try to find the given collection id/slug so we can validate its type.
+    const id = inputs.collectionId;
+    const collection = collections.find(candidate => candidate.id === id || candidate.slug === id);
 
     if(!collection) {
-        throw new TheGuruError(`Collection with id ${inputs.collectionId} not found!`);
+        throw new TheGuruError(`Collection with id ${id} not found!`);
     }
 
     if(inputs.collectionType === 'standard') {
         if(collection.collectionType !== 'INTERNAL') {
-            throw new TheGuruError(`We expected a Standard Collection but the provided collection ${inputs.collectionId} is a Synced Collection!`);
+            throw new TheGuruError(`We expected a Standard Collection but the provided collection ${id} is a Synced Collection!`);
         }
 
         await standardAction({
@@ -63,7 +67,7 @@ export default async function(options) {
     }
     else {
         if(collection.collectionType !== 'EXTERNAL') {
-            throw new TheGuruError(`We expected a Synced Collection but the provided collection ${inputs.collectionId} is a Standard Collection!`);
+            throw new TheGuruError(`We expected a Synced Collection but the provided collection ${id} is a Standard Collection!`);
         }
 
         await syncedAction({

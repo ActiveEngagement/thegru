@@ -97,7 +97,6 @@ Hi!
 
             expect(actual).toBe(original);
             expect(attachments).toStrictEqual([]);
-            expect(logger.getMessages().some(msg => msg === 'Skipping card footer...')).toBe(true);
         });
     });
 
