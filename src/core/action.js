@@ -45,7 +45,7 @@ export default async function(options) {
     }
 
     if(inputs.collectionType === 'standard') {
-        if(collection.collectionType !== 'STANDARD') {
+        if(collection.collectionType !== 'INTERNAL') {
             throw new TheGuruError(`We expected a Standard Collection but the provided collection ${inputs.collectionId} is a Synced Collection!`);
         }
 

@@ -14,7 +14,7 @@ async function initCardsFile(data) {
 }
 
 function createClient(options) {
-    options.getCollectionResult ||= { collectionType: 'STANDARD' };
+    options.getCollectionResult ||= { collectionType: 'INTERNAL' };
 
     return createClientBase(options);
 }
