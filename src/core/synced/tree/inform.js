@@ -123,5 +123,5 @@ function inferTitle(fileName) {
 }
 
 function sanitizeTitle(title) {
-    return title.replaceAll(/[^a-zA-Z\d\s()-_'"\.,]/g, '');
+    return title.replaceAll(/[^a-zA-Z\d\s()\-_'"\.,]/g, '');
 }
