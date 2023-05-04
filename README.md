@@ -37,7 +37,7 @@ Next, in order for us to accurately [detect file changes](#when-we-update), you 
 Finally, add the template below to your workflow file (in `.github/workflows`). You may add this to an existing workflow or create a new one solely for Guru. Insert your own [`collection_id`](#collection_id). Optionally insert your own [`board_id`](#board_id) and/or [`board_section_id`](#board_section_id), or remove those lines. Adjust [`cards`](#cards) as desired.
 
 ```yaml
-      - uses: ActiveEngagement/theguru@v0.5
+      - uses: ActiveEngagement/theguru@v0.6
         with:
           user_email: ${{ secrets.GURU_USER_EMAIL }}
           user_token: ${{ secrets.GURU_USER_TOKEN }}
@@ -61,7 +61,7 @@ Get the [id or slug](#identifiers) of the Guru collection with which the cards s
 Now add the template below to your workflow file (in `.github/workflows`). You may add this to an existing workflow or create a new one solely for Guru. Insert your own [`collection_id`](#collection_id). Adjust [`cards`](#cards) as desired.
 
 ```yaml
-      - uses: ActiveEngagement/theguru@v0.5
+      - uses: ActiveEngagement/theguru@v0.6
         with:
           user_email: ${{ secrets.GURU_USER_EMAIL }}
           user_token: ${{ secrets.GURU_USER_TOKEN }}
@@ -269,7 +269,7 @@ Additionally, if you change the file paths of any Markdown files (i.e. rename th
 ### Inputs
 
 ```yaml
-      - uses: ActiveEngagement/theguru@v0.5
+      - uses: ActiveEngagement/theguru@v0.6
         with:
           # REQUIRED
           user_email:
@@ -401,7 +401,7 @@ For containers:
 ### Inputs
 
 ```yaml
-      - uses: ActiveEngagement/theguru@v0.5
+      - uses: ActiveEngagement/theguru@v0.6
         with:
           # REQUIRED
           user_email:
