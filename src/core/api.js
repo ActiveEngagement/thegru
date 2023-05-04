@@ -143,10 +143,44 @@ export default function(client, options) {
         return await validate(response);
     }
 
+    async function getCollections() {
+        logger.debug('Getting all collections');
+
+        const response = await client.getCollections({
+            headers: headers()
+        });
+
+        return await validate(response);
+    }
+
+    async function getCollection(id) {
+        logger.debug(`Getting collection with id ${id}`);
+
+        const response = await client.getCollection(id, {
+            headers: headers()
+        });
+
+        if(response.status === 404) {
+            return null;
+        }
+
+        return await validate(response);
+    }
+
     async function uploadAttachment(fileName, filePath) {
         logger.debug(`Uploading attachment with name ${fileName}`);
 
         const response = await client.uploadAttachment(fileName, filePath, {
+            headers: headers({ 'content-type': false })
+        });
+
+        return await validate(response);
+    }
+
+    async function uploadZip(collectionId, fileName, filePath) {
+        logger.debug(`Uploading zip with name ${fileName} at ${filePath} to collection ${collectionId}`);
+
+        const response = await client.uploadZip(collectionId, fileName, filePath, {
             headers: headers({ 'content-type': false })
         });
 
@@ -158,6 +192,9 @@ export default function(client, options) {
         updateCard,
         destroyCard,
         getCard,
-        uploadAttachment
+        getCollection,
+        getCollections,
+        uploadAttachment,
+        uploadZip
     };
 }

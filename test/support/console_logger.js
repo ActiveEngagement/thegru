@@ -1,22 +1,15 @@
+import { TRACE, name } from '../../src/core/verbosities.js';
+
 export default function() {
-    return {
-        debug(message) {
-            console.log(message);
-        },
-        info(message) {
-            console.log(message);
-        },
-        warning(message) {
-            console.log(message);
-        },
+    return logger({
         startGroup(name) {
             console.log('===' + name + '===');
         },
         endGroup() {
             console.log('=========');
         },
-        isDebug() {
-            return true;
+        message(msg, verbosity) {
+            console.log(`[${name(verbosity).toUpperCase()}]  ` + msg);
         }
-    };
+    }, TRACE);
 }

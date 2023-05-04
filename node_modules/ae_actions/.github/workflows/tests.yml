@@ -21,3 +21,4 @@ jobs:
         with:
           files: ./coverage/coverage-final.json
           fail_ci_if_error: true
+          token: 99895855-2d81-45cb-888b-c1992fa62adf

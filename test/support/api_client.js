@@ -92,6 +92,32 @@ export default function(clientOptions = {}) {
             return response(result);
         }
     }
+    
+    function getCollection(id, options) {
+        calls.push({
+            type: 'getCollection',
+            id,
+            options
+        });
+        const result = call(clientOptions.getCollectionResult, id);
+
+        if(result === 'not_found') {
+            return notFoundResponse();
+        }
+        else {
+            return response(result);
+        }
+    }
+
+    function getCollections(options) {
+        calls.push({
+            type: 'getCollections',
+            options
+        });
+        const result = call(clientOptions.getCollectionsResult);
+
+        return response(result);
+    }
 
     function uploadAttachment(fileName, filePath, options) {
         calls.push({
@@ -104,12 +130,27 @@ export default function(clientOptions = {}) {
         return response(call(clientOptions.attachmentResult, fileName, filePath, options));
     }
 
+    function uploadZip(collectionId, fileName, filePath, options) {
+        calls.push({
+            type: 'uploadZip',
+            collectionId,
+            fileName,
+            filePath,
+            options
+        });
+
+        return response(call(clientOptions.uploadZipResult, fileName, filePath, options));
+    }
+
     return {
         getCalls,
         createCard,
         updateCard,
         destroyCard,
         getCard,
-        uploadAttachment
+        getCollection,
+        getCollections,
+        uploadAttachment,
+        uploadZip
     };
 }

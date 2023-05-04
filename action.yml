@@ -7,24 +7,37 @@ inputs:
     required: true
   github:
     required: true
-  cards:
-    required: true
   collection_id:
     required: true
+  collection_type:
+    required: true
+  cards:
+    required: true
+  card_footer:
+    required: false
+  ansi:
+    required: false
+  attachment_handler:
+    required: false
+  verbosity:
+    required: false
+
   board_id:
     required: false
   board_section_id:
     required: false
-  card_footer:
-    required: false
   cards_file:
-    required: false
-  image_handler:
     required: false
   update_all:
     required: false
-  ansi:
+  
+  containers:
     required: false
+  preferred_container:
+    required: false
+  dry_run:
+    required: false
+
 # TODO
 runs:
   using: 'node16'

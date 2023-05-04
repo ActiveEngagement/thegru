@@ -18,16 +18,6 @@ export class InvalidGitObjectError extends TheGuruError {
     }
 }
 
-/**
- * Thrown when the action receives invalid inputs.
- */
-export class InvalidInputsError extends TheGuruError {
-    constructor(message) {
-        super(message);
-        this.name = this.constructor.name;
-    }
-}
-
 export function fetchErrorForResponse(response, json) {
     const description = json?.description;
     const message = description ? `Server responded with a ${response.status} status code: ${description}` : `Server responded with a ${response.status} status code`;
@@ -45,5 +35,15 @@ export class FetchError extends TheGuruError {
         super(message);
         this.name = this.constructor.name;
         this.response = response;
+    }
+}
+
+/**
+ * Thrown whenever the container structure configured for a synced collection is impossible to create.
+ */
+export class InvalidContainerConfigurationError extends TheGuruError {
+    constructor(message) {
+        super(message);
+        this.name = this.constructor.name;
     }
 }

@@ -1,14 +1,14 @@
-import fs from 'fs';
-import { readFile, srcUrl, writeFile } from './fs_util.js';
-import attempt from './attempt.js';
-import commitFlags from './commit_flags.js';
+import { TheGuruError } from './error.js';
 import createApi from './api.js';
-import handleCard from './handle_card.js';
-import { InvalidGitObjectError } from './error.js';
+import standardAction from './standard/action.js';
+import syncedAction from './synced/action.js';
 
 /**
  * This is the entrypoint for most of the action logic. It is intentionally abstracted away from GitHub Actions and
  * should be executable even in a test environment.
+ * 
+ * This function will determine whether we are working with a standard or synced collection and delegate to the
+ * appropriate action routine.
  */
 
 export default async function(options) {
@@ -20,54 +20,14 @@ export default async function(options) {
         github,
         defaultFooter,
         commitCardsFile,
-        getChangedFiles
+        getChangedFiles,
+        setOutput
     } = options;
 
-    // Determine the image handler.
-    let imageHandler = inputs.imageHandler;
-    if(imageHandler === 'auto') {
-        imageHandler = github.repo.isPublic ? 'github_urls' : 'upload';
-    }
-
-    // Determine the card footer.
-    let footer = inputs.cardFooter;
-    if(footer === undefined || footer === null || footer === true) {
-        logger.info('Using default card footer...');
-        footer = defaultFooter;
-    }
-
-    // Determine whether all cards should be updated and notify the user accordingly. All cards should be updated if:
-    //   the "update_all" input is true, or
-    //   the [guru update] commit flag is included.
-
-    let updateAll = inputs.updateAll;
-
-    if(updateAll) {
-        logger.info('"update_all" is true. All cards will be updated.');
-    }
-
-    commitFlags()
-        .flag('guru update', () => {
-            if(!updateAll) {
-                logger.info(colors.blue('[guru update] flag detected. All cards will be updated.'));
-                updateAll = true;
-            }
-        })
-        .execute(github?.commit?.message, { logger });
-
-    // If all files should be updated, all files will be treated as changed.
-    let didFileChange = () => true;
-    
-    if(!updateAll) {
-        // Otherwise, try to get a list of changed files.
-        await attempt()
-            .catch(InvalidGitObjectError, () => {
-                logger.warning('The Git command used to determine which files have changed reported an invalid object error. Most likely, you forgot to include `fetch-depth` in your checkout action. All cards will be updated.');
-            })
-            .do(async() => {
-                const changedFiles = await getChangedFiles();
-                didFileChange = (filePath) => changedFiles.includes(filePath);
-            });
+    // Determine the attachment handler.
+    let attachmentHandler = inputs.attachmentHandler;
+    if(attachmentHandler === 'auto') {
+        attachmentHandler = github.repo.isPublic ? 'github_urls' : 'upload';
     }
 
     // Set up the API with the given client.
@@ -77,75 +37,48 @@ export default async function(options) {
         userToken: inputs.userToken
     });
 
-    let cardsFileContent = '{}';
+    // Get all collections from Guru.
+    const collections = await api.getCollections();
 
-    // Read the cards file if it exists.
-    if(fs.existsSync(inputs.cardsFile)) {
-        cardsFileContent = await readFile(inputs.cardsFile);
+    // Try to find the given collection id/slug so we can validate its type.
+    const id = inputs.collectionId;
+    const collection = collections.find(candidate => candidate.id === id || candidate.slug === id);
+
+    if(!collection) {
+        throw new TheGuruError(`Collection with id ${id} not found!`);
     }
 
-    const cardIds = JSON.parse(cardsFileContent);
-    const newCardIds = {};
+    if(inputs.collectionType === 'standard') {
+        if(collection.collectionType !== 'INTERNAL') {
+            throw new TheGuruError(`We expected a Standard Collection but the provided collection ${id} is a Synced Collection!`);
+        }
 
-    logger.info('Syncing cards...');
-
-    // Sync (i.e. create or update) each card in the cards config.
-    for(const [filePath, cardTitle] of Object.entries(inputs.cards)) {
-        logger.startGroup(filePath);
-
-        const id = await handleCard(filePath, cardTitle, {
-            logger,
+        await standardAction({
             api,
-            github,
+            logger,
+            colors,
             inputs,
-            imageHandler,
-            footer,
-            existingCardIds: cardIds,
-            didFileChange
+            github,
+            defaultFooter,
+            attachmentHandler,
+            commitCardsFile,
+            getChangedFiles
         });
-        newCardIds[filePath] = id;
-
-        logger.endGroup();
     }
+    else {
+        if(collection.collectionType !== 'EXTERNAL') {
+            throw new TheGuruError(`We expected a Synced Collection but the provided collection ${id} is a Standard Collection!`);
+        }
 
-    // Get the cards that were present in the old cards file but not in the new one.
-    const old = Object.entries(cardIds)
-        .filter(([_, id]) =>
-            !Object.values(newCardIds)
-                .some((newId) => id === newId));
-    
-    if(old.length > 0) {
-        logger.info('\nDestroying old cards...');
-    }
-    
-    // Destroy each old card.
-    for(const [filePath, id] of old) {
-        logger.startGroup(filePath);
-        logger.info(`Previously uploaded card ${id} has been removed from the cards config. Removing it from Guru...`);
-
-        // Note that Guru will never return a 404 for a card that has previously existed.
-        // Therefore, we won't try to handle it, since that would be a signifcant error anyway.
-        await api.destroyCard(id);
-
-        logger.endGroup();
-    }
-
-    const newCardsFileContent = JSON.stringify(newCardIds, null, 4);
-
-    // Update the cards file if necessary.
-    if(newCardsFileContent !== cardsFileContent) {
-        logger.info(`\nUpdating ${inputs.cardsFile}`);
-
-        await writeFile(inputs.cardsFile, newCardsFileContent);
-
-        const messageTemplate = await readFile(srcUrl('resources/cards_commit_message.txt'));
-        const message = messageTemplate.replaceAll('{{cardsFile}}', inputs.cardsFile);
-
-        await commitCardsFile({
-            path: inputs.cardsFile,
-            email: 'noreply@actengage.com',
-            name: 'theguru Action Bot',
-            message
+        await syncedAction({
+            api,
+            logger,
+            colors,
+            inputs,
+            github,
+            defaultFooter,
+            attachmentHandler,
+            setOutput
         });
     }
 }

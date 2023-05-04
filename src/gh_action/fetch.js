@@ -14,7 +14,7 @@ export default function(container) {
 
         const response = fixResponse(await nodeFetch(url, options));
 
-        logger.debug(`Received response from ${url}: ${await response.text()}`);
+        logger.trace(`Received response from ${url}: ${await response.text()}`);
 
         return response;
     };

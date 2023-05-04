@@ -13,6 +13,7 @@ import version from './version.cjs';
 import isRepoPublic from './gh_repo_public.js';
 import commitCardsFile from './commit_cards_file.js';
 import getChangedFilesBase from './file_changes.js';
+import * as verbosities from '../core/verbosities.js';
 
 /**
  * This is the main entry point for the GitHub action. It's SOLE purpose should be to set up dependencies for
@@ -28,17 +29,33 @@ async function main() {
         const start = performance.now();
 
         // Acquire the GitHub Actions inputs (specified in the `with:` map).
-        const inputs = getInputs(core.getInput);
-
-        // Set up the logger to delegate to the GitHub Actions Core toolkit.
-        const logger = ghLogger({ inputs });
+        const inputs = getInputs(core.getInput, {
+            // This second logger is necessary to prevent a circular dependency.
+            // We'll set its verbosity to the highest setting, since we won't know the desired verbosity until we've
+            // parsed the inputs.
+            logger: ghLogger({
+                // This null colorizer is necessary to prevent a circular dependency.
+                colors: nullColorizer(),
+                verbosity: verbosities.TRACE
+            })
+        });
 
         // Set up the colorizer to use ansi-colors if ANSI is allowed or a dummy otherwise.
         const colors = inputs.ansi ? c : nullColorizer();
 
+        let verbosity = inputs.verbosity;
+        
+        // If GitHub Actions is set to "Debug Logging" mode, then we'll raise the verbosity to DEBUG if it isn't already.
+        if(core.isDebug() && verbosities.level(verbosity) < verbosities.level(verbosities.DEBUG)) {
+            verbosity = verbosities.DEBUG;
+        }
+
+        // Set up the logger to delegate to the GitHub Actions Core toolkit.
+        const logger = ghLogger({ colors, verbosity });
+
         // Greet the user.
         logger.info(`Here we go! ${colors.yellow(`theguru v${version}`)} is ready for takeoff!`);
-        logger.debug(`Inputs: ${JSON.stringify(inputs)}`);
+        logger.trace(`Inputs: ${JSON.stringify(inputs)}`);
 
         // Set up an API client that delegates to node-fetch.
         const client = createClient(createFetch({ logger }));
@@ -73,7 +90,8 @@ async function main() {
             github,
             defaultFooter,
             commitCardsFile,
-            getChangedFiles
+            getChangedFiles,
+            setOutput: core.setOutput
         });
 
         // Bid the user farewell.
