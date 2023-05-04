@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## v0.6.1 - 2023-05-04
+
+### Added
+- Added the ability to disable the cards file.
+
 ## v0.6.0 - 2023-05-04
 
 This version is a sweeping change.
@@ -106,4 +111,4 @@ This version featured some drastic changes:
 ### Added
 - Initial documented version.
 
-[Unreleased]: https://github.com/ActiveEngagement/theguru/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/ActiveEngagement/theguru/compare/v0.6.1...HEAD
