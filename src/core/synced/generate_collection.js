@@ -32,9 +32,10 @@ export default async function(options) {
     logger.startGroup('Read the containers config');
     const containerEntries = Object.entries(inputs.containers);
 
-    if (containerEntries.length > 0) {
-        logger.info(`Found these containers in the config:`);
-    } else {
+    if(containerEntries.length > 0) {
+        logger.info('Found these containers in the config:');
+    }
+    else {
         logger.info('No containers found in the config.');
     }
 

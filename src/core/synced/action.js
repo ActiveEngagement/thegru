@@ -58,7 +58,8 @@ export default async function(options) {
 
     if(result.jobId) {
         logger.info(`Collection ${colors.green('uploaded')} successfully, job id ${colors.bold(result.jobId)}`);
-    } else {
+    }
+    else {
         throw new TheGuruError('Sync failed with response: ' + JSON.stringify(result));
     }
 }

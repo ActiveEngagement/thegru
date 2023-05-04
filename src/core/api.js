@@ -144,7 +144,7 @@ export default function(client, options) {
     }
 
     async function getCollections() {
-        logger.debug(`Getting all collections`);
+        logger.debug('Getting all collections');
 
         const response = await client.getCollections({
             headers: headers()

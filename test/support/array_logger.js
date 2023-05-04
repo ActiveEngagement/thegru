@@ -12,13 +12,13 @@ export default function() {
             messages.push('=========');
         },
         message(msg) {
-            messages.push(msg)
+            messages.push(msg);
         }
     }, TRACE);
 
     instance.getMessages = function() {
         return messages;
-    }
+    };
 
     return instance;
 }

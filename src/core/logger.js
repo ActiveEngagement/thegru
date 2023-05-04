@@ -4,7 +4,7 @@ export default function(base, verbosity) {
     let indent = 0;
 
     function message(msg, v) {
-        base.message(msg, indent, v)
+        base.message(msg, indent, v);
     }
 
     const instance = {
@@ -40,7 +40,7 @@ export default function(base, verbosity) {
     // Register a log method for each verbosity that delegates if it is not less than the current verbosity.
     verbosities().forEach(v => {
         // Obviously there's no method for the SILENT logging level.
-        if (v === SILENT) {
+        if(v === SILENT) {
             return;
         }
 
@@ -49,7 +49,7 @@ export default function(base, verbosity) {
                 message(msg, v);
             }
         };
-    })
+    });
 
     return instance;
 }

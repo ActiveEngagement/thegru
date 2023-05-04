@@ -48,17 +48,17 @@ export default async function(cards, options) {
     const topLevelCards = [];
     let currentHeading = null;
 
-    for (const card of cards) {
+    for(const card of cards) {
         const pathSplit = card.path.split('/');
-        if (pathSplit.length === 1) {
+        if(pathSplit.length === 1) {
             topLevelCards.push(card);
             continue;
         }
 
         const containerName = pathSplit[0];
 
-        if (!currentHeading || currentHeading !== containerName) {
-            if (currentHeading) {
+        if(!currentHeading || currentHeading !== containerName) {
+            if(currentHeading) {
                 logger.endGroup();
             }
             logger.startGroup(containerName);
@@ -70,9 +70,9 @@ export default async function(cards, options) {
 
     logger.endGroup();
 
-    if (topLevelCards.length > 0) {
+    if(topLevelCards.length > 0) {
         logger.startGroup('Top-level cards');
-        for (const card of topLevelCards) {
+        for(const card of topLevelCards) {
             await rewriteCard(card);
         }
         logger.endGroup();

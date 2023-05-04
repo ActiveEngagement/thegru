@@ -99,7 +99,7 @@ export default function(rules, options) {
         logger.indent();
 
         for(const file of files) {
-            if (level(logger.verbosity()) > DEBUG) {
+            if(level(logger.verbosity()) > DEBUG) {
                 logger.info(file);
                 logger.indent();
             }
@@ -110,9 +110,10 @@ export default function(rules, options) {
 
             const containerString = containerPath === '' ? 'the top level' : `"${containerPath}"`;
 
-            if (level(logger.verbosity()) <= DEBUG) {
+            if(level(logger.verbosity()) <= DEBUG) {
                 logger.info(file + colors.gray(` (assigned to ${containerString})`));
-            } else {
+            }
+            else {
                 logger.trace(`Assigned to ${containerString}.`);
                 logger.unindent();
             }

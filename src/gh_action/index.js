@@ -46,7 +46,7 @@ async function main() {
         let verbosity = inputs.verbosity;
         
         // If GitHub Actions is set to "Debug Logging" mode, then we'll raise the verbosity to DEBUG if it isn't already.
-        if (core.isDebug() && verbosities.level(verbosity) < verbosities.level(verbosities.DEBUG)) {
+        if(core.isDebug() && verbosities.level(verbosity) < verbosities.level(verbosities.DEBUG)) {
             verbosity = verbosities.DEBUG;
         }
 

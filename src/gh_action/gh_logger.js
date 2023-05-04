@@ -12,15 +12,15 @@ export default function(options) {
     function message(msg, indent, verbosity) {
         let func = core.info;
 
-        if (verbosity === NOTICE) {
+        if(verbosity === NOTICE) {
             func = core.warning;
         }
 
-        if (verbosity === WARNING) {
+        if(verbosity === WARNING) {
             msg = colors.bold.yellow('!!!') + ' ' + msg;
         }
 
-        if (verbosity === TRACE) {
+        if(verbosity === TRACE) {
             msg = colors.gray(msg);
         }
 

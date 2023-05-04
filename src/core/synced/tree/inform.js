@@ -33,7 +33,7 @@ export default function(tree, options) {
 
             Object.assign(node.info, data);
 
-            if (data && Object.keys(data).legnth !== 0) {
+            if(data && Object.keys(data).legnth !== 0) {
                 logger.info('Using frontmatter');
             }
 
@@ -57,9 +57,9 @@ export default function(tree, options) {
 
             const sanitized = sanitizeTitle(node.info.title);
 
-            if (node.info.title !== sanitized) {
+            if(node.info.title !== sanitized) {
                 node.info.title = sanitized;
-                logger.info(`Some invalid characters in the "title" were stripped out.`);
+                logger.info('Some invalid characters in the "title" were stripped out.');
             }
         }
         else if(node.type === 'container') {
@@ -83,9 +83,9 @@ export default function(tree, options) {
 
             const sanitized = sanitizeTitle(node.info.title);
 
-            if (node.info.title !== sanitized) {
+            if(node.info.title !== sanitized) {
                 node.info.title = sanitized;
-                logger.info(`Some invalid characters in the "title" were stripped out.`);
+                logger.info('Some invalid characters in the "title" were stripped out.');
             }
         }
 
