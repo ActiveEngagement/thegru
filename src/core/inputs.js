@@ -50,7 +50,11 @@ export default function(getCoreInput, options) {
                 input('cards', b => b.required().json({ type: 'object' }));
                 input('board_id');
                 input('board_section_id');
-                input('cards_file', b => b.fallback('uploaded-guru-cards.json'));
+                input('cards_file', b => b.try(b => b.boolean()).use(value => {
+                    if (value === null || value === true) {
+                        return result('uploaded-guru-cards.json');
+                    }
+                }));
                 input('update_all', b => b.fallback('false').boolean());
             }
             else if(type === 'synced') {

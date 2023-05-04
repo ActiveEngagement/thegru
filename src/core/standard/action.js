@@ -66,7 +66,7 @@ export default async function(options) {
     let cardsFileContent = '{}';
 
     // Read the cards file if it exists.
-    if(fs.existsSync(inputs.cardsFile)) {
+    if(inputs.cardsFile && fs.existsSync(inputs.cardsFile)) {
         cardsFileContent = await readFile(inputs.cardsFile);
     }
 
@@ -92,6 +92,12 @@ export default async function(options) {
         newCardIds[filePath] = id;
 
         logger.endGroup();
+    }
+
+    // Skip the cards file update if appropriate.
+    if (!inputs.cardsFile) {
+        logger.info(colors.blue('Skipping update of the cards file since "cards_file" is "false".'));
+        return;
     }
 
     // Get the cards that were present in the old cards file but not in the new one.
