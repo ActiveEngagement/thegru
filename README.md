@@ -246,7 +246,7 @@ If you wish to force an update for all cards on just a single push, you may incl
 
 ### The Cards File
 
-theguru must keep track of the ids of cards that it has uploaded so that it can update existing and destroy old ones where necessary. By default, it automatically commits an `uploaded-guru-cards.json` file to the root of your repository. You may customize the path to this file with the [`cards_file`](#cards_file) input.
+theguru must keep track of the ids of cards that it has uploaded so that it can update existing and destroy old ones where necessary. By default, it automatically commits an `uploaded-guru-cards.json` file to the root of your repository. You may customize the path to this file with the [`cards_file`](#cards_file) input. Or, you may disable the cards file by passing `false`. Just note that if you disable the cards file, theguru will not be able to tell whether it has already uploaded a card, so it will always recreate it.
 
 The cards file contains the ids of all previously uploaded cards. The format is:
 
@@ -333,9 +333,11 @@ To remove the card footer, pass `false`. To explicitly enable the default footer
 
 #### `cards_file`
 
-OPTIONAL. Override the file in which card ids are stored.
+OPTIONAL. Override or disable the file in which card ids are stored.
 
 You may customize the path to the [cards file](#the-cards-file), in which uploaded card ids are stored, with this input.
+
+If `false` is passed, the cards file will not be used. Cards will not be updated in Guru; they will always be re-created. This option can be useful in creation-only scenarios.
 
 #### `update_all`
 
