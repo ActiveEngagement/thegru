@@ -36,7 +36,7 @@ export default async function(cards, options) {
 
         // Render the transformed tree to Markdown.
         // Pass a custom link handler to prevent autolinks (Guru doesn't like them for some reason).
-        card.content = content.renderTree(contentTree, { handlers: {  }});
+        card.content = content.renderTree(contentTree, { handlers: { linkHandler }});
 
         // Collect any referenced attachments that were found while processing the content so we can upload them later.
         resources.push(...attachments);
