@@ -51,7 +51,7 @@ export default function(getCoreInput, options) {
                 input('board_id');
                 input('board_section_id');
                 input('cards_file', b => b.try(b => b.boolean()).use(value => {
-                    if (value === null || value === true) {
+                    if(value === null || value === true) {
                         return result('uploaded-guru-cards.json');
                     }
                 }));

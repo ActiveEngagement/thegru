@@ -95,7 +95,7 @@ export default async function(options) {
     }
 
     // Skip the cards file update if appropriate.
-    if (!inputs.cardsFile) {
+    if(!inputs.cardsFile) {
         logger.info(colors.blue('Skipping update of the cards file since "cards_file" is "false".'));
         return;
     }
