@@ -6,6 +6,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## v0.6.0 - 2023-05-04
+
+This version is a sweeping change.
+
+### Added
+- Added support for synced collections.
+- Added support for non-image attachments in both synced and standard collections.
+- Added the `verbosity` option.
+
+### Changed
+- Changed option interface, most notably by adding `collection_type`, removing `debug_logging`, and renaming `image_handler` to `attachment_handler`.
+- Removed support for "short slugs."
+
 ## v0.5.2 - 2023-02-09
 
 ### Changed
@@ -93,4 +106,4 @@ This version featured some drastic changes:
 ### Added
 - Initial documented version.
 
-[Unreleased]: https://github.com/ActiveEngagement/theguru/compare/v0.5.2...HEAD
+[Unreleased]: https://github.com/ActiveEngagement/theguru/compare/v0.6.0...HEAD
