@@ -28,7 +28,9 @@ async function action(options) {
     options.logger ||= nullLogger();
     options.colors ||= nullColorizer();
     options.inputs ||= {};
-    options.inputs.cardsFile ||= 'test/env/uploaded-cards.json';
+    if(options.inputs.cardsFile === undefined) {
+        options.inputs.cardsFile = 'test/env/uploaded-cards.json';
+    }
     options.inputs.attachmentHandler ||= 'auto';
     options.inputs.collectionType ||= 'standard';
     options.defaultFooter ||= '<{{repository_url}}>';
@@ -423,6 +425,46 @@ describe('action.js', () => {
                     await resource('test_card_with_upload_image_expected_output.html')
                 );
             });
+        });
+    });
+
+    describe('with no cards file', () => {
+        let client = null;
+        let expectedContent = null;
+        let logger = null;
+
+        beforeEach(async() => {
+            client = createClient({
+            });
+
+            logger = arrayLogger();
+
+            expectedContent = await resource('test_card_with_footer_expected_output.html');
+
+            await action({
+                logger,
+                client,
+                getChangedFiles: () => ['test/resources/test_card.md'],
+                inputs: {
+                    collectionId: 'c123',
+                    cards: { 'test/resources/test_card.md': 'Test Card' },
+                    cardsFile: false
+                }
+            });
+        });
+
+        it('creates the card', async() => {
+            const call = client.getCalls().find((call) => 
+                call.type === 'createCard' &&
+                call.options.body.preferredPhrase === 'Test Card'
+            );
+            expect(call).toBeTruthy();
+            expect(call.options.body.content).toBe(expectedContent);
+        });
+
+        it('emits a log notice', () => {
+            const actual = logger.getMessages().some(msg => msg === 'Skipping update of the cards file since "cards_file" is "false".');
+            expect(actual).toBe(true);
         });
     });
 });
