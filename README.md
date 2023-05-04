@@ -96,7 +96,7 @@ Since theguru utilizes the [Guru API](https://developer.getguru.com/reference/au
 
 In order to reference a Guru collection, board, or board section, you will need identifiers for them.
 
-Collections and boards in Guru have both a UUID "id" and a "slug." Slugs comprise an alphanumeric identifier like `iqKLBKpT`, suffixed with a URL-safe version of the entity's name, for example `iqKLBKpT/Some-Collection`. In this action, you may use either of these formats for collection or board ids. Board sections have only a UUID id and should be specified by it.
+Collections and boards in Guru have both a UUID "id" and a "slug." Slugs comprise an alphanumeric identifier like `iqKLBKpT`, suffixed with a URL-safe version of the entity's name, for example `iqKLBKpT/Some-Collection`. Ids are UUIDs used in the backend. In this action, you may use either of these formats for collection or board ids. Board sections have only a UUID id and should be specified by it.
 
 The easiest way to acquire these identifiers is by navigating to the entities in the Guru app and inspecting their URLs. For a collection or a board, you should see a URL path like `/collections/125ji/Collection-Name` or `/boards/iqKLBKpT/Board-Name`. You can simply use `125ji/Collection-Name` for the collection and `iqKLBKpT/Board-Name` for the board. For a board section, you should see a path like `/boards/iqKLBKpT/Board-Name/?boardSectionId=b81c3jc9-89f9-b4ac-0064-2f071126833d`, from which you can use the board section UUID.
 
@@ -187,13 +187,27 @@ This is the collection with which Markdown files will be synced.
 
 #### `attachment_handler`
 
-OPTIONAL. Override the method used to get file attachments into Guru; one of `"auto"` (default), `"upload"`, or `"github_urls"`.
+OPTIONAL. Override the method used to get file attachments into Guru; one of `"auto"` (default), `"upload"`, and `"github_urls"`.
 
 GitHub supports references in Markdown files to images or other files stored in the repository, via relative paths like `"images/test.png"`. This action will attempt to rewrite these URLs using one of two strategies:
   - **`"upload"`**—attachments will be uploaded as [Guru attachments](https://app.getguru.com/card/Tjp5Lbxc/Uploading-Files-to-Cards-via-API) (for standard collections) or included in the collection .zip (for synced collections).
   - **`"github_urls"`**—URLs will be rewritten to public GitHub URLs beginning with `"https://raw.githubusercontent.com/"`. If the file does not exist in the repository, then it will be `upload`ed instead. This method will fail of course for private repositories. 
 
 The default setting, `"auto"`, will use `"upload"` for private repositories and `"github_urls"` for public ones.
+
+#### `verbosity`
+
+OPTIONAL. Determines the amount of output the action will emit; one of `"silent"`, `"error"`, `"notice"`, `"warning"`, `"info"` (default), `"debug"`, and `"trace"`.
+
+This option allows you to control the minimum severity for theguru to emit a log message. The options are listed below. They are progressive, meaning each option includes all those above it.
+
+- `"silent"`—no messages whatsoever, except uncaught exceptions.
+- `"error"`—severe errors.
+- `"notice"`—very important notices.
+- `"warning"`—important notices.
+- `"info"`—useful information.
+- `"debug"`—some information that may be useful during debugging, without overwhelming the screen.
+- `"trace"`—as much information as possible. The output will be substantial and may be difficult to read.
 
 #### `ansi`
 
@@ -203,7 +217,7 @@ This input must be either `true` or `false`. When true, ANSI escape codes will b
 
 ## Standard Collections Usage
 
-When syncing with standard collections, we'll look at the array of cards in the [`cards`](#cards) input.
+When syncing with standard collections, we'll look at the list of cards in the [`cards`](#cards-standard) input.
 
 If a card does not exist in Guru (i.e. it has not yet been created or it has been removed from Guru), then we will automatically create a new card in the given [collection](#collection_id), [board](#board_id), and/or [board section](#board_section_id). If the card already exists in Guru, then we'll update it (if it has changed). We keep track of cards with the [cards file](#the-cards-file). Do note that we will never update the collection of an existing card. If, therefore, the card is moved after creation, it will retain the new location.
 
@@ -271,12 +285,13 @@ Additionally, if you change the file paths of any Markdown files (i.e. rename th
           cards_file:
           attachment_handler:
           update_all:
+          verbosity:
           ansi:
 ```
 
-(See [`user_email`](#user_email), [`user_token`](#user_token), [`github`](#github), [`collection_type`](#collection_type), [`collection_id`](#collection_id), [`attachment_handler`](#attachment_handler), and [`ansi`](#ansi) above.)
+(See [`user_email`](#user_email), [`user_token`](#user_token), [`github`](#github), [`collection_type`](#collection_type), [`collection_id`](#collection_id), [`attachment_handler`](#attachment_handler), [`verbosity`](#verbosity), and [`ansi`](#ansi) above.)
 
-#### `cards`
+#### `cards` (standard)
 
 REQUIRED. The cards to sync with Guru.
 
@@ -332,7 +347,7 @@ By default, with standard collections, the action will only update cards whose M
 
 ## Synced Collections Usage
 
-
+When syncing with synced collections, we'll look at the array of card rules in the [`cards`](#cards-synced) input. All the cards matched by the rules will be rewritten as necessary, compiled (along with referenced attachments) into a .zip collection, and uploaded to Guru.
 
 Synced collections are ideal when
   - you have many cards to sync or want to use a glob,
@@ -360,6 +375,29 @@ Given this example:
 
 To refer to "A Card", simply use "Board Group 1/Some Board/Section 1/A Card". To refer to "A Root Card", use "A Root Card". And so on.
 
+An empty string or forward slash (`/`) will be interpreted as the root container (the "Cards Not In a Board" section in Guru).
+
+### Card/Container "Info"
+
+Guru supports attaching a couple metadata attributes to cards and containers:
+
+- `"title"`—the title of the card or container; shown in the Guru interface.
+- `"externalUrl"`—a URL pointing to the card or container; this is not really shown anywhere in the Guru interface, but it could be useful.
+- `"description"`—a longer description of a board or board group; this is only shown in rather obscure parts of the Guru interface.
+
+These attributes can be attached in a variety of ways. For cards:
+
+- Info can be attached explicitly in a card rule, as described in [`cards`](#cards-synced).
+- Cards may have a "frontmatter" section containing info attributes. We use [graymatter](https://www.npmjs.com/package/gray-matter) to parse frontmatter, so it should conform to their requirements.
+- Cards may have a corresponding .yml (or .yaml) file with the same basename containing info attributes. For example, "eula.md" could have a "eula.yml" containing info.
+- If not otherwise specified, the title will be derived from the card's filename. For example, "legal_matters.md" will become "Legal Matters".
+
+For containers:
+
+- Info can be attached explicitly in the containers config, as described in [`containers`](#containers). This is the only way to attach info to a container not created from a directory.
+- Directories for which a container will be created may contain a `.info.yml` or `.info.yaml` file containing info attributes that will be applied to the container.
+- If not otherwise specified, the title will be derived from the container's name. For example, a container created from the directory "path/to/container_one" will become "Container One". A container created via an explicit `"container"` option in a card rule `"some/board one"` will become "Board One".
+
 ### Inputs
 
 ```yaml
@@ -378,36 +416,163 @@ To refer to "A Card", simply use "Board Group 1/Some Board/Section 1/A Card". To
           dry_run:
           card_footer:
           attachment_handler:
+          verbosity:
           ansi:
 ```
 
-(See [`user_email`](#user_email), [`user_token`](#user_token), [`github`](#github), [`collection_type`](#collection_type), [`collection_id`](#collection_id), [`attachment_handler`](#attachment_handler), and [`ansi`](#ansi) above.)
+(See [`user_email`](#user_email), [`user_token`](#user_token), [`github`](#github), [`collection_type`](#collection_type), [`collection_id`](#collection_id), [`attachment_handler`](#attachment_handler), [`verbosity`](#verbosity), and [`ansi`](#ansi) above.)
 
-#### `cards`
+#### `cards` (synced)
 
 REQUIRED. Rules indicating the cards to sync with Guru.
 
 This input must be a string containing a [JSON array](#json-inputs) of the card rules by which to sync.
 
-Every card rule must provide a `"glob"` key specifying which file(s) it should match. All files matched by the given glob will be included in the sync.
-
-Next, we need to know by some means what container (board group, board, or board section) each card needs to go into. You may specify this directly with a `"container"` property containing a [container path](#container-paths). Every card matched by that rule will then be put into that container.
+Card rules have the following schema:
 
 ```js
 {
   "glob": "*.md", // REQUIRED
   "rootDir": "src/", // OPTIONAL
   "container": "test", // OPTIONAL
-  "rootContainer": "root" // OPTIONAL
+  "rootContainer": "root", // OPTIONAL
+  "title": "Explicit Title", // OPTIONAL, of limited use
+  "externalUrl": "https://google.com", // OPTIONAL, of limited use
 }
 ```
 
-```yaml
-          cards: |
-            {
-              "path/to/file.md": "Card 1",
-              "path/to/file2.md": "Card 2"
-            }
+Every card rule must provide a `"glob"` key specifying which file(s) it should match. All files matched by the given glob will be included in the sync. If a simple string is given as a card rule instead of a JSON object, then it will be interpretated as a rule with a glob equal to the given string. Thus, `"card.md"` is equivalent to `{ "glob": "card.md" }`.
+
+Next, we need to know by some means what container (board group, board, or board section) each card needs to go into. You may specify this directly with a `"container"` property containing a [container path](#container-paths). Every card matched by that rule will then be put into that container. This can be useful when you have a few specific cards that should go into a specific board.
+
+Frequently though, you will want the container structure to mirror your directory structure—that is the main appeal of using a Synced Collection. This is the default behavior if no `"container"` is specified. For example, with a `"glob"` of `"path/to/dir/card.md"`, the card will be created in the `"dir"` board section under the `"to"` board under the `"path"` board group. With a glob matching different directories, different container paths may result, wherein lies the usefulness of this functionality. Thus, a glob of `"**/*.md"` will mimic the directory structure.
+
+Sometimes, you may need to exclude part of the path. A common scenario is a "docs" folder. Obviously, we don't need a "docs" container in Guru. The `"rootDir"` option allows you to specify a "parent" path that will be evaluated to find the cards but will not be included in the container structure. Take this rule, for example:
+
+```js
+{
+  "glob": "**/*.md",
+  "rootDir": "docs/"
+}
 ```
 
-Do note that cards are tracked by file path. Therefore, if you change the file path for a card, by default theguru will destroy the old card and create a new one in Guru. See [The Cards File](#the-cards-file). Conversly, if you change the title, then the title of the existing Guru card will seamlessly be updated.
+All Markdown files in the `"docs"` folder will be included and the directory structure *relative to `"docs"`* will be mimicked.
+
+Note that `"rootDir"` is also a glob. A `"rootDir"` of `"{docs, wiki}/"` and a glob of `"**/*.md"` will match all Markdown files under the `"docs"` directory *or* the `"wiki"` directory. The directory structure beneath `"docs"` and `"wiki"` will be mimicked. Since `"rootDir"` is a glob, it should end with a forward slash (`/`), to match only directories.
+
+You may also wish to put the entire mimicked directory structure beneath a specific container in Guru. This can be achieved with the `"rootContainer"` option, like so:
+
+```js
+{
+  "glob": "**/*.md",
+  "rootContainer": "Information"
+}
+```
+
+Now `"path/to/dir/card.md"` will go in the Guru container `"Information/Path/To/Dir"`, `"root.md"` will go directly in the `"Information"` container, etc.
+
+Finally, you may explicitly include card info (title or external url) in the rule via the `"title"` and `"externalUrl"` options. These values will be applied to all cards matched by the rule, making them of limited use except for single-card rules.
+
+#### `containers`
+
+OPTIONAL. Containers that should be created with the given info.
+
+This input must be a string containing a [JSON object](#json-inputs) mapping [container paths](#container-paths) to objects containing container info. This input serves two purposes.
+
+First, it provides the means for creating containers that would not otherwise be created. If, perhaps, you wanted to create an empty container to be used later, it could be included in this input, like so:
+
+```js
+{
+  "Empty Container": {}
+}
+```
+
+With info:
+
+```js
+{
+  "Empty Container": {
+    "title": "Actual Title",
+    "description": "Who knows?",
+    "externalUrl": "https://google.com"
+  }
+}
+```
+
+Second, and more importantly, it is one of the methods for setting container info. Even if the container would already have been created, you may include it in this input and the info will be applied. For example, if you have a container path `"path/to/dir"` already being created by a card rule, and you wish to set a different title than "Path", "To", and "Dir" on the containers:
+
+```js
+{
+  "path": {
+    title: "Primus"
+  },
+  "path/to": {
+    title: "Secondus"
+  },
+  "path/to/dir": {
+    title: "Tertius"
+  }
+}
+```
+
+#### `preferred_container`
+
+OPTIONAL. Indicates the preferred top-level container; either `"board"` or `"board_group"` (default).
+
+Occasionally there are multiple ways that a given container structure could be created in Guru. Take this tree, for example:
+
+```
+- AAA
+  - aaa
+    - one.md
+  - bbb
+    - two.md
+- BBB
+  - ccc
+    - three.md
+  - ddd
+- CCC
+  - eee
+    - four.md
+    - five.md
+  - fff
+```
+
+There are two ways this could be translated to Guru: (1) the top-level containers (`AAA`, `BBB`, `CCC`) could be board groups and the second-level containers (`aaa`, `bbb`, `ccc`, etc.) could be boards; or (2) the top-level containers could be boards and the second-level containers could be board sections. By default, this action will use a board group at the top level, where possible. You may override this by passing `"board_group"`.
+
+Sometimes it is impossible to respect the preferred container type. For example:
+
+```
+- AAA
+  - aaa
+    - one.md
+  - two.md
+```
+
+`AAA` contains `two.md` directly. Therefore, since cards cannot be created directly under board groups in Guru, `AAA` will be created as a board and `aaa` as a board section, regardless of the `preferred_container`.
+
+The container type of top-level containers may end up being different, if necessary. For example:
+
+```
+- AAA
+  - aaa
+    - one.md
+  - two.md
+- BBB
+  - bbb
+    - three.md
+```
+
+Here, assuming `preferred_type` is the default `"board_group"`, `AAA` must be a board (as described above), but `BBB` will be created as a board group.
+
+#### `dry_run`
+
+OPTIONAL. If `true`, indicates that the action shouldn't actually sync the collection with Guru.
+
+For debugging purposes (or if you wish to upload the collection yourself), you may want to prevent the final collection .zip from actually being uploaded to Guru. If this input is `true`, the action will run as usual and will generate the final .zip, but will not upload it. You may then use the `zip` output to inspect the file, or inspect the collection model with the `"trace"` [verbosity](#verbosity).
+
+### Outputs
+
+#### `zip`
+
+This output will be set to the full file path of the created `.zip` collection [required by Guru](https://developer.getguru.com/docs/guru-sync-manual-api). Inspecting it may prove useful for debugging or validating.
