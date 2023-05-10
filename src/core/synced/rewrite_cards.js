@@ -1,7 +1,7 @@
 import * as content from '../content.js';
 import attachFooter from '../attach_footer.js';
 import analyze from '../unist_analyze.js';
-import { image, imageReference, link, linkReference, definition } from '../mdast_predicates.js';
+import { image, imageReference, link, linkReference, definition, heading } from '../mdast_predicates.js';
 import transformContent from './transform_content.js';
 import linkHandler from './mdast_non_auto_link.js';
 
@@ -23,7 +23,7 @@ export default async function(cards, options) {
             attachFooter(card.content, { logger, github, footer })
         );
 
-        const analysis = analyze(contentTree, image, imageReference, link, linkReference, definition);
+        const analysis = analyze(contentTree, image, imageReference, link, linkReference, definition, heading);
 
         // Transform the tree as appropriate for synced collections.
         const { attachments } = await transformContent(card.file, analysis, {

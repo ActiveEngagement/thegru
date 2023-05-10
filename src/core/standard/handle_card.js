@@ -4,7 +4,7 @@ import transformContent from './transform_content.js';
 import { readFile } from '../fs_util.js';
 import { resolveLocalPath } from '../util.js';
 import analyze from '../unist_analyze.js';
-import { image, imageReference, definition, link, linkReference } from '../mdast_predicates.js';
+import { image, imageReference, definition, link, linkReference, heading } from '../mdast_predicates.js';
 import { unifyImages } from '../mdast_unify.js';
 import attachFooter from '../attach_footer.js';
 
@@ -18,7 +18,7 @@ export default async function(filePath, cardTitle, options) {
     const content = await readFile(filePath);
     const contentTree = buildTree(attachFooter(content, { logger, github, footer }));
 
-    const analysis = analyze(contentTree, image, imageReference, definition, link, linkReference);
+    const analysis = analyze(contentTree, image, imageReference, definition, link, linkReference, heading);
 
     // Extract the paths of referenced images from the Markdown file so that we can check whether they have changed.
     const imagePaths = unifyImages(analysis)
