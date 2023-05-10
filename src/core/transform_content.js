@@ -29,7 +29,7 @@ export default async function(filePath, analysis, options) {
     for(const headingNode of analysis.get(heading)) {
         const text = toString(headingNode);
         const slug = slugger.slug(text);
-        logger.trace(`Appending anchor to heading node ${JSON.stringify(headingNode)}`);
+        logger.trace(`Appending anchor to heading`);
         logger.trace(`Heading text: ${text}`);
         logger.trace(`Derived slug: ${slug}`);
         headingNode.parent.children.splice(headingNode.index, 0, {
