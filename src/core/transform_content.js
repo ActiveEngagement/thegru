@@ -1,6 +1,6 @@
 import path from 'path';
 import { unifyBoth } from './mdast_unify.js';
-import { isLocalUrl, urlType } from './util.js';
+import { isLocalUrl, urlType, wrapMdBlock } from './util.js';
 import { resolveLocalPath } from './util.js';
 import { definition, image, imageReference, link, linkReference, heading } from './mdast_predicates.js';
 import { validate } from './unist_analyze.js';
@@ -28,7 +28,7 @@ export default async function(filePath, analysis, options) {
     for(const headingNode of analysis.get(heading)) {
         headingNode.children.push({
             type: 'html',
-            value: `<a name="${slugger.slug(toString(heading))}" />`
+            value: wrapMdBlock(`<a name="${slugger.slug(toString(heading))}" />`)
         });
     }
 
