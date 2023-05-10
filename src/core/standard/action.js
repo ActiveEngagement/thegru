@@ -80,7 +80,7 @@ export default async function(options) {
         logger.startGroup(filePath);
         logger.info(`Previously uploaded card ${id} has been removed from the cards config. Removing it from Guru...`);
 
-        if ((await api.destroyCard(id)) === false) {
+        if((await api.destroyCard(id)) === false) {
             logger.debug('Card not destroyed. Guru returned a 404.');
         }
 
