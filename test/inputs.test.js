@@ -21,7 +21,6 @@ function typicalInputs(collectionType) {
             card_footer: 'Footer!',
             cards_file: 'something.json',
             attachment_handler: 'auto',
-            update_all: 'true',
             ansi: 'false',
             verbosity: 'warning'
         };
@@ -206,7 +205,6 @@ describe('inputs.js', () => {
                 cardFooter: 'Footer!',
                 cardsFile: 'something.json',
                 attachmentHandler: 'auto',
-                updateAll: true,
                 ansi: false,
                 verbosity: verbosities.WARNING
             });

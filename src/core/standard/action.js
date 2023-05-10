@@ -1,9 +1,7 @@
 import fs from 'fs';
 import { readFile, srcUrl, writeFile } from '../fs_util.js';
-import { attempt } from '../util.js';
 import commitFlags from '../commit_flags.js';
 import handleCard from './handle_card.js';
-import { InvalidGitObjectError } from '../error.js';
 
 /**
  * This is the entrypoint for most of the standard-collection-based action logic. It is intentionally abstracted away
@@ -18,7 +16,6 @@ export default async function(options) {
         github,
         defaultFooter,
         commitCardsFile,
-        getChangedFiles,
         attachmentHandler
     } = options;
 
@@ -29,39 +26,8 @@ export default async function(options) {
         footer = defaultFooter;
     }
 
-    // Determine whether all cards should be updated and notify the user accordingly. All cards should be updated if:
-    //   the "update_all" input is true, or
-    //   the [guru update] commit flag is included.
-
-    let updateAll = inputs.updateAll;
-
-    if(updateAll) {
-        logger.info('"update_all" is true. All cards will be updated.');
-    }
-
-    commitFlags()
-        .flag('guru update', () => {
-            if(!updateAll) {
-                logger.info(colors.blue('[guru update] flag detected. All cards will be updated.'));
-                updateAll = true;
-            }
-        })
-        .execute(github?.commit?.message, { logger });
-
-    // If all files should be updated, all files will be treated as changed.
-    let didFileChange = () => true;
-    
-    if(!updateAll) {
-        // Otherwise, try to get a list of changed files.
-        await attempt()
-            .catch(InvalidGitObjectError, () => {
-                logger.warning('The Git command used to determine which files have changed reported an invalid object error. Most likely, you forgot to include `fetch-depth` in your checkout action. All cards will be updated.');
-            })
-            .do(async() => {
-                const changedFiles = await getChangedFiles();
-                didFileChange = (filePath) => changedFiles.includes(filePath);
-            });
-    }
+    // NOTE: At the moment, there are no commit flags. Some may be added later on.
+    commitFlags().execute(github?.commit?.message, { logger });
 
     let cardsFileContent = '{}';
 
@@ -86,8 +52,7 @@ export default async function(options) {
             inputs,
             attachmentHandler,
             footer,
-            existingCardIds: cardIds,
-            didFileChange
+            existingCardIds: cardIds
         });
         newCardIds[filePath] = id;
 
@@ -115,7 +80,7 @@ export default async function(options) {
         logger.startGroup(filePath);
         logger.info(`Previously uploaded card ${id} has been removed from the cards config. Removing it from Guru...`);
 
-        if ((await api.destroyCard(id)) === false) {
+        if((await api.destroyCard(id)) === false) {
             logger.debug('Card not destroyed. Guru returned a 404.');
         }
 
