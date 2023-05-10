@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+- Removed the ability to only upload "changed" files.
+
 ## v0.6.1 - 2023-05-04
 
 ### Added
