@@ -50,7 +50,6 @@ async function action(options) {
         options.github.repo.isPublic = false;
     }
     options.commitCardsFile ||= () => {};
-    options.getChangedFiles ||= () => [];
 
     return await runAction(options);
 }
@@ -76,7 +75,7 @@ describe('action.js', () => {
 
             client = createClient({
                 createCardResult: { id: '789' },
-                getCardResult: (id) => id === '123' || id === '456' ? { id } : 'not_found'
+                getCardResult: (id) => id === '123' || id === '456'  || id === 'unchanged123' ? { id } : 'not_found'
             });
 
             logger = arrayLogger();
@@ -95,12 +94,7 @@ describe('action.js', () => {
                         'test/resources/test_card_3.md': 'Test 789',
                         'test/resources/test_card_2.md': 'Test 456',
                     },
-                },
-                getChangedFiles: () => [
-                    'test/resources/test_card.md',
-                    'test/resources/test_card_2.md',
-                    'removed_locally'
-                ]
+                }
             });
         });
 
@@ -113,12 +107,13 @@ describe('action.js', () => {
             expect(call.options.body.content).toBe(expectedContent);
         });
 
-        it('skips unchanged123', () => {
-            const actual = client.getCalls().some((call) => 
+        it('updates unchanged123', () => {
+            const call = client.getCalls().find((call) => 
                 call.type === 'updateCard' &&
                 call.id === 'unchanged123'
             );
-            expect(actual).toBe(false);
+            expect(call).toBeTruthy();
+            expect(call.options.body.content).toBe(expectedContent);
         });
 
         it('updates 456', () => {
@@ -190,50 +185,6 @@ describe('action.js', () => {
         });
     });
 
-    describe('with update_all', () => {
-        let client = null;
-        let expectedContent = null;
-        let logger = null;
-        let gitCall = null;
-
-        beforeEach(async() => {
-            await initCardsFile({ 'test/resources/test_card_unchanged.md': 'unchanged123' });
-
-            client = createClient({
-                getCardResult: { id: 'unchanged123' }
-            });
-
-            logger = arrayLogger();
-
-            expectedContent = await resource('test_card_with_footer_expected_output.html');
-
-            await action({
-                logger,
-                client,
-                commitCardsFile: options => gitCall = options,
-                inputs: {
-                    collectionId: 'c123',
-                    cards: { 'test/resources/test_card_unchanged.md': 'unchanged123' },
-                    updateAll: true
-                }
-            });
-        });
-
-        it('updates the card, unchanged though it be', async() => {
-            const call = client.getCalls().find((call) => 
-                call.type === 'updateCard' &&
-                call.id === 'unchanged123'
-            );
-            expect(call).toBeTruthy();
-            expect(call.options.body.content).toBe(expectedContent);
-        });
-
-        it('emits a log notice', () => {
-            const actual = logger.getMessages().some(msg => msg === '"update_all" is true. All cards will be updated.');
-            expect(actual).toBe(true);
-        });
-    });
-
     describe('with no commit message', () => {
         let client = null;
         let logger = null;
@@ -262,106 +213,8 @@ describe('action.js', () => {
             });
         });
 
-        it('skips unchanged123', () => {
-            const actual = client.getCalls().some((call) => 
-                call.type === 'updateCard' &&
-                call.id === 'unchanged123'
-            );
-            expect(actual).toBe(false);
-        });
-
         it('emits a log notice', () => {
             const actual = logger.getMessages().some(msg => msg === 'We were unable to read the latest commit message. Any commit flags will be ignored.');
-            expect(actual).toBe(true);
-        });
-    });
-
-    describe('with [guru update] flag', () => {
-        let client = null;
-        let expectedContent = null;
-        let logger = null;
-
-        beforeEach(async() => {
-            await initCardsFile({ 'test/resources/test_card_unchanged.md': 'unchanged123' });
-
-            client = createClient({
-                getCardResult: { id: 'unchanged123' }
-            });
-
-            logger = arrayLogger();
-
-            expectedContent = await resource('test_card_with_footer_expected_output.html');
-
-            await action({
-                logger,
-                client,
-                github: {
-                    commit: {
-                        message: 'A Test Commit [guru update]\n\nSome more description.'
-                    }
-                },
-                inputs: {
-                    collectionId: 'c123',
-                    cards: { 'test/resources/test_card_unchanged.md': 'unchanged123' },
-                }
-            });
-        });
-
-        it('updates the card, unchanged though it be', async() => {
-            const call = client.getCalls().find((call) => 
-                call.type === 'updateCard' &&
-                call.id === 'unchanged123'
-            );
-            expect(call).toBeTruthy();
-            expect(call.options.body.content).toBe(expectedContent);
-        });
-
-        it('emits a log notice', () => {
-            const actual = logger.getMessages().some(msg => msg.includes('[guru update] flag detected. All cards will be updated.'));
-            expect(actual).toBe(true);
-        });
-    });
-
-    describe('with git object error', () => {
-        let client = null;
-        let expectedContent = null;
-        let logger = null;
-
-        beforeEach(async() => {
-            await initCardsFile({ 'test/resources/test_card_unchanged.md': 'unchanged123' });
-
-            client = createClient({
-                getCardResult: { id: 'unchanged123' }
-            });
-
-            logger = arrayLogger();
-
-            expectedContent = await resource('test_card_with_footer_expected_output.html');
-
-            await action({
-                logger,
-                client,
-                getChangedFiles: () => {
-                    throw new InvalidGitObjectError(); 
-                },
-                inputs: {
-                    collectionId: 'c123',
-                    cards: { 'test/resources/test_card_unchanged.md': 'unchanged123' },
-                }
-            });
-        });
-
-        it('updates the card, unchanged though it be', async() => {
-            const call = client.getCalls().find((call) => 
-                call.type === 'updateCard' &&
-                call.id === 'unchanged123'
-            );
-            expect(call).toBeTruthy();
-            expect(call.options.body.content).toBe(expectedContent);
-        });
-
-        it('emits a log notice', () => {
-            const actual = logger.getMessages().some(msg => msg === 'The Git command used to determine which files have changed reported an invalid object error. Most likely, you forgot to include `fetch-depth` in your checkout action. All cards will be updated.');
             expect(actual).toBe(true);
         });
     });

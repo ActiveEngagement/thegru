@@ -24,7 +24,6 @@ async function handleCard(options) {
     options.inputs ||= {};
     options.attachmentHandler ||= 'auto';
     options.existingCardIds ||= [];
-    options.didFileChange ||= () => true;
 
     return await runHandleCard(options.filePath, options.cardTitle, options);
 }
@@ -303,61 +302,6 @@ describe('handle_card.js', () => {
         expect(client.getCalls()[0].options.body.content).toEqual(
             await resource('test_card_with_footer_expected_output.html')
         );
-    });
-
-    describe('with unchanged file', () => {
-        it('with a new card still creates it', async() => {
-            const client = createClient();
-
-            await handleCard({
-                client,
-                filePath: 'test/resources/test_card.md',
-                cardTitle: 'Test Card',
-                didFileChange: () => false,
-                inputs: {
-                    collectionId: 'c123'
-                }
-            });
-
-            expect(client.getCalls().length).toBe(1);
-            expect(client.getCalls()[0].type).toBe('createCard');
-        });
-
-        it('with an existing card ignores it', async() => {
-            const client = createClient();
-
-            await handleCard({
-                client,
-                filePath: 'test/resources/test_card.md',
-                cardTitle: 'Test Card',
-                collectionId: 'c123',
-                didFileChange: () => false,
-                existingCardIds: { 'test/resources/test_card.md': '123' }
-            });
-
-            expect(client.getCalls().length).toBe(0);
-        });
-
-        test.each([
-            ['test_card_with_local_image.md'],
-            ['test_card_with_local_parent_image.md'],
-            ['test_card_with_local_root_image.md'],
-        ])('with changed referenced image', async(card) => {
-            const client = createClient();
-
-            await handleCard({
-                client,
-                filePath: 'test/resources/' + card,
-                cardTitle: 'Test Card',
-                didFileChange: (file) => file === 'test/resources/empty.png',
-                inputs: {
-                    collectionId: 'c123'
-                }
-            });
-
-            expect(client.getCalls().length).toBe(1);
-            expect(client.getCalls()[0].type).toBe('createCard');
-        });
     });
 
     test('with failed server JSON response throws proper error', async() => {

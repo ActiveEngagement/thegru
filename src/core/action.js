@@ -20,7 +20,6 @@ export default async function(options) {
         github,
         defaultFooter,
         commitCardsFile,
-        getChangedFiles,
         setOutput
     } = options;
 
@@ -61,8 +60,7 @@ export default async function(options) {
             github,
             defaultFooter,
             attachmentHandler,
-            commitCardsFile,
-            getChangedFiles
+            commitCardsFile
         });
     }
     else {

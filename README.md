@@ -26,15 +26,7 @@ This GitHub action will automatically sync one or more Markdown files with [Guru
 
 Get the [ids or slugs](#identifiers) of the Guru collection, board, and/or board section in which the cards should be created. The easiest way to get these is by navigating to the collection, board, or section in the Guru app and copying them from the URL.
 
-Next, in order for us to accurately [detect file changes](#when-we-update), you **must** include the `fetch-depth` option in your checkout action. It should look something like this:
-
-```yaml
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0 # For performance, you may adjust this value, but file changes may not always work.
-```
-
-Finally, add the template below to your workflow file (in `.github/workflows`). You may add this to an existing workflow or create a new one solely for Guru. Insert your own [`collection_id`](#collection_id). Optionally insert your own [`board_id`](#board_id) and/or [`board_section_id`](#board_section_id), or remove those lines. Adjust [`cards`](#cards) as desired.
+Now add the template below to your workflow file (in `.github/workflows`). You may add this to an existing workflow or create a new one solely for Guru. Insert your own [`collection_id`](#collection_id). Optionally insert your own [`board_id`](#board_id) and/or [`board_section_id`](#board_section_id), or remove those lines. Adjust [`cards`](#cards) as desired.
 
 ```yaml
       - uses: ActiveEngagement/theguru@v0.6
@@ -160,9 +152,7 @@ This input must be a [JSON object](#json-inputs) representation of the [GitHub c
   "event": {
     "head_commit": {
       "message": "OPTIONAL. Enables commit flags."
-    },
-    "before": "OPTIONAL. Enables pushing only changed files.",
-    "after": "OPTIONAL. Enables pushing only changed files."
+    }
   }
 }
 ```
@@ -225,24 +215,6 @@ Standard collections are ideal when
   - you have relatively few cards to sync,
   - the cards do not need to link to each other, or when
   - you want to sync with an existing collection.
-
-### When We Update
-
-It would be inefficient to always update every configured card on every single GitHub push. Therefore, by default, we attempt to only update cards that we believe have changed in this push. We execute a `git diff` command with the "before" and "after" commit SHAs in the GitHub context (if present). Then a card is only updated if its associated Markdown file or any local image files referenced therein have changed. If the command fails for any reason, then we'll fall back to updating all cards.
-
-Note that in order for this to work, the Git commits must be present in the local filesystem for us to diff. However, by default, the `@actions/checkout` action performs a [*shallow* clone](https://git-scm.com/docs/shallow). Thus you must include the [`fetch-depth`](https://github.com/actions/checkout#usage) option like so:
-
-```yaml
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0 # Adjust as appropriate.
-```
-
-`fetch-depth` is the number of commits that should be fetched. When set to `0`, the entire history will be cloned. You will probably wish to avoid this. In general, it should be set to a high enough value that it will typically encompass the entirety of a single push, but not so high that it degrades performance significantly. We would recommend `20` or so.
-
-If you wish to disable this functionality entirely, you may set the [`update_all`](#update-all) input.
-
-If you wish to force an update for all cards on just a single push, you may include a `[guru update]` flag anywhere in the commit message, and all cards will be updated just that time.
 
 ### The Cards File
 
@@ -338,14 +310,6 @@ OPTIONAL. Override or disable the file in which card ids are stored.
 You may customize the path to the [cards file](#the-cards-file), in which uploaded card ids are stored, with this input.
 
 If `false` is passed, the cards file will not be used. Cards will not be updated in Guru; they will always be re-created. This option can be useful in creation-only scenarios.
-
-#### `update_all`
-
-OPTIONAL. Force all cards to be updated, always.
-
-This input must be either `true` or `false` (the default).
-
-By default, with standard collections, the action will only update cards whose Markdown files (or referenced image files) have changed during this push. When this input is `true`, *all* cards in the config file always be updated, and the action will skip the changed files check.
 
 ## Synced Collections Usage
 

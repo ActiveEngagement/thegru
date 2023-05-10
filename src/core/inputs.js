@@ -55,7 +55,6 @@ export default function(getCoreInput, options) {
                         return result('uploaded-guru-cards.json');
                     }
                 }));
-                input('update_all', b => b.fallback('false').boolean());
             }
             else if(type === 'synced') {
                 logger.info('theguru is in "synced" collection mode.');

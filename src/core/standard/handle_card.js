@@ -12,33 +12,15 @@ import attachFooter from '../attach_footer.js';
  * Syncs (creates or updates) the given card.
  */
 export default async function(filePath, cardTitle, options) {
-    const { logger, api, github, inputs, attachmentHandler, footer, existingCardIds, didFileChange } = options;
+    const { logger, api, github, inputs, attachmentHandler, footer, existingCardIds } = options;
 
     logger.info(`Reading ${filePath}`);
     const content = await readFile(filePath);
     const contentTree = buildTree(attachFooter(content, { logger, github, footer }));
 
     const analysis = analyze(contentTree, image, imageReference, definition, link, linkReference);
-
-    // Extract the paths of referenced images from the Markdown file so that we can check whether they have changed.
-    const imagePaths = unifyImages(analysis)
-        .filter(image => image.getUrl().startsWith('http'))
-        .map(image => resolveLocalPath(image.getUrl(), path.dirname(filePath)));
-    
-    const watchedFiles = [filePath, ...imagePaths];
-
-    logger.debug('Checking whether any of the following files have changed:');
-    watchedFiles.forEach((file) => logger.debug(`\t- ${file}`));
-
-    // Check whether the Markdown file or any of its images have changed.
-    const changed = watchedFiles.some(file => didFileChange(file));
     
     const cardId = existingCardIds[filePath];
-    if(cardId && !changed) {
-        // If there is an existing card, and it has not changed (to our knowledge), then we'll skip it.
-        logger.info(`Skipping card ${cardId} because it has not changed.`);
-        return cardId;
-    }
 
     // Build the card content.
     const { attachments } = await transformContent(filePath, analysis, {
