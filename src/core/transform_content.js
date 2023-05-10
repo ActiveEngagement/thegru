@@ -52,7 +52,7 @@ export default async function(filePath, analysis, options) {
         } else if (type === 'internal') {
             const node = imageOrLink.node;
             const markdown = renderTree(node);
-            for (var member in myObject) delete node[member];
+            for (var member in node) delete node[member];
             node.type = 'html';
             node.value = wrapMdBlock(markdown);
         }
