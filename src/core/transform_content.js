@@ -7,6 +7,7 @@ import { validate } from './unist_analyze.js';
 import rewriteAttachment from './rewrite_attachment.js';
 import Slugger from 'github-slugger';
 import { toString } from 'mdast-util-to-string';
+import { renderTree } from './content.js';
 
 export default async function(filePath, analysis, options) {
     validate(analysis, link, linkReference, image, imageReference, definition, heading);
@@ -31,7 +32,7 @@ export default async function(filePath, analysis, options) {
         logger.trace(`Appending anchor to heading node ${JSON.stringify(headingNode)}`);
         logger.trace(`Heading text: ${text}`);
         logger.trace(`Derived slug: ${slug}`);
-        headingNode.children.push({
+        headingNode.parent.children.splice(headingNode.index, 0, {
             type: 'html',
             value: wrapMdBlock(`<a name="${slug}" />`)
         });
@@ -48,6 +49,12 @@ export default async function(filePath, analysis, options) {
         if (type === 'local') {
             const callback = imageOrLink.type === 'image' ? rewriteImage : rewriteLink;
             imageOrLink.setUrl(await callback(url, resolveUrl(url)));
+        } else if (type === 'internal') {
+            const node = imageOrLink.node;
+            const markdown = renderTree(node);
+            for (var member in myObject) delete node[member];
+            node.type = 'html';
+            node.value = wrapMdBlock(markdown);
         }
     }
 }

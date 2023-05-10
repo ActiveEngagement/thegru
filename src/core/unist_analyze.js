@@ -15,6 +15,8 @@ export default function(tree, ...tests) {
     visit(tree, (node, index, parent) => {
         for(let i = 0; i < tests.length; i++) {
             if(is(node, tests[i], index, parent)) {
+                node.parent = parent;
+                node.index = index;
                 nodes[i].push(node);
             }
         }
