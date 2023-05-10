@@ -219,7 +219,7 @@ This input must be either `true` or `false`. When true, ANSI escape codes will b
 
 When syncing with standard collections, we'll look at the list of cards in the [`cards`](#cards-standard) input.
 
-If a card does not exist in Guru (i.e. it has not yet been created or it has been removed from Guru), then we will automatically create a new card in the given [collection](#collection_id), [board](#board_id), and/or [board section](#board_section_id). If the card already exists in Guru, then we'll update it (if it has changed). We keep track of cards with the [cards file](#the-cards-file). Do note that we will never update the collection of an existing card. If, therefore, the card is moved after creation, it will retain the new location.
+If a card does not exist in Guru (i.e. it has not yet been created or it has been removed from Guru), then we will automatically create a new card in the given [collection](#collection_id), [board](#board_id), and/or [board section](#board_section_id). If the card already exists in Guru, then we'll update it (if it has changed). We keep track of cards with the [cards file](#the-cards-file). Do note that we will never update the collection or container of an existing card. If, therefore, the card is moved after creation, it will retain the new location.
 
 Standard collections are ideal when
   - you have relatively few cards to sync,
