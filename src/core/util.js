@@ -1,6 +1,8 @@
 import path from 'path';
 import globBase from 'glob';
 import { stripExtension } from './fs_util.js';
+import Slugger from 'github-slugger';
+import { toString } from 'mdast-util-to-string';
 
 export function base64(input) {
     return Buffer.from(input, 'utf8').toString('base64');
@@ -23,12 +25,20 @@ export function resolveLocalPath(url, parent) {
     return path.join(parent, url);
 }
 
-export function isLocalUrl(url) {
-    const http = url.startsWith('http://') || url.startsWith('https://');
-    const internal = url.startsWith('#');
-    const email = url.startsWith('mailto');
+export function urlType(url) {
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+        return 'http';
+    } else if (url.startsWith('#')) {
+        return 'internal';
+    } else if (url.startsWith('mailto')) {
+        return 'email'
+    } else {
+        return 'local';
+    }
+}
 
-    return !(http || internal || email);
+export function isLocalUrl(url) {
+    return urlType(url) === 'local';
 }
 
 /**
