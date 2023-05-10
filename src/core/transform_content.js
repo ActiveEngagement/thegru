@@ -26,9 +26,12 @@ export default async function(filePath, analysis, options) {
     }
 
     for(const headingNode of analysis.get(heading)) {
+        const slug = slugger.slug(toString(heading));
+        logger.trace(`Appending anchor to heading node ${headingNode}`);
+        logger.trace(`Derived slug: ${slug}`);
         headingNode.children.push({
             type: 'html',
-            value: wrapMdBlock(`<a name="${slugger.slug(toString(heading))}" />`)
+            value: wrapMdBlock(`<a name="${slug}" />`)
         });
     }
 
