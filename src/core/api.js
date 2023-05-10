@@ -126,6 +126,10 @@ export default function(client, options) {
             headers: headers()
         });
 
+        if(response.status === 404) {
+            return false;
+        }
+
         return await validate(response);
     }
 
