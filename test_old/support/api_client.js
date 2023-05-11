@@ -1,27 +1,13 @@
-/**
- * A dummy API client implementation that merely keeps track of requests and returns the given responses.
- * 
- * Each desired API response can be passed as an option (e.g. `createCardResult`, `updateCardResult`, `getCardResult`,
- * etc.). You may pass values directly or callbacks that will be evaluated with the incoming request options.
- */
 export default function(clientOptions = {}) {
     const calls = [];
 
-    function getCalls() {
-        return calls;
-    }
-
-    /**
-     * If the provided value is a function, then it will be called with the given arguments, and the result will be
-     * returned. Otherwise the provided value itself will be returned.
-     */
     function call(callable, ...args) {
         return callable instanceof Function ? callable(...args) : callable;
     }
 
-    //
-    // Some response-generation utility functions.
-    //
+    function getCalls() {
+        return calls;
+    }
 
     function response(json) {
         return {

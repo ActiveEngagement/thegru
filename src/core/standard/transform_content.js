@@ -16,20 +16,8 @@ export default async function(filePath, analysis, options = {}) {
     }
 
     async function rewriteLink(url, resolved) {
-        if(!fs.existsSync(resolved)) {
-            logger.warning(`${filePath} referenced "${url}", which does not exist on the file system. We'll ignore it, but you likely have a broken link.`);
-            return url;
-        }
-
-        const stat = await fs.promises.stat(resolved);
-
-        if(stat.isDirectory()) {
-            logger.warning(`${filePath} referenced "${url}", which is a directory. We'll ignore it, but you likely have a broken link.`);
-            return url;
-        }
-
         return await rewriteAttachment(url, resolved, 'link', {
-            logger, attachmentHandler, github, upload
+            logger, attachmentHandler, github, upload, cardFilePath: filePath
         });
     }
 

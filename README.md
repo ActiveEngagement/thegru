@@ -15,6 +15,7 @@ This GitHub action will automatically sync one or more Markdown files with [Guru
 - [Shared Inputs](#shared-inputs)
 - [Standard Collections](#standard-collections-usage)
 - [Synced Collections](#synced-collections-usage)
+- [Development](#development)
 
 ## Quick Start
 
@@ -542,3 +543,7 @@ For debugging purposes (or if you wish to upload the collection yourself), you m
 #### `zip`
 
 This output will be set to the full file path of the created `.zip` collection [required by Guru](https://developer.getguru.com/docs/guru-sync-manual-api). Inspecting it may prove useful for debugging or validating.
+
+## Development
+
+[TODO] The test/env directory.

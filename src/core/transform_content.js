@@ -17,7 +17,7 @@ export default async function(filePath, analysis, options) {
 
     async function rewriteImage(url, resolved) {
         return await rewriteAttachment(url, resolved, 'image', {
-            logger, attachmentHandler, github, upload
+            logger, attachmentHandler, github, upload, cardFilePath: filePath
         });
     }
 

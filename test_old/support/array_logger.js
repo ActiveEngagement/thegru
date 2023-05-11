@@ -1,9 +1,6 @@
 import logger from '../../src/core/logger.js';
 import { TRACE } from '../../src/core/verbosities.js';
 
-/**
- * A dummy logger implementation that merely collects log messages in an array for inspection.
- */
 export default function() {
     const messages = [];
 

@@ -23,6 +23,31 @@ export default function(tree, ...tests) {
     return createAnalysis(tests, nodes);
 }
 
+export function analysisBuilder() {
+    const tests = [];
+    const allNodes = [];
+
+    function add(test, nodes = []) {
+        const existingIndex = tests.findIndex(t => test === t);
+
+        if(existingIndex < 0) {
+            tests.push(test);
+            allNodes.push(nodes);
+        }
+        else {
+            allNodes[existingIndex].push(...nodes);
+        }
+
+        return this;
+    }
+
+    function build() {
+        return createAnalysis(tests, allNodes);
+    }
+
+    return { add, build };
+}
+
 export function createAnalysis(tests, nodes) {
     function get(test) {
         const index = tests.findIndex(t => test === t);

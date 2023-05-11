@@ -1,27 +1,39 @@
+import process from 'process';
 import fs from 'fs';
 import path from 'path';
-import { writeFile } from '../../src/core/fs_util.js';
+import { writeFile } from '../../src/core/fs_util';
 
-export default async function(structure = {}) {
-    if(fs.existsSync('test/env')) {
-        await fs.promises.rm('test/env', { recursive: true, force: true });
+/**
+ * A utility function for generating a test directory tree and witching into it.
+ * 
+ * Generates a directory structure indicated by the given object in `test/env`. `test/env` will be emptied if it
+ * already exists.
+ */
+export default function env(structure = {}) {
+    const currentDirectory = process.cwd();
+    if (currentDirectory.endsWith('test/env')) {
+        process.chdir('../..');
     }
 
+    if(fs.existsSync('test/env')) {
+        fs.rmSync('test/env', { recursive: true, force: true });
+    }
 
-    await fs.promises.mkdir('test/env');
+    fs.mkdirSync('test/env');
 
-    async function traverse(structure, basePath) {
+    function traverse(structure, basePath) {
         for(const [key, value] of Object.entries(structure)) {
             const currentPath = path.join(basePath, key);
 
             if(typeof value === 'string') {
-                await writeFile(currentPath, value);
+                writeFile(currentPath, value);
             }
             else {
-                await fs.promises.mkdir(currentPath);
-                await traverse(value, currentPath);
+                fs.mkdirSync(currentPath);
+                traverse(value, currentPath);
             }
         }
     }
-    await traverse(structure, 'test/env');
+    traverse(structure, 'test/env');
+    process.chdir('test/env');
 }

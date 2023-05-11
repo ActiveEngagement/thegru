@@ -1,11 +1,8 @@
 import path from 'path';
 import { readFile } from '../../src/core/fs_util.js';
 
-/**
- * Shortcut for reading a test resource.
- */
-export function resource(filePath) {
-    return readFile(path.join('test/resources', filePath));
+export async function resource(filePath) {
+    return await readFile(path.join('test/resources', filePath));
 }
 
 export function apiCall(type, body) {
