@@ -2,6 +2,7 @@ import fs from 'fs';
 import { readFile, srcUrl, writeFile } from '../fs_util.js';
 import commitFlags from '../commit_flags.js';
 import handleCard from './handle_card.js';
+import { inferTitle } from '../util.js';
 
 /**
  * This is the entrypoint for most of the standard-collection-based action logic. It is intentionally abstracted away
@@ -42,8 +43,19 @@ export default async function(options) {
     logger.info('Syncing cards...');
 
     // Sync (i.e. create or update) each card in the cards config.
-    for(const [filePath, cardTitle] of Object.entries(inputs.cards)) {
+    for(const card of inputs.cards) {
+        if (typeof card === 'string') {
+            card = { path: card };
+        }
+
+        const filePath = card.path;
+        let cardTitle = card.title;
+
         logger.startGroup(filePath);
+
+        if (!cardTitle) {
+            cardTitle = inferTitle(cardTitle);
+        }
 
         const id = await handleCard(filePath, cardTitle, {
             logger,

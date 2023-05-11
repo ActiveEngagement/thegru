@@ -120,3 +120,32 @@ export function attempt() {
 export function toMap(object) {
     return object ? new Map(Object.entries(object)) : new Map();
 }
+
+
+/**
+ * "Titleizes" a file name.
+ * 
+ * The filename is stripped of its extension and extreme whitespace is trimmed. All sequences of non-alphanumeric
+ * characters are replaced by a single space. Each resulting word is capitalized.
+ * 
+ * Examples:
+ * 
+ * ```
+ * inferTitle('test'); // => 'Test'
+ * inferTitle('test-123'); // => 'Test 123'
+ * inferTitle('test------123'); // => 'Test 123'
+ * inferTitle('&*^__test------123   '); // => ' Test 123'
+ * ```
+ */
+export function inferTitle(fileName) {
+    const stripped = stripExtension(fileName).trim();
+    const spaced = stripped.replaceAll(/[^a-zA-Z\d]+/g, ' ');
+    const titled = spaced.replaceAll(
+        /\w\S*/g,
+        function(txt) {
+            return txt.charAt(0).toUpperCase() + txt.substr(1);
+        }
+    );
+
+    return titled;
+}
