@@ -5,7 +5,6 @@ import nullColorizer from '../src/gh_action/null_colorizer.js';
 import { readFile, writeFile } from '../src/core/fs_util.js';
 import arrayLogger from './support/array_logger.js';
 import nullLogger from './support/null_logger.js';
-import { InvalidGitObjectError } from '../src/core/error.js';
 import env from './support/env.js';
 
 async function initCardsFile(data) {
@@ -88,12 +87,24 @@ describe('action.js', () => {
                 commitCardsFile: options => gitCall = options,
                 inputs: {
                     collectionId: 'c123',
-                    cards: {
-                        'test/resources/test_card.md': 'Test 123',
-                        'test/resources/test_card_unchanged.md': 'unchanged123',
-                        'test/resources/test_card_3.md': 'Test 789',
-                        'test/resources/test_card_2.md': 'Test 456',
-                    },
+                    cards: [
+                        {
+                            path: 'test/resources/test_card.md',
+                            title: 'Test 123'
+                        },
+                        {
+                            path: 'test/resources/test_card_unchanged.md',
+                            title: 'unchanged123'
+                        },
+                        {
+                            path: 'test/resources/test_card_3.md',
+                            title: 'Test 789'
+                        },
+                        {
+                            path: 'test/resources/test_card_2.md',
+                            title: 'Test 456'
+                        }
+                    ],
                 }
             });
         });
@@ -167,11 +178,20 @@ describe('action.js', () => {
                 }),
                 inputs: {
                     collectionId: 'c123',
-                    cards: {
-                        'test/resources/test_card.md': 'Test 123',
-                        'test/resources/test_card_3.md': 'Test 789',
-                        'test/resources/test_card_2.md': 'Test 456',
-                    }
+                    cards: [
+                        {
+                            path: 'test/resources/test_card.md',
+                            title: 'Test 123'
+                        },
+                        {
+                            path: 'test/resources/test_card_3.md',
+                            title: 'Test 789'
+                        },
+                        {
+                            path: 'test/resources/test_card_2.md',
+                            title: 'Test 456'
+                        }
+                    ]
                 }
             });
         });
@@ -208,7 +228,12 @@ describe('action.js', () => {
                 },
                 inputs: {
                     collectionId: 'c123',
-                    cards: { 'test/resources/test_card_unchanged.md': 'unchanged123' },
+                    cards: [
+                        {
+                            path: 'test/resources/test_card_unchanged.md',
+                            title: 'unchanged123'
+                        }
+                    ]
                 }
             });
         });
@@ -232,9 +257,12 @@ describe('action.js', () => {
                     client,
                     inputs: {
                         collectionId: 'c123',
-                        cards: {
-                            'test/resources/test_card_with_local_image.md': 'Test 123',
-                        },
+                        cards: [
+                            {
+                                path: 'test/resources/test_card_with_local_image.md',
+                                title: 'Test 123'
+                            }
+                        ],
                         cardFooter: false
                     },
                     github: { repo: { isPublic: true } },
@@ -264,9 +292,12 @@ describe('action.js', () => {
                     client,
                     inputs: {
                         collectionId: 'c123',
-                        cards: {
-                            'test/resources/test_card_with_local_image.md': 'Test 123',
-                        },
+                        cards: [
+                            {
+                                path: 'test/resources/test_card_with_local_image.md',
+                                title: 'Test 123'
+                            }
+                        ],
                         cardFooter: false
                     },
                     github: { repo: { isPublic: false } },
@@ -300,7 +331,12 @@ describe('action.js', () => {
                 getChangedFiles: () => ['test/resources/test_card.md'],
                 inputs: {
                     collectionId: 'c123',
-                    cards: { 'test/resources/test_card.md': 'Test Card' },
+                    cards: [
+                        {
+                            path: 'test/resources/test_card.md',
+                            title: 'Test Card'
+                        }
+                    ],
                     cardsFile: false
                 }
             });

@@ -6,6 +6,7 @@ import matter from 'gray-matter';
 import yaml from 'js-yaml';
 import { allowedCardInfo, allowedContainerInfo } from '../allowed_info.js';
 import { DEBUG } from '../../verbosities.js';
+import { inferTitle } from '../../util.js';
 
 /**
  * Traverses the given card/container tree and attempts to attach information (e.g. titles, external urls, descriptions,
@@ -94,33 +95,6 @@ export default function(tree, options) {
     });
 }
 
-/**
- * "Titleizes" a file name.
- * 
- * The filename is stripped of its extension and extreme whitespace is trimmed. All sequences of non-alphanumeric
- * characters are replaced by a single space. Each resulting word is capitalized.
- * 
- * Examples:
- * 
- * ```
- * inferTitle('test'); // => 'Test'
- * inferTitle('test-123'); // => 'Test 123'
- * inferTitle('test------123'); // => 'Test 123'
- * inferTitle('&*^__test------123   '); // => ' Test 123'
- * ```
- */
-function inferTitle(fileName) {
-    const stripped = stripExtension(fileName).trim();
-    const spaced = stripped.replaceAll(/[^a-zA-Z\d]+/g, ' ');
-    const titled = spaced.replaceAll(
-        /\w\S*/g,
-        function(txt) {
-            return txt.charAt(0).toUpperCase() + txt.substr(1);
-        }
-    );
-
-    return titled;
-}
 
 function sanitizeTitle(title) {
     return title.replaceAll(/[^a-zA-Z\d\s()\-_'"\.,]/g, '');

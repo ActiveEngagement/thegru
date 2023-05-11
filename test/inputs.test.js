@@ -13,7 +13,7 @@ function typicalInputs(collectionType) {
             user_email: 'test@example.com',
             user_token: 'test123',
             collection_type: collectionType,
-            cards: JSON.stringify({ }),
+            cards: JSON.stringify([ ]),
             collection_id: '123',
             board_id: '123',
             board_section_id: '123',
@@ -197,7 +197,7 @@ describe('inputs.js', () => {
                 userEmail: 'test@example.com',
                 userToken: 'test123',
                 collectionType: 'standard',
-                cards: { },
+                cards: [ ],
                 collectionId: '123',
                 boardId: '123',
                 boardSectionId: '123',
@@ -214,7 +214,7 @@ describe('inputs.js', () => {
             ['', '"cards" is a required input!'],
             [null, '"cards" is a required input!'],
             ['invalid', '"cards" must be valid JSON!'],
-            ['[]', '"cards" must be a valid JSON object, not an array!'] 
+            ['{}', '"cards" must be a valid JSON array, not an object!'] 
         ])('cards throws error if missing or invalid json', (value, message) => {
             const f = () => {
                 getInputs(name => name === 'cards' ? value : getInput(name));
@@ -224,10 +224,11 @@ describe('inputs.js', () => {
         });
 
         test('cards is correctly parsed if valid json', () => {
-            const actual = getInputs(name => name === 'cards' ? '{ "key": "value" }' : getInput(name)).cards;
-            expect(actual).toStrictEqual({
-                key: 'value'
-            });
+            const actual = getInputs(name => name === 'cards' ? '[ "key", "value" ]' : getInput(name)).cards;
+            expect(actual).toStrictEqual([
+                'key',
+                'value'
+            ]);
         });
 
         test('board_id is not required', () => {

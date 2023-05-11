@@ -8,11 +8,21 @@ import * as verbs from './verbosities.js';
 export default function(getCoreInput, options) {
     const { logger } = options;
 
-    function validateCards(cards, name) {
+    function validateSyncedCards(cards, name) {
         let i = 1;
         for(const card of cards) {
             if(typeof card !== 'string' && !card.glob) {
                 return invalid(`"${name}" element ${i} has no glob!`);
+            }
+            i++;
+        }
+    }
+
+    function validateStandardCards(cards, name) {
+        let i = 1;
+        for(const card of cards) {
+            if(typeof card !== 'string' && !card.path) {
+                return invalid(`"${name}" element ${i} has no path!`);
             }
             i++;
         }
@@ -47,7 +57,7 @@ export default function(getCoreInput, options) {
             if(type === 'standard') {
                 logger.info('theguru is in "standard" collection mode.');
 
-                input('cards', b => b.required().json({ type: 'object' }));
+                input('cards', b => b.required().json({ type: 'array' }).use(validateStandardCards));
                 input('board_id');
                 input('board_section_id');
                 input('cards_file', b => b.try(b => b.boolean()).use(value => {
@@ -59,7 +69,7 @@ export default function(getCoreInput, options) {
             else if(type === 'synced') {
                 logger.info('theguru is in "synced" collection mode.');
 
-                input('cards', b => b.required().json({ type: 'array'}).use(validateCards));
+                input('cards', b => b.required().json({ type: 'array'}).use(validateSyncedCards));
                 input('containers', b => b.fallback('{ }').json({ type: 'object'}));
                 input('preferred_container', b => b
                     .fallback(types.name(types.BOARD_GROUP))
