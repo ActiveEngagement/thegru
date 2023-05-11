@@ -25,7 +25,9 @@ async function handleCard(options) {
     options.attachmentHandler ||= 'auto';
     options.existingCardIds ||= [];
 
-    return await runHandleCard(options.filePath, options.cardTitle, options);
+    const card = { path: options.filePath, title: options.cardTitle };
+
+    return await runHandleCard(card, options);
 }
 
 describe('handle_card.js', () => {

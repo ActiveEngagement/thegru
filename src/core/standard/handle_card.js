@@ -11,8 +11,26 @@ import attachFooter from '../attach_footer.js';
 /**
  * Syncs (creates or updates) the given card.
  */
-export default async function(filePath, cardTitle, options) {
+export default async function(card, options) {
     const { logger, api, github, inputs, attachmentHandler, footer, existingCardIds } = options;
+
+    if (typeof card === 'string') {
+        card = { path: card };
+    }
+
+    const filePath = card.path;
+    let cardTitle = card.title;
+    let key = card.key;
+
+    logger.startGroup(key);
+
+    if (!cardTitle) {
+        cardTitle = inferTitle(cardTitle);
+    }
+
+    if (!key) {
+        key = filePath;
+    }
 
     logger.info(`Reading ${filePath}`);
     const content = await readFile(filePath);
@@ -20,7 +38,7 @@ export default async function(filePath, cardTitle, options) {
 
     const analysis = analyze(contentTree, image, imageReference, definition, link, linkReference);
     
-    const cardId = existingCardIds[filePath];
+    const cardId = existingCardIds[key];
 
     // Build the card content.
     const { attachments } = await transformContent(filePath, analysis, {
@@ -60,7 +78,7 @@ export default async function(filePath, cardTitle, options) {
             attachments: cardAttachments
         });
 
-        return cardId;
+        return { key, id: cardId };
     }
     else {
         if(cardId) {
@@ -81,6 +99,6 @@ export default async function(filePath, cardTitle, options) {
 
         logger.info(`Card ${id} created.`);
 
-        return id;
+        return { key, id };
     }
 }
