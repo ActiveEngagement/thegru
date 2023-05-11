@@ -97,7 +97,7 @@ describe('core/inputs.js', () => {
                 const f = () => getInputFromInputs(name, '', getInput);
                 expect(f).toThrow(InvalidInputsError);
                 expect(f).toThrow(`"${name}" is a required input!`);
-            })
+            });
         });
 
         describe('user_token', () => {
@@ -107,7 +107,7 @@ describe('core/inputs.js', () => {
                 const f = () => getInputFromInputs(name, '', getInput);
                 expect(f).toThrow(InvalidInputsError);
                 expect(f).toThrow(`"${name}" is a required input!`);
-            })
+            });
         });
 
         describe('collection_id', () => {
@@ -117,7 +117,7 @@ describe('core/inputs.js', () => {
                 const f = () => getInputFromInputs(name, '', getInput);
                 expect(f).toThrow(InvalidInputsError);
                 expect(f).toThrow(`"${name}" is a required input!`);
-            })
+            });
         });
 
         describe('github', () => {
@@ -127,7 +127,7 @@ describe('core/inputs.js', () => {
                 const f = () => getInputFromInputs(name, '', getInput);
                 expect(f).toThrow(InvalidInputsError);
                 expect(f).toThrow(`"${name}" is a required input!`);
-            })
+            });
 
             it('parses valid json', () => {
                 const actual = getInputFromInputs(name, '{ "prop": true }', getInput);
@@ -147,7 +147,7 @@ describe('core/inputs.js', () => {
             it('is not required', () => {
                 const actual = getInputFromInputs(name, '', getInput);
                 expect(actual).toBe(null);
-            })
+            });
             
             it.each([
                 [true],
@@ -155,7 +155,7 @@ describe('core/inputs.js', () => {
             ])('parses boolean values', value => {
                 const actual = getInputFromInputs(name, value, getInput);
                 expect(actual).toBe(value);
-            })
+            });
 
             it.each([
                 ['<a href="google.com">Click here</a>'],
@@ -163,8 +163,8 @@ describe('core/inputs.js', () => {
             ])('leaves other values alone', value => {
                 const actual = getInputFromInputs(name, value, getInput);
                 expect(actual).toBe(value);
-            })
-        })
+            });
+        });
 
         describe('ansi', () => {
             const name = 'ansi';
@@ -180,7 +180,7 @@ describe('core/inputs.js', () => {
             ])('parses boolean values', (value, expected) => {
                 const actual = getInputFromInputs(name, value, getInput);
                 expect(actual).toBe(expected);
-            })
+            });
 
             it('throws error for anything else', () => {
                 const f = () => getInputFromInputs(name, 'invalid', getInput);
@@ -277,7 +277,7 @@ describe('core/inputs.js', () => {
                 const f = () => getInputFromInputs(name, '[{ "key": "one123" }]', getInput);
                 expect(f).toThrow(InvalidInputsError);
                 expect(f).toThrow(`"${name}" element 1 has no path!`);
-            })
+            });
 
             it('correctly parses valid json', () => {
                 const actual = getInputFromInputs(name, '["key", "value"]', getInput);
@@ -295,7 +295,7 @@ describe('core/inputs.js', () => {
                 const actual = getInputFromInputs(name, '', getInput);
                 expect(actual).toBe(null);
             });
-        })
+        });
 
         describe('board_section_id', () => {
             const name = 'board_section_id';
@@ -312,23 +312,23 @@ describe('core/inputs.js', () => {
             it('is not required and has default', () => {
                 const actual = getInputFromInputs(name, '', getInput);
                 expect(actual).toBe('uploaded-guru-cards.json');
-            })
+            });
 
             it('uses default for true', () => {
                 const actual = getInputFromInputs(name, 'true', getInput);
                 expect(actual).toBe('uploaded-guru-cards.json');
-            })
+            });
 
             it('parses false', () => {
                 const actual = getInputFromInputs(name, 'false', getInput);
                 expect(actual).toBe(false);
-            })
+            });
 
             it('ignores anything else', () => {
                 const actual = getInputFromInputs(name, 'some-random-value', getInput);
                 expect(actual).toBe('some-random-value');
-            })
-        })
+            });
+        });
     });
 
     describe('with synced collection', () => {
@@ -354,7 +354,7 @@ describe('core/inputs.js', () => {
                 const f = () => getInputFromInputs(name, '[{ "glob": "good" }, { "key": "one123" }]', getInput);
                 expect(f).toThrow(InvalidInputsError);
                 expect(f).toThrow(`"${name}" element 2 has no glob!`);
-            })
+            });
 
             it('correctly parses valid json', () => {
                 const actual = getInputFromInputs(name, '["key", "value"]', getInput);
@@ -371,7 +371,7 @@ describe('core/inputs.js', () => {
             it('is not required and has default', () => {
                 const actual = getInputFromInputs(name, '', getInput);
                 expect(actual).toStrictEqual({ });
-            })
+            });
 
             it.each([
                 ['invalid', `"${name}" must be valid JSON!`],
@@ -433,7 +433,7 @@ describe('core/inputs.js', () => {
             ])('parses boolean values', (value, expected) => {
                 const actual = getInputFromInputs(name, value, getInput);
                 expect(actual).toBe(expected);
-            })
+            });
 
             it('throws error for anything else', () => {
                 const f = () => getInputFromInputs(name, 'invalid', getInput);

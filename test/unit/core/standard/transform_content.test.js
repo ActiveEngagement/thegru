@@ -77,7 +77,7 @@ describe('core/standard/transform_content.js', () => {
                 }
             }
         });
-    })
+    });
 
     describe('with attachments', () => {
         let attachments, images, links;
@@ -119,19 +119,19 @@ describe('core/standard/transform_content.js', () => {
                     image('https://raw.githubusercontent.com/ActiveEngagement/test/123/path/to/root/some/path/image.png', 'local dotslash image'),
                     image('https://raw.githubusercontent.com/ActiveEngagement/test/123/path/to/some/path/image.png', 'local parent image'),
                     image('https://raw.githubusercontent.com/ActiveEngagement/test/123/path/to/root/some/path/image.png', 'local relative image')
-                ])
+                ]);
                 expect(links).toStrictEqual([
                     link('https://jlockard.com/something', 'remote link'),
                     link('https://raw.githubusercontent.com/ActiveEngagement/test/123/some/path/file.pdf', 'local root link'),
                     link('https://raw.githubusercontent.com/ActiveEngagement/test/123/path/to/root/some/path/file.pdf', 'local dotslash link'),
                     link('https://raw.githubusercontent.com/ActiveEngagement/test/123/path/to/some/path/file.pdf', 'local parent link'),
                     link('https://raw.githubusercontent.com/ActiveEngagement/test/123/path/to/root/some/path/file.pdf', 'local relative link')
-                ])
+                ]);
             });
 
             it('collects no attachments', () => {
                 expect(attachments.length).toBe(0);
-            })
+            });
         });
 
         describe('with upload handler', () => {
@@ -250,7 +250,7 @@ describe('core/standard/transform_content.js', () => {
             it('correctly collects the attachments', () => {
                 expect(attachments.length).toBe(2);
             });
-        })
+        });
 
         describe.each([
             ['upload'],
@@ -273,7 +273,7 @@ describe('core/standard/transform_content.js', () => {
                 it('strips it', () => {
                     expect(imageNode.title).toBe(null);
                     expect(linkNode.title).toBe(null);
-                })
+                });
             });
 
             describe.each([
@@ -302,6 +302,6 @@ describe('core/standard/transform_content.js', () => {
                     expect(logger.getMessages().filter(msg => msg === message).length).toBe(2);
                 });
             });
-        })
+        });
     });
 });

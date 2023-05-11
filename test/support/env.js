@@ -11,7 +11,7 @@ import { writeFile } from '../../src/core/fs_util';
  */
 export default function env(structure = {}) {
     const currentDirectory = process.cwd();
-    if (currentDirectory.endsWith('test/env')) {
+    if(currentDirectory.endsWith('test/env')) {
         process.chdir('../..');
     }
 
