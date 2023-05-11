@@ -44,20 +44,7 @@ export default async function(options) {
 
     // Sync (i.e. create or update) each card in the cards config.
     for(const card of inputs.cards) {
-        if(typeof card === 'string') {
-            card = { path: card };
-        }
-
-        const filePath = card.path;
-        let cardTitle = card.title;
-
-        logger.startGroup(filePath);
-
-        if(!cardTitle) {
-            cardTitle = inferTitle(cardTitle);
-        }
-
-        const id = await handleCard(filePath, cardTitle, {
+        const { key, id } = await handleCard(card, {
             logger,
             api,
             github,
@@ -66,11 +53,10 @@ export default async function(options) {
             footer,
             existingCardIds: cardIds
         });
-        newCardIds[filePath] = id;
+        newCardIds[key] = id;
 
         logger.endGroup();
     }
-
     // Skip the cards file update if appropriate.
     if(!inputs.cardsFile) {
         logger.info(colors.blue('Skipping update of the cards file since "cards_file" is "false".'));
@@ -88,8 +74,8 @@ export default async function(options) {
     }
     
     // Destroy each old card.
-    for(const [filePath, id] of old) {
-        logger.startGroup(filePath);
+    for(const [key, id] of old) {
+        logger.startGroup(key);
         logger.info(`Previously uploaded card ${id} has been removed from the cards config. Removing it from Guru...`);
 
         if((await api.destroyCard(id)) === false) {

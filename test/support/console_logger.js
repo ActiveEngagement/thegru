@@ -1,3 +1,4 @@
+import logger from '../../src/core/logger.js';
 import { TRACE, name } from '../../src/core/verbosities.js';
 
 export default function() {
@@ -8,7 +9,7 @@ export default function() {
         endGroup() {
             console.log('=========');
         },
-        message(msg, verbosity) {
+        message(msg, indent, verbosity) {
             console.log(`[${name(verbosity).toUpperCase()}]  ` + msg);
         }
     }, TRACE);
