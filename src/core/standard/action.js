@@ -44,7 +44,7 @@ export default async function(options) {
 
     // Sync (i.e. create or update) each card in the cards config.
     for(const card of inputs.cards) {
-        if (typeof card === 'string') {
+        if(typeof card === 'string') {
             card = { path: card };
         }
 
@@ -53,7 +53,7 @@ export default async function(options) {
 
         logger.startGroup(filePath);
 
-        if (!cardTitle) {
+        if(!cardTitle) {
             cardTitle = inferTitle(cardTitle);
         }
 
