@@ -14,7 +14,7 @@ import attachFooter from '../attach_footer.js';
 export default async function(card, options) {
     const { logger, api, github, inputs, attachmentHandler, footer, existingCardIds } = options;
 
-    if (typeof card === 'string') {
+    if(typeof card === 'string') {
         card = { path: card };
     }
 
@@ -24,11 +24,11 @@ export default async function(card, options) {
 
     logger.startGroup(key);
 
-    if (!cardTitle) {
+    if(!cardTitle) {
         cardTitle = inferTitle(cardTitle);
     }
 
-    if (!key) {
+    if(!key) {
         key = filePath;
     }
 
