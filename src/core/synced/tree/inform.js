@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs';
-import { readFileSync, stripExtension } from '../../fs_util.js';
+import { readFile, stripExtension } from '../../fs_util.js';
 import { traverse } from './util.js';
 import matter from 'gray-matter';
 import yaml from 'js-yaml';
@@ -30,7 +30,7 @@ export default function(tree, options) {
 
         if(node.type === 'card') {
             // We'll read from the frontmatter if it exists and save the content for later.
-            const { data, content } = matter(readFileSync(node.file));
+            const { data, content } = matter(readFile(node.file));
 
             Object.assign(node.info, data);
 

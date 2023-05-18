@@ -16,7 +16,7 @@ async function transform(filePath, analysis, options = {}) {
     }
     options.github ||= {};
     options.github.repo ||= {};
-    options.github.repo.url ||= 'https://example.com';
+    options.github.repo.url ||= 'https://example.com/ActiveEngagement/test';
     options.github.repo.name ||= 'ActiveEngagement/test';
     options.github.commit ||= {};
     options.github.commit.sha ||= '123';
@@ -105,11 +105,9 @@ describe('core/standard/transform_content.js', () => {
 
         describe('with github_urls handler', () => {
             beforeEach(async() => {
-                console.log(images);
                 ({ attachments } = await transform('path/to/root/card.md', imageLinkAnalysis(images, links), {
                     attachmentHandler: 'github_urls'
                 }));
-                console.log(images);
             });
 
             it('rewrites the URLs', () => {
@@ -263,11 +261,9 @@ describe('core/standard/transform_content.js', () => {
                     imageNode = buildImage('/some/path/image.png', 'Some title to be stripped', 'desc');
                     linkNode = buildLink('/some/path/image.png', 'Some title to be stripped', text('desc'));
 
-                    console.log(imageNode);
                     await transform('path/to/root/card.md', imageLinkAnalysis([imageNode], [linkNode]), {
                         attachmentHandler, client: defaultClient()
                     });
-                    console.log(imageNode);
                 });
 
                 it('strips it', () => {

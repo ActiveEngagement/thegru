@@ -3,7 +3,6 @@ import attachFooter from '../attach_footer.js';
 import analyze from '../unist_analyze.js';
 import { image, imageReference, link, linkReference, definition } from '../mdast_predicates.js';
 import transformContent from './transform_content.js';
-import linkHandler from './mdast_non_auto_link.js';
 
 export default async function(cards, options) {
     const {
@@ -35,8 +34,7 @@ export default async function(cards, options) {
         });
 
         // Render the transformed tree to Markdown.
-        // Pass a custom link handler to prevent autolinks (Guru doesn't like them for some reason).
-        card.content = content.renderTree(contentTree, { handlers: { link: linkHandler }});
+        card.content = content.renderTree(contentTree);
 
         // Collect any referenced attachments that were found while processing the content so we can upload them later.
         resources.push(...attachments);

@@ -1,6 +1,6 @@
 import fs from 'fs';
+import path from 'path';
 import { readFile, srcUrl, writeFile } from '../fs_util.js';
-import commitFlags from '../commit_flags.js';
 import handleCard from './handle_card.js';
 import { inferTitle } from '../util.js';
 
@@ -27,14 +27,11 @@ export default async function(options) {
         footer = defaultFooter;
     }
 
-    // NOTE: At the moment, there are no commit flags. Some may be added later on.
-    commitFlags().execute(github?.commit?.message, { logger });
-
     let cardsFileContent = '{}';
 
     // Read the cards file if it exists.
     if(inputs.cardsFile && fs.existsSync(inputs.cardsFile)) {
-        cardsFileContent = await readFile(inputs.cardsFile);
+        cardsFileContent = readFile(inputs.cardsFile);
     }
 
     const cardIds = JSON.parse(cardsFileContent);
@@ -44,20 +41,32 @@ export default async function(options) {
 
     // Sync (i.e. create or update) each card in the cards config.
     for(const card of inputs.cards) {
-        const { key, id } = await handleCard(card, {
+        logger.startGroup(card.path);
+
+        // A string should be interpreted as a lone card path.
+        if(typeof card === 'string') {
+            card = { path: card };
+        }
+
+        card.key ||= card.path; // The default card key is simply the file path.
+        card.title ||= inferTitle(path.basename(card.path)); // The title is inferred by default from the path.
+
+        const existingId = cardIds[card.key];
+        const id = await handleCard(card.path, card.title, existingId, {
             logger,
             api,
             github,
             inputs,
             attachmentHandler,
-            footer,
-            existingCardIds: cardIds
+            footer
         });
-        newCardIds[key] = id;
+
+        newCardIds[card.key] = id;
 
         logger.endGroup();
     }
-    // Skip the cards file update if appropriate.
+
+    // Skip the cards file update if requested.
     if(!inputs.cardsFile) {
         logger.info(colors.blue('Skipping update of the cards file since "cards_file" is "false".'));
         return;
@@ -91,9 +100,9 @@ export default async function(options) {
     if(newCardsFileContent !== cardsFileContent) {
         logger.info(`\nUpdating ${inputs.cardsFile}`);
 
-        await writeFile(inputs.cardsFile, newCardsFileContent);
+        writeFile(inputs.cardsFile, newCardsFileContent);
 
-        const messageTemplate = await readFile(srcUrl('resources/cards_commit_message.txt'));
+        const messageTemplate = readFile(srcUrl('resources/cards_commit_message.txt'));
         const message = messageTemplate.replaceAll('{{cardsFile}}', inputs.cardsFile);
 
         await commitCardsFile({

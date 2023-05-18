@@ -5,7 +5,7 @@ import { readFile } from '../../src/core/fs_util.js';
  * Shortcut for reading a test resource.
  */
 export function resource(filePath) {
-    return readFile(path.join('test/resources', filePath));
+    return readFile(testUrl(path.join('resources', filePath)));
 }
 
 export function apiCall(type, body) {
@@ -30,7 +30,20 @@ export function createCardApiCall(options) {
     });
 }
 
-export function updateCardApiCall(options) {
+export function updateCardApiCall(id, options) {
     options.attachments ||= [];
-    return apiCall('updateCard', options);
+    const call = apiCall('updateCard', options);
+    call.id = id;
+
+    return call;
+}
+
+/**
+ * Resolves a path from the `test` directory.
+ */
+
+export function testUrl(filePath) {
+    // `import.meta.url` is the directory of the current script. Since `util.js` is under `test/support`, one directory
+    // up from the current one will be the test directory.
+    return new URL(filePath, path.dirname(import.meta.url));
 }
