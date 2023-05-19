@@ -3,7 +3,7 @@ import nullLogger from '../support/null_logger.js';
 import arrayLogger from '../support/array_logger.js';
 import env from '../support/env.js';
 import { card as cardBase, container, root } from '../../src/core/synced/tree/util.js';
-import nullColorizer from '../../src/gh_action/null_colorizer.js';
+import nullColorizer from '../../src/core/null_colorizer.js';
 
 function card(options = {}) {
     return cardBase(options);

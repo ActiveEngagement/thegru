@@ -127,7 +127,7 @@ export default function(clientOptions = {}) {
             options
         });
 
-        return response(call(clientOptions.attachmentResult, fileName, filePath, options));
+        return response(call(clientOptions.uploadAttachmentResult, fileName, filePath, options));
     }
 
     function uploadZip(collectionId, fileName, filePath, options) {

@@ -5,7 +5,7 @@ import c from 'ansi-colors';
 import getInputs from '../core/inputs.js';
 import action from '../core/action.js';
 import { readFile, srcUrl } from '../core/fs_util.js';
-import nullColorizer from './null_colorizer.js';
+import nullColorizer from '../core/null_colorizer.js';
 import ghLogger from './gh_logger.js';
 import createClient from './api_client.js';
 import createFetch from './fetch.js';

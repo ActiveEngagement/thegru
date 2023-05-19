@@ -82,7 +82,7 @@ describe('core/standard/handle_card.js', () => {
                 beforeEach(async() => {
                     client = createClient({
                         createCardResult: { id: 'newId123' },
-                        attachmentResult: {
+                        uploadAttachmentResult: {
                             link: 'some/path.pdf',
                             filename: 'path.pdf',
                             attachmentId: 'a213',
@@ -275,7 +275,7 @@ describe('core/standard/handle_card.js', () => {
             beforeEach(async() => {
                 client = createClient({
                     createCardResult: { id: 'newId123' },
-                    attachmentResult: {
+                    uploadAttachmentResult: {
                         link: 'some/path.pdf',
                         filename: 'path.pdf',
                         attachmentId: 'a213',

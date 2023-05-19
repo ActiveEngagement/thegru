@@ -40,7 +40,7 @@ export default async function(options) {
     logger.info('Syncing cards...');
 
     // Sync (i.e. create or update) each card in the cards config.
-    for(const card of inputs.cards) {
+    for(let card of inputs.cards) {
         logger.startGroup(card.path);
 
         // A string should be interpreted as a lone card path.

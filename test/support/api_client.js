@@ -24,6 +24,11 @@ export default function(clientOptions = {}) {
     //
 
     function response(json) {
+        if(json && json.ok !== undefined && json.status !== undefined && json.text !== undefined) {
+            // There's already a well-formed response.
+            return json;
+        }
+
         return {
             ok: true,
 
@@ -79,7 +84,7 @@ export default function(clientOptions = {}) {
             options
         });
 
-        return response(options);
+        return response(call(clientOptions.updateCardResult, options) || options.body);
     }
 
     function destroyCard(id, options) {
@@ -89,7 +94,14 @@ export default function(clientOptions = {}) {
             options
         });
 
-        return noContentResponse();
+        const result = call(clientOptions.destroyCardResult, options) || noContentResponse();
+
+        if(result === 'not_found') {
+            return notFoundResponse();
+        }
+        else {
+            return response(result);
+        }
     }
 
     function getCard(id) {
@@ -107,22 +119,6 @@ export default function(clientOptions = {}) {
         }
     }
     
-    function getCollection(id, options) {
-        calls.push({
-            type: 'getCollection',
-            id,
-            options
-        });
-        const result = call(clientOptions.getCollectionResult, id);
-
-        if(result === 'not_found') {
-            return notFoundResponse();
-        }
-        else {
-            return response(result);
-        }
-    }
-
     function getCollections(options) {
         calls.push({
             type: 'getCollections',
@@ -141,7 +137,7 @@ export default function(clientOptions = {}) {
             options
         });
 
-        return response(call(clientOptions.attachmentResult, fileName, filePath, options));
+        return response(call(clientOptions.uploadAttachmentResult, fileName, filePath, options));
     }
 
     function uploadZip(collectionId, fileName, filePath, options) {
@@ -162,7 +158,6 @@ export default function(clientOptions = {}) {
         updateCard,
         destroyCard,
         getCard,
-        getCollection,
         getCollections,
         uploadAttachment,
         uploadZip

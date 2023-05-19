@@ -3,7 +3,7 @@ import typifyBase from '../../src/core/synced/tree/typify.js';
 import * as types from '../../src/core/synced/container_types.js';
 import { card, container, traversePath as evaluatePath, root } from '../../src/core/synced/tree/util.js';
 import nullLogger from '../support/null_logger.js';
-import nullColorizer from '../../src/gh_action/null_colorizer.js';
+import nullColorizer from '../../src/core/null_colorizer.js';
 
 function typify(tree, options = {}) {
     options.preferredContainer ||= types.name(types.BOARD_GROUP);

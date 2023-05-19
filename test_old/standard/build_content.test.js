@@ -244,7 +244,7 @@ Hi!
             let output = null;
 
             beforeEach(async() => {
-                client = createClient({ attachmentResult: { link: 'some-image-link' } });
+                client = createClient({ uploadAttachmentResult: { link: 'some-image-link' } });
                 output = await build('path/to/root/card.md', content, {
                     client,
                     footer: false,

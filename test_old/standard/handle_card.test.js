@@ -206,7 +206,7 @@ describe('handle_card.js', () => {
 
             beforeEach(async() => {
                 client = createClient({
-                    attachmentResult: {
+                    uploadAttachmentResult: {
                         filename: 'attachment.png',
                         attachmentId: '123',
                         link: 'https://example.com/attachment.png',

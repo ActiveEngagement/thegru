@@ -1,21 +1,23 @@
+import '../../../src/core/tap.js';
 import runAction from '../../../src/core/action.js';
 import createClientBase from '../../support/api_client.js';
-import { resource } from '../../support/util.js';
-import nullColorizer from '../../../src/gh_action/null_colorizer.js';
+import { apiCall, resource } from '../../support/util.js';
+import nullColorizer from '../../../src/core/null_colorizer.js';
 import { readFile, writeFile } from '../../../src/core/fs_util.js';
 import arrayLogger from '../../support/array_logger.js';
 import nullLogger from '../../support/null_logger.js';
 import env from '../../support/env.js';
+import { TheGuruError } from '../../../src/core/error.js';
 
 async function initCardsFile(data) {
-
     writeFile('uploaded-cards.json', JSON.stringify(data));
 }
 
-function createClient(options) {
+function createClient(options = {}) {
     options.getCollectionsResult ||= [
         {
             id: 'c123',
+            slug: 'collection-123-slug',
             collectionType: 'INTERNAL'
         }
     ];
@@ -41,7 +43,7 @@ async function action(options) {
     options.github.repo.url ||= 'https://example.com/ActiveEngagement/test';
     options.github.repo.name ||= 'ActiveEngagement/test';
     options.github.commit ||= {};
-    options.github.commit.sha ||= '1234567890';
+    options.github.commit.sha ||= '123';
     if(options.github.commit.message === undefined) {
         options.github.commit.message = ' ';
     }
@@ -56,9 +58,16 @@ async function action(options) {
 describe('action.js', () => {
     beforeEach(async() => {
         env({
+            path: {
+                to: {
+                    'image.png': '[png]',
+                    'file.pdf': '[pdf]'
+                }
+            },
             'one.md': resource('markdown/basic_card.md'),
             'two.md': resource('markdown/basic_card.md'),
-            'three.md': resource('markdown/basic_card.md')
+            'three.md': resource('markdown/basic_card.md'),
+            'with_attachments.md': resource('markdown/card_with_attachments.md')
         });
     });
 
@@ -88,10 +97,7 @@ describe('action.js', () => {
                 inputs: {
                     collectionId: 'c123',
                     cards: [
-                        {
-                            path: 'one.md',
-                            title: 'Test 123'
-                        },
+                        'one.md',
                         {
                             path: 'two.md',
                             title: 'Test 456'
@@ -252,6 +258,242 @@ describe('action.js', () => {
             expect(typeof gitCall.email).toBe('string');
             expect(typeof gitCall.name).toBe('string');
             expect(typeof gitCall.message).toBe('string');
+        });
+    });
+
+    describe('with nonexistent cards file', () => {
+        beforeEach(async() => {
+            await action({
+                client: createClient({
+                    createCardResult: { id: '123' }
+                }),
+                inputs: {
+                    collectionId: 'c123',
+                    cards: [
+                        {
+                            path: 'one.md',
+                            title: 'Test 123'
+                        },
+                        {
+                            path: 'two.md',
+                            title: 'Test 789'
+                        },
+                        {
+                            path: 'three.md',
+                            title: 'Test 456'
+                        }
+                    ]
+                }
+            });
+        });
+
+        it('creates the cards file', () => {
+            expect(JSON.parse(readFile('uploaded-cards.json'))).toStrictEqual({
+                'one.md': '123',
+                'two.md': '123',
+                'three.md': '123'
+            });
+        });
+    });
+
+    describe('with auto image handler', () => {
+        describe('with public repo', () => {
+            let client = null;
+
+            beforeEach(async() => {
+                client = createClient({
+                    createCardResult: { id: '123' }
+                });
+
+                await action({
+                    client,
+                    inputs: {
+                        collectionId: 'c123',
+                        cards: [
+                            {
+                                path: 'with_attachments.md',
+                                title: 'Test 123'
+                            }
+                        ],
+                        cardFooter: false
+                    },
+                    github: { repo: { isPublic: true } },
+                });
+            });
+
+            it('rewrites the URLs to GitHub', () => {
+                expect(client.getCalls()[1].options.body.content).toBe(
+                    resource('markdown/card_with_attachments.md')
+                        .replace('path/to/image.png', 'https://raw.githubusercontent.com/ActiveEngagement/test/123/path/to/image.png')
+                        .replace('path/to/file.pdf', 'https://raw.githubusercontent.com/ActiveEngagement/test/123/path/to/file.pdf')
+                );
+            });
+        });
+
+        describe('with private repo', () => {
+            let client = null;
+
+            beforeEach(async() => {
+                client = createClient({
+                    createCardResult: { id: '123' },
+                    uploadAttachmentResult: {
+                        link: 'image-link',
+                        filename: 'somefile.png'
+                    }
+                });
+
+                await action({
+                    client,
+                    inputs: {
+                        collectionId: 'c123',
+                        cards: [
+                            {
+                                path: 'with_attachments.md',
+                                title: 'Test 123'
+                            }
+                        ],
+                        cardFooter: false
+                    },
+                    github: { repo: { isPublic: false } },
+                });
+            });
+
+            it('rewrites the URLs', async() => {
+                expect(client.getCalls()[3].options.body.content).toBe(
+                    resource('markdown/card_with_attachments.md')
+                        .replace('path/to/image.png', 'image-link')
+                        .replace('path/to/file.pdf', 'image-link')
+                );
+            });
+        });
+    });
+
+    describe('with collection slug', () => {
+        it('finds the collection', async() => {
+            const client = createClient();
+            await action({
+                client,
+                inputs: {
+                    collectionId: 'collection-123-slug',
+                    cards: [ 'one.md' ]
+                }
+            });
+
+            expect(client.getCalls()[1].type).toBe('createCard');
+        });
+    });
+
+    describe('with external collection', () => {
+        it('throws an appropriate error', async() => {
+            const client = createClient({
+                getCollectionsResult: [
+                    {
+                        id: 'c123',
+                        collectionType: 'EXTERNAL'
+                    }
+                ]
+            });
+
+            const f = async() => await action({
+                client,
+                inputs: {
+                    collectionId: 'c123'
+                }
+            });
+
+            expect(f).rejects.toThrow(TheGuruError);
+            expect(f).rejects.toThrow('We expected a Standard Collection but the provided collection c123 is a Synced Collection!');
+        });
+    });
+
+    describe('with nonexistent collection', () => {
+        it('throws an appropriate error', async() => {
+            const client = createClient();
+
+            const f = async() => await action({
+                client,
+                inputs: {
+                    collectionId: 'c456'
+                }
+            });
+
+            expect(f).rejects.toThrow(TheGuruError);
+            expect(f).rejects.toThrow('Collection with id c456 not found!');
+        });
+    });
+
+    describe('with no cards file', () => {
+        let client, expectedContent, logger;
+
+        beforeEach(async() => {
+            client = createClient({
+            });
+
+            logger = arrayLogger();
+
+            expectedContent = resource('markdown/basic_card_rendered.md');
+
+            await action({
+                logger,
+                client,
+                inputs: {
+                    collectionId: 'c123',
+                    cards: [
+                        {
+                            path: 'two.md',
+                            title: 'Test Card'
+                        }
+                    ],
+                    cardsFile: false,
+                    cardFooter: false
+                }
+            });
+        });
+
+        it('creates the card', async() => {
+            const call = client.getCalls().find((call) => 
+                call.type === 'createCard' &&
+                call.options.body.preferredPhrase === 'Test Card'
+            );
+            expect(call).toBeTruthy();
+            expect(call.options.body.content).toBe(expectedContent);
+        });
+
+        it('emits a log notice', () => {
+            const actual = logger.getMessages().some(msg => msg === 'Skipping update of the cards file since "cards_file" is "false".');
+            expect(actual).toBe(true);
+        });
+    });
+
+    describe('when a nonexistent card needs to be destroyed', () => {
+        let client, logger;
+
+        beforeEach(async() => {
+            logger = arrayLogger();
+            client = createClient({
+                destroyCardResult: 'not_found'
+            });
+            await initCardsFile({
+                nonexistent: 'card123'
+            });
+            await action({
+                logger,
+                client,
+                inputs: {
+                    collectionId: 'c123',
+                    cards: []
+                }
+            });
+        });
+
+        it('makes the destroy request', () => {
+            expect(client.getCalls()[1]).toStrictEqual(
+                apiCall('destroyCard').tap(c => c.id = 'card123')
+            );
+        });
+
+        it('emits an appropriate log message', () => {
+            expect(logger.getMessages().some(m => m.startsWith('Card not destroyed. Guru returned a 404.')));
         });
     });
 });

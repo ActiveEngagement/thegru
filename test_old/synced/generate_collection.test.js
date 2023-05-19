@@ -1,7 +1,7 @@
 import generateBase from '../../src/core/synced/generate_collection.js';
 import env from '../support/env.js';
 import nullLogger from '../support/null_logger.js';
-import nullColorizer from '../../src/gh_action/null_colorizer.js';
+import nullColorizer from '../../src/core/null_colorizer.js';
 import yaml from 'js-yaml';
 import * as types from '../../src/core/synced/container_types.js';
 

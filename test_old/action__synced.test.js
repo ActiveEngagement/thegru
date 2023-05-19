@@ -3,7 +3,7 @@ import tmp from 'tmp';
 import yaml from 'js-yaml';
 import runAction from '../src/core/action.js';
 import createClientBase from './support/api_client.js';
-import nullColorizer from '../src/gh_action/null_colorizer.js';
+import nullColorizer from '../src/core/null_colorizer.js';
 import arrayLogger from './support/array_logger.js';
 import nullLogger from './support/null_logger.js';
 import env from './support/env.js';

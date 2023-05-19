@@ -83,7 +83,7 @@ describe('core/standard/transform_content.js', () => {
         let attachments, images, links;
 
         function defaultClient() {
-            return createClient({ attachmentResult: { link: 'path' }});
+            return createClient({ uploadAttachmentResult: { link: 'path' }});
         }
 
         beforeEach(() => {

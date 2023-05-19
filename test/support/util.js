@@ -1,3 +1,4 @@
+import '../../src/core/tap.js';
 import path from 'path';
 import { readFile } from '../../src/core/fs_util.js';
 
@@ -12,14 +13,17 @@ export function apiCall(type, body) {
     return {
         type,
         options: {
-            body,
             headers: {
                 accept: 'application/json',
                 authorization: 'Basic dW5kZWZpbmVkOnVuZGVmaW5lZA==',
                 'content-type': 'application/json'
             }
         }
-    };
+    }.tap(call => {
+        if(body) {
+            call.options.body = body;
+        }
+    });
 }
 
 export function createCardApiCall(options) {

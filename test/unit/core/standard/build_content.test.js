@@ -87,7 +87,7 @@ describe('core/standard/build_content.js', () => {
 
         beforeEach(async() => {
             client = createClient({
-                attachmentResult: { link: 'https://example.com', attr: 1 }
+                uploadAttachmentResult: { link: 'https://example.com', attr: 1 }
             });
             result = await build('![click here](../../path/to/file.pdf)', {
                 client,
