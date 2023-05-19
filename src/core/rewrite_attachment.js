@@ -1,20 +1,7 @@
 import path from 'path';
-import fs from 'fs';
 
 export default async function(url, resolved, type, options) {
-    const { logger, attachmentHandler, github, upload, cardFilePath: filePath } = options;
-
-    if(!fs.existsSync(resolved)) {
-        logger.warning(`${filePath} referenced "${url}", which does not exist on the file system. We'll ignore it, but you likely have a broken link.`);
-        return url;
-    }
-
-    const stat = await fs.promises.stat(resolved);
-
-    if(stat.isDirectory()) {
-        logger.warning(`${filePath} referenced "${url}", which is a directory. We'll ignore it, but you likely have a broken link.`);
-        return url;
-    }
+    const { logger, attachmentHandler, github, upload } = options;
     
     switch (attachmentHandler) {
     case 'upload':

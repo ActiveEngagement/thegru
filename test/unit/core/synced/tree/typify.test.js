@@ -1,9 +1,9 @@
-import { InvalidContainerConfigurationError } from '../../src/core/error.js';
-import typifyBase from '../../src/core/synced/tree/typify.js';
-import * as types from '../../src/core/synced/container_types.js';
-import { card, container, traversePath as evaluatePath, root } from '../../src/core/synced/tree/util.js';
-import nullLogger from '../support/null_logger.js';
-import nullColorizer from '../../src/core/null_colorizer.js';
+import { InvalidContainerConfigurationError } from '../../../../../src/core/error.js';
+import typifyBase from '../../../../../src/core/synced/tree/typify.js';
+import * as types from '../../../../../src/core/synced/container_types.js';
+import { card, container, traversePath as evaluatePath, root } from '../../../../../src/core/synced/tree/util.js';
+import nullLogger from '../../../../../test/support/null_logger.js';
+import nullColorizer from '../../../../..//src/core/null_colorizer.js';
 
 function typify(tree, options = {}) {
     options.preferredContainer ||= types.name(types.BOARD_GROUP);
@@ -13,7 +13,7 @@ function typify(tree, options = {}) {
     return typifyBase(tree, options);
 }
 
-describe('typify_tree.js', () => {
+describe('core/synced/tree/typify.js', () => {
     describe('with empty tree', () => {
         describe.each([
             types.types().map(t => [t])

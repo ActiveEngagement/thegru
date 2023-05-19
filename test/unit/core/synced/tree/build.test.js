@@ -1,9 +1,9 @@
-import buildTreeBase from '../../src/core/synced/tree/build.js';
-import nullLogger from '../support/null_logger.js';
-import arrayLogger from '../support/array_logger.js';
-import env from '../support/env.js';
-import { card as cardBase, container, root } from '../../src/core/synced/tree/util.js';
-import nullColorizer from '../../src/core/null_colorizer.js';
+import buildTreeBase from '../../../../../src/core/synced/tree/build.js';
+import nullLogger from '../../../../support/null_logger.js'
+import arrayLogger from '../../../../support/array_logger.js';
+import env from '../../../../support/env.js';
+import { card as cardBase, container, root } from '../../../../../src/core/synced/tree/util.js';
+import nullColorizer from '../../../../../src/core/null_colorizer.js';
 
 function card(options = {}) {
     return cardBase(options);
@@ -16,9 +16,9 @@ function cardTree(rules, options = {}) {
     return buildTreeBase(rules, options);
 }
 
-describe('build_tree.js', () => {
+describe('core/synced/tree/build.js', () => {
     beforeEach(async() => {
-        await env({
+        env({
             some: { direct: {
                 'card.md': '# Test\n'
             } },
@@ -36,12 +36,6 @@ describe('build_tree.js', () => {
             } } } },
             'test5.md': '# Test\n'
         });
-
-        process.chdir('test/env');
-    });
-
-    afterEach(() => {
-        process.chdir('../..');
     });
 
     test('with no rules', () => {

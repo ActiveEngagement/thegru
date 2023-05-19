@@ -1,7 +1,7 @@
 import '../../../src/core/tap.js';
 import runAction from '../../../src/core/action.js';
 import createClientBase from '../../support/api_client.js';
-import { apiCall, resource } from '../../support/util.js';
+import { apiCall, createCardApiCall, resource } from '../../support/util.js';
 import nullColorizer from '../../../src/core/null_colorizer.js';
 import { readFile, writeFile } from '../../../src/core/fs_util.js';
 import arrayLogger from '../../support/array_logger.js';
@@ -494,6 +494,64 @@ describe('action.js', () => {
 
         it('emits an appropriate log message', () => {
             expect(logger.getMessages().some(m => m.startsWith('Card not destroyed. Guru returned a 404.')));
+        });
+    });
+
+    describe('with board', () => {
+        it('includes the board id in the request', async() => {
+            const client = createClient();
+            await action({
+                client,
+                inputs: {
+                    collectionId: 'c123',
+                    cards: ['one.md'],
+                    boardId: 'b123',
+                    cardFooter: false
+                }
+            });
+            expect(client.getCalls()[1]).toStrictEqual(
+                createCardApiCall({
+                    preferredPhrase: 'One',
+                    content: resource('markdown/basic_card_rendered.md'),
+                    collection: { id: 'c123' },
+                    boards: [
+                        { id: 'b123' }
+                    ]
+                })
+            );
+        });
+    });
+
+    describe('with board and board section', () => {
+        it('includes the board and board section ids in the request', async() => {
+            const client = createClient();
+            await action({
+                client,
+                inputs: {
+                    collectionId: 'c123',
+                    cards: ['one.md'],
+                    boardId: 'b123',
+                    boardSectionId: 's123',
+                    cardFooter: false
+                }
+            });
+            expect(client.getCalls()[1]).toStrictEqual(
+                createCardApiCall({
+                    preferredPhrase: 'One',
+                    content: resource('markdown/basic_card_rendered.md'),
+                    collection: { id: 'c123' },
+                    boards: [
+                        {
+                            action: {
+                                actionType: 'add',
+                                prevSiblingItem: 's123',
+                                sectionId: 's123'
+                            },
+                            id: 'b123'
+                        }
+                    ]
+                })
+            );
         });
     });
 });

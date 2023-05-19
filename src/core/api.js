@@ -31,9 +31,6 @@ export default function(client, options) {
             if(value === false) {
                 delete result[key];
             }
-            else {
-                result[key] = value;
-            }
         }
 
         return result;

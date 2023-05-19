@@ -4,21 +4,14 @@ import { isLocalUrl } from './util.js';
 import { resolveLocalPath } from './util.js';
 import { definition, image, imageReference, link, linkReference } from './mdast_predicates.js';
 import { validate } from './unist_analyze.js';
-import rewriteAttachment from './rewrite_attachment.js';
 
 export default async function(filePath, analysis, options) {
     validate(analysis, link, linkReference, image, imageReference, definition);
 
-    const { logger, attachmentHandler, github, upload, rewriteLink } = options;
+    const { rewriteImage, rewriteLink } = options;
 
     function resolveUrl(url) {
         return resolveLocalPath(url, path.dirname(filePath));
-    }
-
-    async function rewriteImage(url, resolved) {
-        return await rewriteAttachment(url, resolved, 'image', {
-            logger, attachmentHandler, github, upload, cardFilePath: filePath
-        });
     }
 
     for(const imageOrLink of unifyBoth(analysis)) {

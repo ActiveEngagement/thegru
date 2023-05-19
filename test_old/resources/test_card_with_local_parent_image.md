@@ -1,1 +1,0 @@
-![local image](../resources/empty.png)

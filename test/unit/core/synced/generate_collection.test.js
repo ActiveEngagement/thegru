@@ -1,9 +1,9 @@
-import generateBase from '../../src/core/synced/generate_collection.js';
-import env from '../support/env.js';
-import nullLogger from '../support/null_logger.js';
-import nullColorizer from '../../src/core/null_colorizer.js';
+import generateBase from '../../../../src/core/synced/generate_collection.js';
+import env from '../../../support/env.js';
+import nullLogger from '../../../support/null_logger.js';
+import nullColorizer from '../../../../src/core/null_colorizer.js';
 import yaml from 'js-yaml';
-import * as types from '../../src/core/synced/container_types.js';
+import * as types from '../../../../src/core/synced/container_types.js';
 
 async function generate(options) {
     options.logger ||= nullLogger();
@@ -73,7 +73,7 @@ const doingExpected = `# Let's do something...
 
 Check [this] out!
 
-[https://google.com](https://google.com)
+<https://google.com>
 
 ![another image](resources/assets__images__another.jpg)
 
@@ -91,9 +91,9 @@ const secretExpected = `# This is a top-secret operation
 [link](resources/random_floating_asset.bin)
 `;
 
-describe('generate_collection.js', () => {
+describe('core/synced/generate_collection.js', () => {
     test('a typical scenario', async() => {
-        await env({
+        env({
             docs: {
                 setup: {
                     'installation.md': installationSource,
@@ -124,8 +124,6 @@ describe('generate_collection.js', () => {
                 'more_info.txt': '(more info)'
             }
         });
-
-        process.chdir('test/env');
 
         const collection = await generate({
             inputs: {
@@ -159,8 +157,6 @@ describe('generate_collection.js', () => {
             },
             footer: false
         });
-
-        process.chdir('../..');
 
         expect(collection).toStrictEqual({
             tags: [],

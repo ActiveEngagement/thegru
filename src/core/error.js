@@ -8,16 +8,6 @@ export class TheGuruError extends Error {
     }
 }
 
-/**
- * Thrown when a Git command reports an invalid Git object (e.g. a nonexistent commit).
- */
-export class InvalidGitObjectError extends TheGuruError {
-    constructor(message) {
-        super(message);
-        this.name = this.constructor.name;
-    }
-}
-
 export function fetchErrorForResponse(response, json) {
     const description = json?.description;
     const message = description ? `Server responded with a ${response.status} status code: ${description}` : `Server responded with a ${response.status} status code`;

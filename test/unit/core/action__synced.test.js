@@ -1,14 +1,14 @@
 import path from 'path';
 import tmp from 'tmp';
 import yaml from 'js-yaml';
-import runAction from '../src/core/action.js';
-import createClientBase from './support/api_client.js';
-import nullColorizer from '../src/core/null_colorizer.js';
-import arrayLogger from './support/array_logger.js';
-import nullLogger from './support/null_logger.js';
-import env from './support/env.js';
+import runAction from '../../../src/core/action.js';
+import createClientBase from '../../support/api_client.js';
+import nullColorizer from '../../../src/core/null_colorizer.js';
+import arrayLogger from '../../support/array_logger.js';
+import nullLogger from '../../support/null_logger.js';
+import env from '../../support/env.js';
 import { $ } from 'execa';
-import { readFileSync } from '../src/core/fs_util.js';
+import { readFile } from '../../../src/core/fs_util.js';
 
 function createClient(options) {
     options.getCollectionsResult ||= [
@@ -46,8 +46,8 @@ async function action(options) {
 }
 
 describe('action.js', () => {
-    beforeEach(async() => {
-        await env({
+    beforeEach(() => {
+        env({
             some: {
                 dir: {
                     'file.md': '# Test\n[test](/assets/test.pdf)',
@@ -58,11 +58,6 @@ describe('action.js', () => {
                 'test.pdf': '[some pdf file]'
             }
         });
-        process.chdir('test/env');
-    });
-
-    afterEach(() => {
-        process.chdir('../..');
     });
 
     test('a typical scenario', async() => {
@@ -97,25 +92,25 @@ describe('action.js', () => {
         const { name: dest } = tmp.dirSync();
         await $`unzip ${call.filePath} -d ${dest}`;
 
-        expect(readFileSync(path.join(dest, 'collection.yaml'))).toBe('Tags: []\n');
+        expect(readFile(path.join(dest, 'collection.yaml'))).toBe('Tags: []\n');
 
-        expect(readFileSync(path.join(dest, 'cards/some__dir__file.md'))).toBe(`# Test
+        expect(readFile(path.join(dest, 'cards/some__dir__file.md'))).toBe(`# Test
 
 [test](resources/assets__test.pdf)
 `);
-        expect(readFileSync(path.join(dest, 'cards/some__dir__file.yaml'))).toBe(`Title: File
+        expect(readFile(path.join(dest, 'cards/some__dir__file.yaml'))).toBe(`Title: File
 ExternalUrl: null
 Tags: []
 ExternalId: some__dir__file
 `);
-        expect(readFileSync(path.join(dest, 'board-groups/some.yaml'))).toBe(`Title: Some Container
+        expect(readFile(path.join(dest, 'board-groups/some.yaml'))).toBe(`Title: Some Container
 Description: null
 ExternalUrl: null
 Boards:
   - some__dir
 ExternalId: some
 `);
-        expect(readFileSync(path.join(dest, 'boards/some__dir.yaml'))).toBe(`Title: Dir
+        expect(readFile(path.join(dest, 'boards/some__dir.yaml'))).toBe(`Title: Dir
 Description: A Dir
 ExternalUrl: https://google.com
 Items:
@@ -124,6 +119,6 @@ Items:
 ExternalId: some__dir
 `);
 
-        expect(readFileSync(path.join(dest, 'resources/assets__test.pdf'))).toBe('[some pdf file]');
+        expect(readFile(path.join(dest, 'resources/assets__test.pdf'))).toBe('[some pdf file]');
     });
 });

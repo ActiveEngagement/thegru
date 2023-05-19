@@ -1,12 +1,14 @@
 import createApi from '../../../../src/core/api.js';
 import nullLogger from '../../../support/null_logger.js';
 import arrayLogger from '../../../support/array_logger.js';
-import transformBase from '../../../../src/core/standard/transform_content.js';
+import transformBase from '../../../../src/core/synced/transform_content.js';
 import * as predicates from '../../../../src/core/mdast_predicates.js';
+import * as types from '../../../../src/core/synced/container_types.js';
 import { image as buildImage, link as buildLink, text } from 'mdast-builder';
 import createClient from '../../../support/api_client.js';
 import env from '../../../support/env.js';
 import { analysisBuilder, imageLinkAnalysis, link, image } from '../../../support/transform_content_util.js';
+import { container, root } from '../../../../src/core/synced/tree/util.js';
 
 async function transform(filePath, analysis, options = {}) {
     options.logger ||= nullLogger();
@@ -20,18 +22,21 @@ async function transform(filePath, analysis, options = {}) {
     options.github.repo.name ||= 'ActiveEngagement/test';
     options.github.commit ||= {};
     options.github.commit.sha ||= '123';
+    options.cards ||= [];
+    options.tree ||= root();
 
     return transformBase(filePath, analysis, options);
 }
 
-describe('core/standard/transform_content.js', () => {
+describe('core/synced/transform_content.js', () => {
     beforeEach(() => {
         env({
             some: {
                 path: {
                     'image.png': '[png',
                     'file.pdf': '[pdf]'
-                }
+                },
+                container: {}
             },
             path: {
                 to: {
@@ -44,6 +49,9 @@ describe('core/standard/transform_content.js', () => {
                             }
                         },
                     },
+                    root2: {
+                        'card.md': 'content'
+                    },
                     some: {
                         path: {
                             'image.png': '[png',
@@ -51,16 +59,12 @@ describe('core/standard/transform_content.js', () => {
                         }
                     },
                 }
-            }
+            },
         });
     });
 
     describe('with attachments', () => {
         let attachments, images, links;
-
-        function defaultClient() {
-            return createClient({ uploadAttachmentResult: { link: 'path' }});
-        }
 
         beforeEach(() => {
             images = [
@@ -112,7 +116,7 @@ describe('core/standard/transform_content.js', () => {
             let client;
 
             beforeEach(async() => {
-                client = defaultClient();
+                client = createClient();
                 ({ attachments } = await transform('path/to/root/card.md', imageLinkAnalysis(images, links), {
                     attachmentHandler: 'upload',
                     client
@@ -122,25 +126,47 @@ describe('core/standard/transform_content.js', () => {
             it('rewrites the URLs', () => {
                 expect(images).toStrictEqual([
                     image('https://jlockard.com/image.png', 'remote image'),
-                    image('path', 'local root image'),
-                    image('path', 'local dotslash image'),
-                    image('path', 'local parent image'),
-                    image('path', 'local relative image')
+                    image('resources/some__path__image.png', 'local root image'),
+                    image('resources/path__to__root__some__path__image.png', 'local dotslash image'),
+                    image('resources/path__to__some__path__image.png', 'local parent image'),
+                    image('resources/path__to__root__some__path__image.png', 'local relative image')
                 ]);
                 expect(links).toStrictEqual([
                     link('https://jlockard.com/something', 'remote link'),
-                    link('path', 'local root link'),
-                    link('path', 'local dotslash link'),
-                    link('path', 'local parent link'),
-                    link('path', 'local relative link')
+                    link('resources/some__path__file.pdf', 'local root link'),
+                    link('resources/path__to__root__some__path__file.pdf', 'local dotslash link'),
+                    link('resources/path__to__some__path__file.pdf', 'local parent link'),
+                    link('resources/path__to__root__some__path__file.pdf', 'local relative link')
                 ]);
             });
 
-            // Notice how the attachments are duplicated. With standard actions this is DESIRABLE, since each entry
-            // here actually corresponds to a whole separate Guru Attachment.
-            // [TODO]: In the future, it would be better to try to only create one Guru Attachment per path.
-            it('correctly collects the attachments', () => {
-                expect(attachments.length).toBe(8);
+            it('correctly collects and dedups the attachments', () => {
+                expect(attachments).toStrictEqual([
+                    {
+                        id: 'some__path__image.png',
+                        path: 'some/path/image.png'
+                    },
+                    {
+                        id: 'path__to__root__some__path__image.png',
+                        path: 'path/to/root/some/path/image.png'
+                    },
+                    {
+                        id: 'path__to__some__path__image.png',
+                        path: 'path/to/some/path/image.png'
+                    },
+                    {
+                        id: 'some__path__file.pdf',
+                        path: 'some/path/file.pdf'
+                    },
+                    {
+                        id: 'path__to__root__some__path__file.pdf',
+                        path: 'path/to/root/some/path/file.pdf'
+                    },
+                    {
+                        id: 'path__to__some__path__file.pdf',
+                        path: 'path/to/some/path/file.pdf'
+                    },
+                ]);
             });
         });
 
@@ -191,7 +217,7 @@ describe('core/standard/transform_content.js', () => {
                     .add(predicates.definition, definitions)
                     .build();
 
-                client = defaultClient();
+                client = createClient();
 
                 ({ attachments } = await transform('path/to/root/card.md', analysis, {
                     attachmentHandler: 'upload',
@@ -210,13 +236,13 @@ describe('core/standard/transform_content.js', () => {
                         type: 'definition',
                         identifier: 'image-id',
                         label: 'Image',
-                        url: 'path'
+                        url: 'resources/some__path__image.png'
                     },
                     {
                         type: 'definition',
                         identifier: 'link-id',
                         label: 'Link',
-                        url: 'path'
+                        url: 'resources/some__path__file.pdf'
                     }
                 ]);
             });
@@ -238,7 +264,7 @@ describe('core/standard/transform_content.js', () => {
                     linkNode = buildLink('/some/path/image.png', 'Some title to be stripped', text('desc'));
 
                     await transform('path/to/root/card.md', imageLinkAnalysis([imageNode], [linkNode]), {
-                        attachmentHandler, client: defaultClient()
+                        attachmentHandler, client: createClient()
                     });
                 });
 
@@ -248,10 +274,9 @@ describe('core/standard/transform_content.js', () => {
                 });
             });
 
-            describe.each([
-                ['./path/to/nowhere', 'path/to/root/card.md referenced "./path/to/nowhere", which does not exist on the file system. We\'ll ignore it, but you likely have a broken link.'],
-                ['/some/path', 'path/to/root/card.md referenced "/some/path", which is a directory. We\'ll ignore it, but you likely have a broken link.']
-            ])('with invalid attachment paths', (filePath, message) => {
+            describe('with nonexistent attachment paths', () => {
+                const filePath = './path/to/nowhere';
+
                 let logger, imageNode, linkNode;
 
                 beforeEach(async() => {
@@ -261,7 +286,7 @@ describe('core/standard/transform_content.js', () => {
                     linkNode = link(filePath, 'bad link');
 
                     await transform('path/to/root/card.md', imageLinkAnalysis([imageNode], [linkNode]), {
-                        logger, attachmentHandler, client: defaultClient()
+                        logger, attachmentHandler, client: createClient()
                     });
                 });
 
@@ -271,8 +296,110 @@ describe('core/standard/transform_content.js', () => {
                 });
 
                 it('generates appropriate log messages', () => {
+                    const message = 'path/to/root/card.md referenced "./path/to/nowhere", which does not exist on the file system. We\'ll ignore it, but you likely have a broken link.';
                     expect(logger.getMessages().filter(msg => msg === message).length).toBe(2);
                 });
+            });
+
+            describe('with directory image and link paths', () => {
+                const filePath = '/some/path';
+
+                let logger, imageNode, linkNode;
+
+                beforeEach(async() => {
+                    logger = arrayLogger();
+
+                    imageNode = image(filePath, 'bad image');
+                    linkNode = link(filePath, 'bad link');
+
+                    await transform('path/to/root/card.md', imageLinkAnalysis([imageNode], [linkNode]), {
+                        logger, attachmentHandler, client: createClient()
+                    });
+                });
+
+                it('does not rewrite them', () => {
+                    expect(imageNode).toStrictEqual(image(filePath, 'bad image'));
+                    expect(linkNode).toStrictEqual(link(filePath, 'bad link'));
+                });
+
+                it('generates appropriate log message for image', () => {
+                    const message = 'path/to/root/card.md referenced "/some/path", which is a directory. We\'ll ignore it, but you likely have a broken link.';
+                    expect(logger.getMessages().filter(msg => msg === message).length).toBe(1);
+                });
+
+                it('generates appropriate log message for link', () => {
+                    const message = 'path/to/root/card.md referenced "/some/path", which is a directory on the file system, but does not correspond to a Guru board, board section, or board group. We\'ll ignore it, but you likely have a broken link.';
+                    expect(logger.getMessages().filter(msg => msg === message).length).toBe(1);
+                });
+            });
+        });
+
+        describe('with card/container links', () => {
+            it('rewrites them correctly', async() => {
+                const links = [
+                    link('https://jlockard.com/something', 'remote link'),
+                    link('/some/path/file.pdf', 'local root link'),
+                    link('../root2/card1.md', 'card 1'),
+                    link('/path/to/root2/card2.md', 'card 2'),
+                    link('/path/to/root2/card.md', 'we cannot link to ourselves---this will be an attachment'),
+                    link('/some', 'board group'),
+                    link('/some/container', 'board')
+                ];
+                ({ attachments } = await transform('path/to/root/card.md', imageLinkAnalysis(images, links), {
+                    attachmentHandler: 'upload',
+                    cards: [
+                        {
+                            name: 'some__Long_special_card1name',
+                            file: 'path/to/root2/card1.md'
+                        },
+                        {
+                            name: 'card2___name',
+                            file: 'path/to/root2/card2.md'
+                        },
+                    ],
+                    tree: root({
+                        some: container({
+                            container: container({}, { file: 'some/container', containerType: types.BOARD })
+                        }, { file: 'some', containerType: types.BOARD_GROUP })
+                    })
+                }));
+                expect(links).toStrictEqual([
+                    link('https://jlockard.com/something', 'remote link'),
+                    link('resources/some__path__file.pdf', 'local root link'),
+                    link('cards/some__Long_special_card1name', 'card 1'),
+                    link('cards/card2___name', 'card 2'),
+                    link('resources/path__to__root2__card.md', 'we cannot link to ourselves---this will be an attachment'),
+                    link('board-groups/some', 'board group'),
+                    link('boards/some__container', 'board')
+                ]);
+            });
+        });
+
+        describe('with board section link', () => {
+            let logger, linkNode;
+
+            beforeEach(async() => {
+                logger = arrayLogger();
+
+                linkNode = link('/some/container', 'board section');
+
+                await transform('path/to/root/card.md', imageLinkAnalysis([], [linkNode]), {
+                    logger,
+                    tree: root({
+                        some: container({
+                            container: container({}, { file: 'some/container', containerType: types.BOARD_SECTION })
+                        }, { file: 'some', containerType: types.BOARD })
+                    })
+                });
+            });
+
+            it('does not rewrite them', () => {
+                expect(linkNode).toStrictEqual(link('/some/container', 'board section'));
+            });
+
+            it('generates appropriate log message', () => {
+                const message = 'path/to/root/card.md referenced "/some/container", which is a Guru board section. Since Guru board sections can\'t be linked to, we\'ll ignore it, but you likely have a broken link.';
+                expect(logger.getMessages().filter(msg => msg === message).length).toBe(1);
             });
         });
     });
