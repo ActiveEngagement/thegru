@@ -70,7 +70,6 @@ async function main() {
         github.repo.url = `${ghContext.server_url}/${github.repo.name}`;
         github.repo.isPublic = await isRepoPublic(github.repo.url);
         github.commit.sha = ghContext.sha;
-        github.commit.message = ghContext.event?.head_commit?.message;
 
         // Retrieve the default card footer from disk.
         const defaultFooter = await readFile(srcUrl('resources/default_card_footer.md'));

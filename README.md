@@ -13,8 +13,8 @@ This GitHub action will automatically sync one or more Markdown files with [Guru
 - [Introduction](#introduction)
 - [Before You Start](#before-you-start)
 - [Shared Inputs](#shared-inputs)
-- [Standard Collections](#standard-collections-usage)
-- [Synced Collections](#synced-collections-usage)
+- [Standard Collections](#standard-collections-1)
+- [Synced Collections](#synced-collections-1)
 - [Development](#development)
 
 ## Quick Start
@@ -40,9 +40,12 @@ Now add the template below to your workflow file (in `.github/workflows`). You m
           board_id: # OPTIONAL. UUID or slug
           board_section_id: # OPTIONAL. UUID
           cards: | # Adjust as required.
-            {
-              "README.md": "Card Title"
-            }
+            [
+              {
+                "path": "README.md",
+                "title": "Card Title"
+              }
+            ]
 ```
 
 ### Synced Collections
@@ -51,7 +54,7 @@ Now add the template below to your workflow file (in `.github/workflows`). You m
 
 Get the [id or slug](#identifiers) of the Guru collection with which the cards should be synced. The easiest way to get this is by navigating to the collection in the Guru app and copying it from the URL.
 
-Now add the template below to your workflow file (in `.github/workflows`). You may add this to an existing workflow or create a new one solely for Guru. Insert your own [`collection_id`](#collection_id). Adjust [`cards`](#cards) as desired.
+Now add the template below to your workflow file (in `.github/workflows`). You may add this to an existing workflow or create a new one solely for Guru. Insert your own [`collection_id`](#collection_id). Adjust [`cards`](#cards-1) as desired.
 
 ```yaml
       - uses: ActiveEngagement/theguru@v0.6
@@ -75,9 +78,9 @@ Now add the template below to your workflow file (in `.github/workflows`). You m
 
 Collections fall into two categories: "standard" (or "internal") and "synced" ("external"), both of which this action supports:
 
-[Standard collections](#standard-collections) are the norm in Guru and function about how you would expect: an admin may create them from the Guru interface, and cards can be created, updated, or destroyed individually by anyone with access. This action supports syncing one or more individual cards to Guru. They are created in the given Guru collection, and optionally in a board and/or board section, and updated or destroyed as necessary. We keep track of card ids with an auto-committed file in your repository. Attachments are supported via the Attachment API. Board/group/section creation is not supported and cards cannot link to each other.
+[Standard collections](#standard-collections-1) are the norm in Guru and function about how you would expect: an admin may create them from the Guru interface, and cards can be created, updated, or destroyed individually by anyone with access. This action supports syncing one or more individual cards to Guru. They are created in the given Guru collection, and optionally in a board and/or board section, and updated or destroyed as necessary. We keep track of card ids with an auto-committed file in your repository. Attachments are supported via the Attachment API. Board/group/section creation is not supported and cards cannot link to each other.
 
-[Synced collections](#synced-collections) are different: they must be created via the API by an admin; cards can only be created, updated, or destroyed via the Manual Sync API; and updates must happen "all at once." This action supports most features of the Guru Manual Sync API, including board structure management, card/board linking, and attachments, making synced collections ideal for lage, structured file sets.
+[Synced collections](#synced-collections-1) are different: they must be created via the API by an admin; cards can only be created, updated, or destroyed via the Manual Sync API; and updates must happen "all at once." This action supports most features of the Guru Manual Sync API, including board structure management, card/board linking, and attachments, making synced collections ideal for lage, structured file sets.
 
 ## Before You Start
 
@@ -149,12 +152,7 @@ This input must be a [JSON object](#json-inputs) representation of the [GitHub c
 {
   "repository": "REQUIRED",
   "server_url": "REQUIRED",
-  "sha": "REQUIRED",
-  "event": {
-    "head_commit": {
-      "message": "OPTIONAL. Enables commit flags."
-    }
-  }
+  "sha": "REQUIRED"
 }
 ```
 
@@ -206,9 +204,9 @@ OPTIONAL. Whether ANSI escape codes should be emitted, `true` by default.
 
 This input must be either `true` or `false`. When true, ANSI escape codes will be utilized for nice colored output. When `false`, they will be omitted.
 
-## Standard Collections Usage
+## Standard Collections
 
-When syncing with standard collections, we'll look at the list of cards in the [`cards`](#cards-standard) input.
+When syncing with standard collections, we'll look at the list of cards in the [`cards`](#cards) input.
 
 If a card does not exist in Guru (i.e. it has not yet been created or it has been removed from Guru), then we will automatically create a new card in the given [collection](#collection_id), [board](#board_id), and/or [board section](#board_section_id). If the card already exists in Guru, then we'll update it (if it has changed). We keep track of cards with the [cards file](#the-cards-file). Do note that we will never update the collection or container of an existing card. If, therefore, the card is moved after creation, it will retain the new location.
 
@@ -264,7 +262,7 @@ Additionally, if you change the file paths of any Markdown files (i.e. rename th
 
 (See [`user_email`](#user_email), [`user_token`](#user_token), [`github`](#github), [`collection_type`](#collection_type), [`collection_id`](#collection_id), [`attachment_handler`](#attachment_handler), [`verbosity`](#verbosity), and [`ansi`](#ansi) above.)
 
-#### `cards` (standard)
+#### `cards`
 
 REQUIRED. The cards to sync with Guru.
 
@@ -312,9 +310,9 @@ You may customize the path to the [cards file](#the-cards-file), in which upload
 
 If `false` is passed, the cards file will not be used. Cards will not be updated in Guru; they will always be re-created. This option can be useful in creation-only scenarios.
 
-## Synced Collections Usage
+## Synced Collections
 
-When syncing with synced collections, we'll look at the array of card rules in the [`cards`](#cards-synced) input. All the cards matched by the rules will be rewritten as necessary, compiled (along with referenced attachments) into a .zip collection, and uploaded to Guru.
+When syncing with synced collections, we'll look at the array of card rules in the [`cards`](#cards-1) input. All the cards matched by the rules will be rewritten as necessary, compiled (along with referenced attachments) into a .zip collection, and uploaded to Guru.
 
 Synced collections are ideal when
   - you have many cards to sync or want to use a glob,
@@ -354,7 +352,7 @@ Guru supports attaching a couple metadata attributes to cards and containers:
 
 These attributes can be attached in a variety of ways. For cards:
 
-- Info can be attached explicitly in a card rule, as described in [`cards`](#cards-synced).
+- Info can be attached explicitly in a card rule, as described in [`cards`](#cards-1).
 - Cards may have a "frontmatter" section containing info attributes. We use [graymatter](https://www.npmjs.com/package/gray-matter) to parse frontmatter, so it should conform to their requirements.
 - Cards may have a corresponding .yml (or .yaml) file with the same basename containing info attributes. For example, "eula.md" could have a "eula.yml" containing info.
 - If not otherwise specified, the title will be derived from the card's filename. For example, "legal_matters.md" will become "Legal Matters".
@@ -389,7 +387,7 @@ For containers:
 
 (See [`user_email`](#user_email), [`user_token`](#user_token), [`github`](#github), [`collection_type`](#collection_type), [`collection_id`](#collection_id), [`attachment_handler`](#attachment_handler), [`verbosity`](#verbosity), and [`ansi`](#ansi) above.)
 
-#### `cards` (synced)
+#### `cards`
 
 REQUIRED. Rules indicating the cards to sync with Guru.
 
