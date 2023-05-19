@@ -1,5 +1,5 @@
 import buildTreeBase from '../../../../../src/core/synced/tree/build.js';
-import nullLogger from '../../../../support/null_logger.js'
+import nullLogger from '../../../../support/null_logger.js';
 import arrayLogger from '../../../../support/array_logger.js';
 import env from '../../../../support/env.js';
 import { card as cardBase, container, root } from '../../../../../src/core/synced/tree/util.js';
