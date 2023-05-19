@@ -232,10 +232,16 @@ For the most part, this file should take care of itself; you should rarely need 
 
 However, If you wish to sync a Markdown file with a card that already exists in Guru, you'll need to let theguru know about it by placing that card's id in the cards file before the first sync.
 
-Additionally, if you change the file paths of any Markdown files (i.e. rename them or move them to a new directory), you have two options:
+If custom `key`s are provided in the [`cards`](#cards) input, then the format is:
 
-1. *Let theguru handle it.* Because the file path changed, theguru will treat it as if the old card was deleted and a new one was added at the new file path. A `DELETE` request will be issued for the old one and a `POST` request for the new one, instead of the typical `PATCH` request. The net result in Guru, however, is the same.
-2. *Let theguru know about the new path.* If you need to avoid card re-creation (perhaps you have a lot of cards), you may also update the cards file manually with the new paths.
+```json
+{
+  "{key}": "e8bba381-0784-4414-b451-f302b6319f4c",
+  "{key}": "e7bf5163-a195-402d-a119-cfe5974cb764"
+}
+```
+
+You may use this to take control of the card invalidation process yourself.
 
 ### Inputs
 
@@ -266,17 +272,45 @@ Additionally, if you change the file paths of any Markdown files (i.e. rename th
 
 REQUIRED. The cards to sync with Guru.
 
-This input must be a string containing a [JSON object](#json-inputs) of the cards to sync. Each key is the file path to the Markdowon file in the repository, and each value is the title that the Guru card should have. Example:
+This input must be a string containing a [JSON array](#json-inputs) of the cards to sync. Example:
 
 ```yaml
           cards: |
-            {
-              "path/to/file.md": "Card 1",
-              "path/to/file2.md": "Card 2"
-            }
+            [
+              {
+                "path": "path/to/file.md",
+                "title": "Card 1"
+              },
+              {
+                "path": "path/to/file2.md",
+                "title": "Card 2"
+              }
+            ]
 ```
 
-Do note that cards are tracked by file path. Therefore, if you change the file path for a card, by default theguru will destroy the old card and create a new one in Guru. See [The Cards File](#the-cards-file). Conversly, if you change the title, then the title of the existing Guru card will seamlessly be updated.
+Do note that cards are by default tracked by file path. Therefore, if you change the file path for a card, by default theguru will destroy the old card and create a new one in Guru. See [The Cards File](#the-cards-file). Conversly, if you change the title, then the title of the existing Guru card will seamlessly be updated.
+
+If you wish to use something other than the file path as the key in the cards file, you may specify a `key` option, like so:
+
+```yaml
+          cards: |
+            [
+              {
+                "path": "path/to/file.md",
+                "title": "Card 1",
+                "key": "one"
+              },
+              {
+                "path": "path/to/file2.md",
+                "title": "Card 2",
+                "key": "two"
+              }
+            ]
+```
+
+Now, the card with a `"key"` of `"one"` will always be synced to the same Guru card after initial creation, as long as you do not change the key. Once the key is changed, then we will destroy the card in Guru and create a new one.
+
+This may be especially helpful if you are syncing multiple files with potentially different names to the same card.
 
 #### `board_id`
 

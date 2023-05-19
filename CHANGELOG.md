@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## v0.7.0 - 2023-05-19
+
+### Added
+- Added the `key` option to card entries in the `cards` input.
+
+### Changed
+- Changed the `cards` input format to permit additional options (like the new `key` option).
+
 ### Removed
 - Removed the ability to only upload "changed" files.
 
@@ -114,4 +122,4 @@ This version featured some drastic changes:
 ### Added
 - Initial documented version.
 
-[Unreleased]: https://github.com/ActiveEngagement/theguru/compare/v0.6.1...HEAD
+[Unreleased]: https://github.com/ActiveEngagement/theguru/compare/v0.7.0...HEAD
