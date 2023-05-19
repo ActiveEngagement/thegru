@@ -31,9 +31,6 @@ export default function(client, options) {
             if(value === false) {
                 delete result[key];
             }
-            else {
-                result[key] = value;
-            }
         }
 
         return result;
@@ -63,12 +60,18 @@ export default function(client, options) {
             return null;
         }
         else {
+            let parsed;
+
             try {
-                return JSON.parse(text);
+                parsed = JSON.parse(text);
             }
             catch {
                 throw new FetchError('Server responded with an invalid response', response);
             }
+            if(typeof parsed !== 'object' && typeof parsed !== 'array') {
+                throw new FetchError('Server responded with an invalid response', response);
+            }
+            return parsed;
         }
     }
 
@@ -157,20 +160,6 @@ export default function(client, options) {
         return await validate(response);
     }
 
-    async function getCollection(id) {
-        logger.debug(`Getting collection with id ${id}`);
-
-        const response = await client.getCollection(id, {
-            headers: headers()
-        });
-
-        if(response.status === 404) {
-            return null;
-        }
-
-        return await validate(response);
-    }
-
     async function uploadAttachment(fileName, filePath) {
         logger.debug(`Uploading attachment with name ${fileName}`);
 
@@ -196,7 +185,6 @@ export default function(client, options) {
         updateCard,
         destroyCard,
         getCard,
-        getCollection,
         getCollections,
         uploadAttachment,
         uploadZip

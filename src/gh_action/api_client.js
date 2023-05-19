@@ -40,10 +40,6 @@ export default function(fetch, options = {}) {
         return await fetch('GET', apiEndpoint(`cards/${id}`), options);
     }
 
-    async function getCollection(id, options) {
-        return await fetch('GET', apiEndpoint(`collections/${id}`), options);
-    }
-
     async function getCollections(options) {
         return await fetch('GET', apiEndpoint('collections'), options);
     }
@@ -72,7 +68,6 @@ export default function(fetch, options = {}) {
         updateCard,
         destroyCard,
         getCard,
-        getCollection,
         getCollections,
         uploadAttachment,
         uploadZip

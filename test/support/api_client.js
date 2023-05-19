@@ -1,15 +1,34 @@
+/**
+ * A dummy API client implementation that merely keeps track of requests and returns the given responses.
+ * 
+ * Each desired API response can be passed as an option (e.g. `createCardResult`, `updateCardResult`, `getCardResult`,
+ * etc.). You may pass values directly or callbacks that will be evaluated with the incoming request options.
+ */
 export default function(clientOptions = {}) {
     const calls = [];
-
-    function call(callable, ...args) {
-        return callable instanceof Function ? callable(...args) : callable;
-    }
 
     function getCalls() {
         return calls;
     }
 
+    /**
+     * If the provided value is a function, then it will be called with the given arguments, and the result will be
+     * returned. Otherwise the provided value itself will be returned.
+     */
+    function call(callable, ...args) {
+        return callable instanceof Function ? callable(...args) : callable;
+    }
+
+    //
+    // Some response-generation utility functions.
+    //
+
     function response(json) {
+        if(json && json.ok !== undefined && json.status !== undefined && json.text !== undefined) {
+            // There's already a well-formed response.
+            return json;
+        }
+
         return {
             ok: true,
 
@@ -65,7 +84,7 @@ export default function(clientOptions = {}) {
             options
         });
 
-        return response(options);
+        return response(call(clientOptions.updateCardResult, options) || options.body);
     }
 
     function destroyCard(id, options) {
@@ -75,7 +94,14 @@ export default function(clientOptions = {}) {
             options
         });
 
-        return noContentResponse();
+        const result = call(clientOptions.destroyCardResult, options) || noContentResponse();
+
+        if(result === 'not_found') {
+            return notFoundResponse();
+        }
+        else {
+            return response(result);
+        }
     }
 
     function getCard(id) {
@@ -93,22 +119,6 @@ export default function(clientOptions = {}) {
         }
     }
     
-    function getCollection(id, options) {
-        calls.push({
-            type: 'getCollection',
-            id,
-            options
-        });
-        const result = call(clientOptions.getCollectionResult, id);
-
-        if(result === 'not_found') {
-            return notFoundResponse();
-        }
-        else {
-            return response(result);
-        }
-    }
-
     function getCollections(options) {
         calls.push({
             type: 'getCollections',
@@ -127,7 +137,7 @@ export default function(clientOptions = {}) {
             options
         });
 
-        return response(call(clientOptions.attachmentResult, fileName, filePath, options));
+        return response(call(clientOptions.uploadAttachmentResult, fileName, filePath, options));
     }
 
     function uploadZip(collectionId, fileName, filePath, options) {
@@ -148,7 +158,6 @@ export default function(clientOptions = {}) {
         updateCard,
         destroyCard,
         getCard,
-        getCollection,
         getCollections,
         uploadAttachment,
         uploadZip

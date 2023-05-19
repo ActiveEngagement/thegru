@@ -1,16 +1,12 @@
 import fs from 'fs';
 import path from 'path';
 
-export async function readFile(filePath) {
-    return await fs.promises.readFile(filePath, { encoding: 'utf8' });
-}
-
-export function readFileSync(filePath) {
+export function readFile(filePath) {
     return fs.readFileSync(filePath, { encoding: 'utf8' });
 }
 
-export async function writeFile(filePath, content) {
-    return await fs.promises.writeFile(filePath, content, { encoding: 'utf8' });
+export function writeFile(filePath, content) {
+    return fs.writeFileSync(filePath, content, { encoding: 'utf8' });
 }
 
 /**

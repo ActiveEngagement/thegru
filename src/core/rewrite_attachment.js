@@ -2,7 +2,7 @@ import path from 'path';
 
 export default async function(url, resolved, type, options) {
     const { logger, attachmentHandler, github, upload } = options;
-
+    
     switch (attachmentHandler) {
     case 'upload':
         logger.info(`Uploading and rewriting local ${type} ${url}`);

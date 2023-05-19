@@ -4,28 +4,45 @@ import { joinNames } from '../util.js';
 import * as types from './container_types.js';
 import { traverse } from './tree/util.js';
 import transform from '../transform_content.js';
-import rewriteAttachment from '../rewrite_attachment.js';
+import rewriteAttachmentBase from '../rewrite_attachment.js';
 
 export default async function(filePath, analysis, options = {}) {
     const { logger, github, cards, tree, attachmentHandler } = options;
 
     const attachments = [];
 
+    async function rewriteAttachment(url, resolved, type, options) {
+        return rewriteAttachmentBase(url, resolved, type, options);
+    }
+
     async function upload(url, resolved) {
         let attachment = attachments.find(a => a.path === resolved);
 
         if(!attachment) {
-            if(!fs.existsSync(resolved)) {
-                logger.notice(`${filePath} referenced "${url}", which does not exist on the file system. We'll ignore it, but you likely have a broken link.`);
-                return url;
-            }
-
             const id = resolved.replaceAll('/', '__');
             attachment = { id, path: resolved };
             attachments.push(attachment);
         }
 
         return path.join('resources', attachment.id);
+    }
+
+    async function rewriteImage(url, resolved) {
+        if(!fs.existsSync(resolved)) {
+            logger.warning(`${filePath} referenced "${url}", which does not exist on the file system. We'll ignore it, but you likely have a broken link.`);
+            return url;
+        }
+
+        const stat = await fs.promises.stat(resolved);
+
+        if(stat.isDirectory()) {
+            logger.warning(`${filePath} referenced "${url}", which is a directory. We'll ignore it, but you likely have a broken link.`);
+            return url;
+        }
+
+        return await rewriteAttachment(url, resolved, 'link', {
+            logger, attachmentHandler, github, upload
+        });
     }
 
     async function rewriteLink(url, resolved) {
@@ -82,13 +99,13 @@ export default async function(filePath, analysis, options = {}) {
         case types.BOARD:
             return path.join('boards', name);
         case types.BOARD_SECTION:
-            logger.warning(`${filePath} referenced "${url}, which is a Guru board section. Since Guru board sections can't be linked to, we'll ignore it, but you likely have a broken link.`);
+            logger.warning(`${filePath} referenced "${url}", which is a Guru board section. Since Guru board sections can't be linked to, we'll ignore it, but you likely have a broken link.`);
             return url;
         }
     }
 
     await transform(filePath, analysis, {
-        logger, attachmentHandler, github, upload, rewriteLink
+        logger, attachmentHandler, github, rewriteLink, rewriteImage
     });
 
     return { attachments };

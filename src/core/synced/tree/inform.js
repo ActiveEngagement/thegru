@@ -1,11 +1,10 @@
 import path from 'path';
 import fs from 'fs';
-import { readFileSync, stripExtension } from '../../fs_util.js';
+import { readFile, stripExtension } from '../../fs_util.js';
 import { traverse } from './util.js';
 import matter from 'gray-matter';
 import yaml from 'js-yaml';
 import { allowedCardInfo, allowedContainerInfo } from '../allowed_info.js';
-import { DEBUG } from '../../verbosities.js';
 import { inferTitle } from '../../util.js';
 
 /**
@@ -30,7 +29,7 @@ export default function(tree, options) {
 
         if(node.type === 'card') {
             // We'll read from the frontmatter if it exists and save the content for later.
-            const { data, content } = matter(readFileSync(node.file));
+            const { data, content } = matter(readFile(node.file));
 
             Object.assign(node.info, data);
 
@@ -45,7 +44,7 @@ export default function(tree, options) {
             const infoPath = [name + '.yaml', name + '.yml'].find(p => fs.existsSync(p));
             if(infoPath) {
                 logger.info(`Using ${infoPath}`);
-                Object.assign(node.info, yaml.load(readFileSync(infoPath)));
+                Object.assign(node.info, yaml.load(readFile(infoPath)));
             }
 
             // Let's make sure only valid info was added.
@@ -70,7 +69,7 @@ export default function(tree, options) {
                 const infoPath = [infoBase + '.yaml', infoBase + '.yml'].find(p => fs.existsSync(p));
                 if(infoPath) {
                     logger.info(`Using ${infoPath}`);
-                    Object.assign(node.info, yaml.load(readFileSync(infoPath)));
+                    Object.assign(node.info, yaml.load(readFile(infoPath)));
                 }
             }
 

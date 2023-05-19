@@ -1,1 +1,0 @@
-![local image](empty.png)
