@@ -77,8 +77,8 @@ async function main() {
         const defaultFooter = readFile(srcUrl('resources/default_card_footer.md'));
 
         const changedFiles = await getChangedFiles({ logger });
-        const isFileCommitted = (file) => {
-            if(!isFileCommittedBase(file, { logger })) {
+        const isFileCommitted = async(file) => {
+            if(!await isFileCommittedBase(file, { logger })) {
                 return false;
             }
             if(changedFiles === null) {

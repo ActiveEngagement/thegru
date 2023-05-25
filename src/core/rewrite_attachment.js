@@ -3,7 +3,7 @@ import path from 'path';
 export default async function(url, resolved, type, options) {
     const { logger, attachmentHandler, github, upload, isFileCommitted } = options;
     
-    const committed = isFileCommitted(resolved);
+    const committed = await isFileCommitted(resolved);
 
     if(attachmentHandler === 'github_urls' && committed) {
         logger.info(`'Rewriting local ${type} ${url}`);
