@@ -21,6 +21,7 @@ async function handle(filePath, title, existingId, options = {}) {
     options.inputs ||= {};
     options.attachmentHandler ||= 'github_urls';
     options.filePath ||= 'some/path/to.md';
+    options.isFileCommitted ||= () => true;
 
     return await handleBase(filePath, title, existingId, options);
 }

@@ -11,6 +11,7 @@ async function generate(options) {
     options.inputs ||= {};
     options.attachmentHandler ||= 'upload';
     options.inputs.preferredContainer ||= types.name(types.BOARD_GROUP);
+    options.isFileCommitted ||= () => true;
 
     return await generateBase(options);
 }

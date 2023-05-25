@@ -17,7 +17,8 @@ export default async function(options) {
         github,
         defaultFooter,
         attachmentHandler,
-        setOutput
+        setOutput,
+        isFileCommitted
     } = options;
 
     // Determine the card footer.
@@ -35,7 +36,8 @@ export default async function(options) {
         inputs,
         github,
         footer,
-        attachmentHandler
+        attachmentHandler,
+        isFileCommitted
     });
 
     logger.trace('Generated collection:\n');

@@ -11,7 +11,8 @@ export default async function(cards, options) {
         github,
         attachmentHandler,
         footer,
-        tree
+        tree,
+        isFileCommitted
     } = options;
 
     async function rewriteCard(card) {
@@ -30,7 +31,8 @@ export default async function(cards, options) {
             github,
             cards,
             tree,
-            attachmentHandler
+            attachmentHandler,
+            isFileCommitted
         });
 
         // Render the transformed tree to Markdown.

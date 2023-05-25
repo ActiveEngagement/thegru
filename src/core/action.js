@@ -20,7 +20,8 @@ export default async function(options) {
         github,
         defaultFooter,
         commitCardsFile,
-        setOutput
+        setOutput,
+        isFileCommitted
     } = options;
 
     // Determine the attachment handler.
@@ -60,7 +61,8 @@ export default async function(options) {
             github,
             defaultFooter,
             attachmentHandler,
-            commitCardsFile
+            commitCardsFile,
+            isFileCommitted
         });
     }
     else {
@@ -76,7 +78,8 @@ export default async function(options) {
             github,
             defaultFooter,
             attachmentHandler,
-            setOutput
+            setOutput,
+            isFileCommitted
         });
     }
 }

@@ -41,6 +41,7 @@ async function action(options) {
     if(options.github.repo.isPublic === undefined) {
         options.github.repo.isPublic = false;
     }
+    options.isFileCommitted ||= () => true;
 
     return await runAction(options);
 }
