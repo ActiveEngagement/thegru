@@ -132,12 +132,12 @@ describe('core/synced/transform_content.js', () => {
                 });
 
                 it('uses github_urls for the committed file', () => {
-                    expect(images[0]).toStrictEqual(image('https://raw.githubusercontent.com/ActiveEngagement/test/123/path/to/root/some/path/image.png', 'committed'))
+                    expect(images[0]).toStrictEqual(image('https://raw.githubusercontent.com/ActiveEngagement/test/123/path/to/root/some/path/image.png', 'committed'));
                 });
 
                 it('uses upload for the committed file', () => {
-                    expect(images[1]).toStrictEqual(image('resources/path__to__root__some__path__file.pdf', 'uncommitted'))
-                })
+                    expect(images[1]).toStrictEqual(image('resources/path__to__root__some__path__file.pdf', 'uncommitted'));
+                });
             });
         });
 
