@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## v0.7.1 - 2023-05-25
+
+### Fixed
+- Fixed a fatal bug on startup.
+- Fixed a bug where with the "github_urls" attachment strategy, uncommitted files were being rewritten to GitHub URLs, which of course fails.
+
 ## v0.7.0 - 2023-05-19
 
 ### Added
