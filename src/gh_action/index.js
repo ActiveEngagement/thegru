@@ -102,7 +102,6 @@ async function main() {
             github,
             defaultFooter,
             commitCardsFile,
-            getChangedFiles,
             setOutput: core.setOutput,
             isFileCommitted
         });
