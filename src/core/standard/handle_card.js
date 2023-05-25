@@ -6,7 +6,7 @@ import buildContent from './build_content.js';
  * Syncs (creates or updates) the given card.
  */
 export default async function(filePath, title, existingId, options) {
-    const { logger, api, github, inputs, attachmentHandler, footer } = options;
+    const { logger, api, github, inputs, attachmentHandler, footer, isFileCommitted } = options;
 
     logger.info(`Reading ${filePath}`);
     const { content, attachments } = await buildContent(readFile(filePath), {
@@ -15,7 +15,8 @@ export default async function(filePath, title, existingId, options) {
         github,
         footer,
         attachmentHandler,
-        filePath
+        filePath,
+        isFileCommitted
     });
 
     // It is necessary to transform the attachments slightly because of Guru craziness.

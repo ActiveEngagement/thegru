@@ -5,7 +5,7 @@ import { image, imageReference, definition, link, linkReference } from '../mdast
 import attachFooter from '../attach_footer.js';
 
 export default async function(content, options) {
-    const { logger, api, github, footer, attachmentHandler, filePath } = options;
+    const { logger, api, github, footer, attachmentHandler, filePath, isFileCommitted } = options;
 
     // Build the card content.
     // This is done here, in several steps, because we used to do some fancy things with it that required split steps.
@@ -15,7 +15,8 @@ export default async function(content, options) {
         logger,
         api,
         github,
-        attachmentHandler
+        attachmentHandler,
+        isFileCommitted
     });
     content = renderTree(contentTree);
     

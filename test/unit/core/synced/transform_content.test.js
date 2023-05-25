@@ -24,6 +24,7 @@ async function transform(filePath, analysis, options = {}) {
     options.github.commit.sha ||= '123';
     options.cards ||= [];
     options.tree ||= root();
+    options.isFileCommitted ||= () => true;
 
     return transformBase(filePath, analysis, options);
 }
@@ -84,31 +85,59 @@ describe('core/synced/transform_content.js', () => {
         });
 
         describe('with github_urls handler', () => {
-            beforeEach(async() => {
-                ({ attachments } = await transform('path/to/root/card.md', imageLinkAnalysis(images, links), {
-                    attachmentHandler: 'github_urls'
-                }));
+            describe('with committed files', () => {
+                beforeEach(async() => {
+                    ({ attachments } = await transform('path/to/root/card.md', imageLinkAnalysis(images, links), {
+                        attachmentHandler: 'github_urls'
+                    }));
+                });
+
+                it('rewrites the URLs', () => {
+                    expect(images).toStrictEqual([
+                        image('https://jlockard.com/image.png', 'remote image'),
+                        image('https://raw.githubusercontent.com/ActiveEngagement/test/123/some/path/image.png', 'local root image'),
+                        image('https://raw.githubusercontent.com/ActiveEngagement/test/123/path/to/root/some/path/image.png', 'local dotslash image'),
+                        image('https://raw.githubusercontent.com/ActiveEngagement/test/123/path/to/some/path/image.png', 'local parent image'),
+                        image('https://raw.githubusercontent.com/ActiveEngagement/test/123/path/to/root/some/path/image.png', 'local relative image')
+                    ]);
+                    expect(links).toStrictEqual([
+                        link('https://jlockard.com/something', 'remote link'),
+                        link('https://raw.githubusercontent.com/ActiveEngagement/test/123/some/path/file.pdf', 'local root link'),
+                        link('https://raw.githubusercontent.com/ActiveEngagement/test/123/path/to/root/some/path/file.pdf', 'local dotslash link'),
+                        link('https://raw.githubusercontent.com/ActiveEngagement/test/123/path/to/some/path/file.pdf', 'local parent link'),
+                        link('https://raw.githubusercontent.com/ActiveEngagement/test/123/path/to/root/some/path/file.pdf', 'local relative link')
+                    ]);
+                });
+
+                it('collects no attachments', () => {
+                    expect(attachments.length).toBe(0);
+                });
             });
 
-            it('rewrites the URLs', () => {
-                expect(images).toStrictEqual([
-                    image('https://jlockard.com/image.png', 'remote image'),
-                    image('https://raw.githubusercontent.com/ActiveEngagement/test/123/some/path/image.png', 'local root image'),
-                    image('https://raw.githubusercontent.com/ActiveEngagement/test/123/path/to/root/some/path/image.png', 'local dotslash image'),
-                    image('https://raw.githubusercontent.com/ActiveEngagement/test/123/path/to/some/path/image.png', 'local parent image'),
-                    image('https://raw.githubusercontent.com/ActiveEngagement/test/123/path/to/root/some/path/image.png', 'local relative image')
-                ]);
-                expect(links).toStrictEqual([
-                    link('https://jlockard.com/something', 'remote link'),
-                    link('https://raw.githubusercontent.com/ActiveEngagement/test/123/some/path/file.pdf', 'local root link'),
-                    link('https://raw.githubusercontent.com/ActiveEngagement/test/123/path/to/root/some/path/file.pdf', 'local dotslash link'),
-                    link('https://raw.githubusercontent.com/ActiveEngagement/test/123/path/to/some/path/file.pdf', 'local parent link'),
-                    link('https://raw.githubusercontent.com/ActiveEngagement/test/123/path/to/root/some/path/file.pdf', 'local relative link')
-                ]);
-            });
+            describe('with uncommitted files', () => {
+                let client;
 
-            it('collects no attachments', () => {
-                expect(attachments.length).toBe(0);
+                beforeEach(async() => {
+                    client = createClient({
+                        uploadAttachmentResult: { link: 'some/link' }
+                    });
+                    images = [
+                        image('some/path/image.png', 'committed'),
+                        image('some/path/file.pdf', 'uncommitted')
+                    ];
+                    ({ attachments } = await transform('path/to/root/card.md', imageLinkAnalysis(images, []), {
+                        attachmentHandler: 'github_urls',
+                        isFileCommitted: file => file === 'path/to/root/some/path/image.png'
+                    }));
+                });
+
+                it('uses github_urls for the committed file', () => {
+                    expect(images[0]).toStrictEqual(image('https://raw.githubusercontent.com/ActiveEngagement/test/123/path/to/root/some/path/image.png', 'committed'));
+                });
+
+                it('uses upload for the committed file', () => {
+                    expect(images[1]).toStrictEqual(image('resources/path__to__root__some__path__file.pdf', 'uncommitted'));
+                });
             });
         });
 

@@ -20,6 +20,7 @@ async function build(content, options = {}) {
     options.inputs ||= {};
     options.attachmentHandler ||= 'github_urls';
     options.filePath ||= 'some/path/to.md';
+    options.isFileCommitted ||= () => true;
 
     return await buildBase(content, options);
 }

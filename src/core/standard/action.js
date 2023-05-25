@@ -17,7 +17,8 @@ export default async function(options) {
         github,
         defaultFooter,
         commitCardsFile,
-        attachmentHandler
+        attachmentHandler,
+        isFileCommitted
     } = options;
 
     // Determine the card footer.
@@ -58,7 +59,8 @@ export default async function(options) {
             github,
             inputs,
             attachmentHandler,
-            footer
+            footer,
+            isFileCommitted
         });
 
         newCardIds[card.key] = id;

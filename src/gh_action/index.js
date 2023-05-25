@@ -13,6 +13,8 @@ import version from './version.cjs';
 import isRepoPublic from './gh_repo_public.js';
 import commitCardsFile from './commit_cards_file.js';
 import * as verbosities from '../core/verbosities.js';
+import isFileCommittedBase from './is_file_committed.js';
+import getChangedFiles from './changed_files.js';
 
 /**
  * This is the main entry point for the GitHub action. It's SOLE purpose should be to set up dependencies for
@@ -72,7 +74,24 @@ async function main() {
         github.commit.sha = ghContext.sha;
 
         // Retrieve the default card footer from disk.
-        const defaultFooter = await readFile(srcUrl('resources/default_card_footer.md'));
+        const defaultFooter = readFile(srcUrl('resources/default_card_footer.md'));
+
+        const changedFiles = await getChangedFiles({ logger });
+        const isFileCommitted = async(file) => {
+            if(!await isFileCommittedBase(file, { logger })) {
+                return false;
+            }
+            if(changedFiles === null) {
+                // If getChangedFiles() couldn't get a list of changed files, we'll always use "upload".
+                return false;
+            }
+            if(changedFiles.includes(file)) {
+                logger.info(`${file} is committed to the repository, so it would normally be a candidate for GitHub URLs. However, since it has uncommitted changes, we'll process it using the "upload" strategy just in case.`);
+                return false;
+            }
+
+            return true;
+        };
 
         // Run the action with the appropriate dependencies.
         await action({
@@ -84,7 +103,8 @@ async function main() {
             defaultFooter,
             commitCardsFile,
             getChangedFiles,
-            setOutput: core.setOutput
+            setOutput: core.setOutput,
+            isFileCommitted
         });
 
         // Bid the user farewell.

@@ -51,6 +51,7 @@ async function action(options) {
         options.github.repo.isPublic = false;
     }
     options.commitCardsFile ||= () => {};
+    options.isFileCommitted ||= () => true;
 
     return await runAction(options);
 }

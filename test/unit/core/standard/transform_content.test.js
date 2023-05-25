@@ -20,6 +20,7 @@ async function transform(filePath, analysis, options = {}) {
     options.github.repo.name ||= 'ActiveEngagement/test';
     options.github.commit ||= {};
     options.github.commit.sha ||= '123';
+    options.isFileCommitted ||= () => true;
 
     return transformBase(filePath, analysis, options);
 }

@@ -4,7 +4,7 @@ import transform from '../transform_content.js';
 import rewriteAttachmentBase from '../rewrite_attachment.js';
 
 export default async function(filePath, analysis, options = {}) {
-    const { logger, api, github, attachmentHandler } = options;
+    const { logger, api, github, attachmentHandler, isFileCommitted } = options;
 
     const attachments = [];
 
@@ -33,13 +33,13 @@ export default async function(filePath, analysis, options = {}) {
 
     async function rewriteLink(url, resolved) {
         return await rewriteAttachment(url, resolved, 'link', {
-            logger, attachmentHandler, github, upload, cardFilePath: filePath
+            logger, attachmentHandler, github, upload, cardFilePath: filePath, isFileCommitted
         });
     }
 
     async function rewriteImage(url, resolved) {
         return await rewriteAttachment(url, resolved, 'link', {
-            logger, attachmentHandler, github, upload
+            logger, attachmentHandler, github, upload, isFileCommitted
         });
     }
 

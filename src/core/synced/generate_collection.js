@@ -19,7 +19,8 @@ export default async function(options) {
         inputs,
         github,
         footer,
-        attachmentHandler
+        attachmentHandler,
+        isFileCommitted
     } = options;
 
     logger.info(' ');
@@ -80,7 +81,8 @@ export default async function(options) {
         github,
         attachmentHandler,
         footer,
-        tree
+        tree,
+        isFileCommitted
     });
 
     return {
