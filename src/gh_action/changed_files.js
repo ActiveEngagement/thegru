@@ -1,4 +1,4 @@
-import exec from './exec';
+import exec from './exec.js';
 
 export default async function(options) {
     const { logger } = options;
